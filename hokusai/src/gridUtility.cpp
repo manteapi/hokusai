@@ -155,19 +155,19 @@ int GridUtility::cellId(int i, int j, int k) const
     return i + j*dimension[0] + k*dimension[0]*dimension[1];
 }
 
-void GridUtility::get8Neighbors(std::vector<int>& neighbors, const Vec3f& p, const float radius)
+void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3f& p, const float radius)
 {
     Vec3i gridCoord = worldToGrid(p);
-    get8Neighbors(neighbors, gridCoord, std::floor(radius/h) );
+    get27Neighbors(neighbors, gridCoord, std::floor(radius/h) );
 }
 
-void GridUtility::get8Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p, const float radius)
+void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p, const float radius)
 {
     Vec3i gridCoord = worldToGrid(p);
-    get8Neighbors(neighbors, gridCoord, std::floor(radius/h) );
+    get27Neighbors(neighbors, gridCoord, std::floor(radius/h) );
 }
 
-void GridUtility::get8Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius)
+void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius)
 {
     neighbors.clear();
     if(!isInside(p))
@@ -185,7 +185,7 @@ void GridUtility::get8Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, c
     }
 }
 
-void GridUtility::get8Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius)
+void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius)
 {
     neighbors.clear();
     if(!isInside(p))
@@ -201,6 +201,101 @@ void GridUtility::get8Neighbors(std::vector<int>& neighbors, const Vec3i& p, con
             }
         }
     }
+}
+
+
+void GridUtility::get7Neighbors(std::vector<int>& neighbors, const Vec3f& p) const
+{
+    Vec3i gridCoord = worldToGrid(p);
+    get7Neighbors(neighbors, gridCoord);
+}
+
+void GridUtility::get7Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p) const
+{
+    Vec3i gridCoord = worldToGrid(p);
+    get7Neighbors(neighbors, gridCoord);
+}
+
+void GridUtility::get7Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p) const
+{
+    neighbors.clear();
+    if(!isInside(p))
+        return;
+
+    Vec3i neighbor;
+
+    neighbor = p;
+    if(isInside(neighbor))
+        neighbors.push_back(neighbor);
+
+    neighbor = p + Vec3i(1,0,0);
+    if(isInside(neighbor))
+        neighbors.push_back(neighbor);
+
+    neighbor = p + Vec3i(-1,0,0);
+    if(isInside(neighbor))
+        neighbors.push_back(neighbor);
+
+    neighbor = p + Vec3i(0,1,0);
+    if(isInside(neighbor))
+        neighbors.push_back(neighbor);
+
+    neighbor = p + Vec3i(0,-1,0);
+    if(isInside(neighbor))
+        neighbors.push_back(neighbor);
+
+    neighbor = p + Vec3i(0,0,1);
+    if(isInside(neighbor))
+        neighbors.push_back(neighbor);
+
+    neighbor = p + Vec3i(0,0,-1);
+    if(isInside(neighbor))
+        neighbors.push_back(neighbor);
+}
+
+void GridUtility::get7Neighbors(std::vector<int>& neighbors, const Vec3i& p) const
+{
+    neighbors.clear();
+    if(!isInside(p))
+        return;
+
+    Vec3i neighbor;
+
+    neighbor = p;
+    if(isInside(neighbor))
+        neighbors.push_back(cellId(neighbor));
+
+    neighbor = p + Vec3i(1,0,0);
+    if(isInside(neighbor))
+        neighbors.push_back(cellId(neighbor));
+
+    neighbor = p + Vec3i(-1,0,0);
+    if(isInside(neighbor))
+        neighbors.push_back(cellId(neighbor));
+
+    neighbor = p + Vec3i(0,1,0);
+    if(isInside(neighbor))
+        neighbors.push_back(cellId(neighbor));
+
+    neighbor = p + Vec3i(0,-1,0);
+    if(isInside(neighbor))
+        neighbors.push_back(cellId(neighbor));
+
+    neighbor = p + Vec3i(0,0,1);
+    if(isInside(neighbor))
+        neighbors.push_back(cellId(neighbor));
+
+    neighbor = p + Vec3i(0,0,-1);
+    if(isInside(neighbor))
+        neighbors.push_back(cellId(neighbor));
+}
+
+Vec3i GridUtility::gridCoord(int i)
+{
+    Vec3i coord;
+    coord[2] = i/(dimension[0]*dimension[1]);
+    coord[1] = (i - coord[2]*dimension[0]*dimension[1])/dimension[0];
+    coord[0] = (i - coord[1]*dimension[0] - coord[2]*dimension[0]*dimension[1]);
 }
 
 void GridUtility::info()

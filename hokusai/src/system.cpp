@@ -459,7 +459,7 @@ void System::getNearestNeighbor(const int i, const float radius)
     p.boundaryNeighbor.clear();
 
     std::vector<int> neighborCell;
-    gridInfo.get8Neighbors(neighborCell, p.x, radius);
+    gridInfo.get27Neighbors(neighborCell, p.x, radius);
 
     for(size_t i=0; i<neighborCell.size(); ++i)
     {
@@ -488,7 +488,7 @@ void System::getNearestNeighbor(const int i, const float radius)
 void System::getNearestNeighbor(vector< int >& neighbor, const vector< vector<int> >& grid, const Vec &x)
 {
     std::vector<int> neighborCell;
-    gridInfo.get8Neighbors(neighborCell, x, gridInfo.spacing());
+    gridInfo.get27Neighbors(neighborCell, x, gridInfo.spacing());
     neighbor.clear();
     for(size_t i=0; i<neighborCell.size(); ++i)
     {

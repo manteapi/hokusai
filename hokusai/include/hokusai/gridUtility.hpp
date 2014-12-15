@@ -19,11 +19,18 @@ class GridUtility
         float h;
         Vec3i dimension;
 
-        void get8Neighbors(std::vector<int>& neighbors, const Vec3f& p, const float radius);
-        void get8Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p, const float radius);
+        void get27Neighbors(std::vector<int>& neighbors, const Vec3f& p, const float radius);
+        void get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p, const float radius);
 
-        void get8Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius);
-        void get8Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius);
+        void get27Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius);
+        void get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius);
+
+
+        void get7Neighbors(std::vector<int>& neighbors, const Vec3f& p) const;
+        void get7Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p) const;
+
+        void get7Neighbors(std::vector<int>& neighbors, const Vec3i& p) const;
+        void get7Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p) const;
 
         bool isInside(int id) const;
         bool isInside(int i, int j, int k) const;
@@ -48,7 +55,7 @@ class GridUtility
 
         void init(const Vec3f& _offset, const Vec3f& _scale, const float& _spacing);
         void init(const Vec3f& _offset, const Vec3i& _scale, const float& _spacing);
-
+        Vec3i gridCoord(int i);
         void info();
 };
 
