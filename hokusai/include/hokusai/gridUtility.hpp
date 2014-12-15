@@ -3,7 +3,7 @@
 
 #include "Vec.hpp"
 
-typedef Vec3<float> Vec3f;
+typedef Vec3<double> Vec3f;
 typedef Vec3<int> Vec3i;
 
 class GridUtility
@@ -19,15 +19,37 @@ class GridUtility
         float h;
         Vec3i dimension;
 
-        Vec3f gridToWorld(const Vec3i& v);
-        Vec3i worldToGrid(const Vec3f& v);
-        int cellId(const Vec3f& v);
-        int cellId(const Vec3i& v);
-        int cellId(int i, int j, int k);
-        int width();
-        int height();
-        int depth();
-        float spacing();
+        void get8Neighbors(std::vector<int>& neighbors, const Vec3f& p, const float radius);
+        void get8Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p, const float radius);
+
+        void get8Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius);
+        void get8Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius);
+
+        bool isInside(int id) const;
+        bool isInside(int i, int j, int k) const;
+        bool isInside(const Vec3i& v) const;
+        bool isInside(const Vec3f& v) const;
+
+        Vec3f gridToWorld(const Vec3i& v) const;
+        Vec3i worldToGrid(const Vec3f& v) const;
+
+        int cellId(const Vec3f& v) const;
+        int cellId(const Vec3i& v) const;
+        int cellId(int i, int j, int k) const;
+
+        int width() const;
+        int height() const;
+        int depth() const;
+        int size() const;
+        float spacing() const;
+
+        void update(const Vec3f& _offset, const Vec3i& _scale, const float& _spacing);
+        void update(const Vec3f& _offset, const Vec3f& _scale, const float& _spacing);
+
+        void init(const Vec3f& _offset, const Vec3f& _scale, const float& _spacing);
+        void init(const Vec3f& _offset, const Vec3i& _scale, const float& _spacing);
+
+        void info();
 };
 
 #endif

@@ -19,7 +19,6 @@ System::System()
     particleNumber = 0;
     boundaryNumber = 0;
 
-    gridChange = 0.0;
     volume = 0.0;
     restDensity = 0.0;
     mean_density = 0.0;
@@ -34,23 +33,18 @@ System::System()
     boundaryH = 0.0;
     dt = 0.0;
     time = 0.0;
-    scene_radius = 0.0;
     rho_avg_l = 0.0;
     maxEta = 1.0;
 
-    scene_center = Vec(0.0);
     gravity = Vec(0,-9.81,0);
-    minBoundary = Vec(0,0,0);
-    maxBoundary = Vec(0,0,0);
 
     a_kernel = AkinciKernel();
     p_kernel = MonaghanKernel();
     b_kernel = BoundaryKernel();
 
+    gridInfo = GridUtility();
     particles = vector<Particle>();
     boundaries = vector<Boundary>();
-    grid = Grid3D();
-    visuBox = Box();
 }
 
 System::System(int resolution)
@@ -60,7 +54,6 @@ System::System(int resolution)
     particleNumber = 0;
     boundaryNumber = 0;
 
-    gridChange = 0.0;
     volume = 0.0;
     restDensity = 0.0;
     mean_density = 0.0;
@@ -75,23 +68,18 @@ System::System(int resolution)
     boundaryH = 0.0;
     dt = 0.0;
     time = 0.0;
-    scene_radius = 0.0;
     rho_avg_l = 0.0;
     maxEta = 1.0;
 
-    scene_center = Vec(0.0);
     gravity = Vec(0,-9.81,0);
-    minBoundary = Vec(0,0,0);
-    maxBoundary = Vec(0,0,0);
 
     a_kernel = AkinciKernel();
     p_kernel = MonaghanKernel();
     b_kernel = BoundaryKernel();
 
+    gridInfo = GridUtility();
     particles = vector<Particle>();
     boundaries = vector<Boundary>();
-    grid = Grid3D();
-    visuBox = Box();
 
     setParameters(resolution, 1.0);
 }
@@ -178,7 +166,6 @@ void System::computeAdvectionForces(int i)
         computeBoundaryFrictionForces(i, j);
         computeBoundaryAdhesionForces(i, j);
     }
-    //pi.f_adv[1]+=-9.81*mass;
     pi.f_adv+=gravity*mass;
 }
 
@@ -465,12 +452,60 @@ void System::computeAii( int i)
     }
 }
 
+void System::getNearestNeighbor(const int i, const float radius)
+{
+    Particle& p = particles[i];
+    p.fluidNeighbor.clear();
+    p.boundaryNeighbor.clear();
+
+    std::vector<int> neighborCell;
+    gridInfo.get8Neighbors(neighborCell, p.x, radius);
+
+    for(size_t i=0; i<neighborCell.size(); ++i)
+    {
+        std::vector<int>& bNeighborCell = boundaryGrid[neighborCell[i]];
+        for(size_t j=0; j<bNeighborCell.size(); ++j)
+        {
+            int bParticleId = boundaryGrid[neighborCell[i]][j];
+            Boundary& bParticle = boundaries[bParticleId];
+            Vec d = bParticle.x-p.x;
+            if( d.lengthSquared()<radius*radius )
+                p.boundaryNeighbor.push_back(bParticleId);
+        }
+
+        std::vector<int>& fNeighborCell = fluidGrid[neighborCell[i]];
+        for(size_t j=0; j< fNeighborCell.size(); ++j)
+        {
+            int fParticleId = fluidGrid[neighborCell[i]][j];
+            Particle& fParticle = particles[fParticleId];
+            Vec d = fParticle.x-p.x;
+            if( d.lengthSquared()<radius*radius)
+                p.fluidNeighbor.push_back(fParticleId);
+        }
+    }
+}
+
+void System::getNearestNeighbor(vector< int >& neighbor, const vector< vector<int> >& grid, const Vec &x)
+{
+    std::vector<int> neighborCell;
+    gridInfo.get8Neighbors(neighborCell, x, gridInfo.spacing());
+    neighbor.clear();
+    for(size_t i=0; i<neighborCell.size(); ++i)
+    {
+        for(size_t j=0; j<grid[neighborCell[i]].size(); ++j)
+        {
+            neighbor.push_back(grid[neighborCell[i]][j]);
+        }
+    }
+}
+
 void System::computeBoundaryVolume()
 {
     for(int i=0; i<boundaryNumber; ++i)
     {
         double densityNumber=0.0;
-        vector<int> neighbors = grid.getNearestBoundaryNeighbor(boundaries[i].x);
+        vector<int> neighbors;
+        getNearestNeighbor(neighbors, boundaryGrid, boundaries[i].x);
         for(int& j : neighbors)
             densityNumber += p_kernel.monaghanValue(boundaries[i].x-boundaries[j].x);
         boundaries[i].psi = restDensity/densityNumber;
@@ -534,7 +569,6 @@ void System::setParameters( int _wishedNumber, double _volume )
     alpha = 0.1;
     fcohesion = 0.05;
     badhesion = 0.001;
-    grid.cellSize = 2.0*h;
     boundaryH = h/2.0; //boundaryH must be <= h (neighbor search purpose)
 
     dt = 0.004;
@@ -545,16 +579,24 @@ void System::setParameters( int _wishedNumber, double _volume )
 }
 
 void System::init()
-{
-    //Init grid
-    grid.minCorner = minBoundary - 20*h;
-    grid.maxCorner = maxBoundary + 20*h;
-    grid.init();
-    for( int i = 0; i < boundaryNumber; ++i )
-        grid.addBoundary(i, boundaries[i].x);
-    for(int i = 0; i < particleNumber; ++i)
-        grid.addFluid(i, particles[i]);
+{  
     mortonSort();
+
+    boundaryGrid.resize(gridInfo.size());
+    for(size_t i=0; i<boundaries.size(); ++i)
+    {
+        int id = gridInfo.cellId(boundaries[i].x);
+        if(gridInfo.isInside(id))
+            boundaryGrid[id].push_back(i);
+    }
+
+    fluidGrid.resize(gridInfo.size());
+    for(size_t i=0; i<particles.size(); ++i)
+    {
+        int id = gridInfo.cellId(particles[i].x);
+        if(gridInfo.isInside(id))
+            fluidGrid[id].push_back(i);
+    }
 
     //Init simulation values
     computeBoundaryVolume();
@@ -574,80 +616,22 @@ void System::init()
     for(int i=0; i<particleNumber; ++i)
         computeAii(i);
 
-    computeSceneParam();
     debugFluid();
 }
 
-void System::createDamBreak(const Vec& offset, const Vec& dimension, const int pNumber)
-{
-    double volume = dimension[0]*dimension[1]*dimension[2];
-    setParameters(pNumber, volume);
-    Vec minOffset = offset;
-    addParticleBox(minOffset, dimension);
-
-    Vec minB(std::numeric_limits<double>::max()), maxB(-std::numeric_limits<double>::max());
-    for(int i=0; i<particleNumber; ++i)
-    {
-        if(particles[i].x[0]<minB[0]){minB[0]=particles[i].x[0];}
-        if(particles[i].x[1]<minB[1]){minB[1]=particles[i].x[1];}
-        if(particles[i].x[2]<minB[2]){minB[2]=particles[i].x[2];}
-        if(particles[i].x[0]>maxB[0]){maxB[0]=particles[i].x[0];}
-        if(particles[i].x[1]>maxB[1]){maxB[1]=particles[i].x[1];}
-        if(particles[i].x[2]>maxB[2]){maxB[2]=particles[i].x[2];}
-    }
-    minB -= Vec(1.1*h);
-    maxB += Vec(1.1*h);
-    addBoundaryBox(minB, maxB, h);
-    visuBox = Box(minB, maxB);
-
-    //Neighbor Grid
-    grid.minCorner = Vec( minB[0] - 20*h, minB[1] - 20*h, minB[2] - 20*h);
-    grid.maxCorner = Vec( maxB[0] + 20*h, maxB[1] + 20*h, maxB[2] + 20*h);
-    grid.init();
-    for( int i = 0; i < boundaryNumber; ++i )
-        grid.addBoundary(i, boundaries[i].x);
-    for(int i = 0; i < particleNumber; ++i)
-        grid.addFluid(i, particles[i]);
-    mortonSort();
-
-    //init
-    computeBoundaryVolume();
-
-    prepareGrid(); 
-
-    for(int i=0; i<particleNumber; ++i)
-    {
-        computeRho(i);
-        particles[i].rho = restDensity;
-    }
-
-    for(int i=0; i<particleNumber; ++i)
-    {
-        computeDii(i);
-        //computeDii_Fluid(i);
-        //computeDii_Boundary(i);
-    }
-
-    for(int i=0; i<particleNumber; ++i)
-        computeAii(i);
-
-    computeSceneParam();
-    debugFluid();
-}
-
-void System::addBoundaryBox(const Vec& offset, const Vec& dimension)
+void System::addBoundaryBox(const Vec& offset, const Vec& scale)
 {
     int epsilon = 0;
-    int widthSize = floor(dimension[0]/h);
-    int heightSize = floor(dimension[1]/h);
-    int depthSize = floor(dimension[2]/h);
+    int widthSize = floor(scale[0]/h);
+    int heightSize = floor(scale[1]/h);
+    int depthSize = floor(scale[2]/h);
 
     //ZX plane - bottom
     for(int i = -epsilon; i <= widthSize+epsilon; ++i)
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            Vec position(i*h, 0, j*h);
+            Vec position(i*h, offset[1], j*h);
             boundaries.push_back(Boundary(position,Vec(0.0),0.0));
             boundaryNumber++;
         }
@@ -658,7 +642,7 @@ void System::addBoundaryBox(const Vec& offset, const Vec& dimension)
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            Vec position(i*h, dimension[1], j*h);
+            Vec position(i*h, offset[1]+scale[1], j*h);
             boundaries.push_back(Boundary(position,Vec(0.0),0.0));
             boundaryNumber++;
         }
@@ -669,7 +653,7 @@ void System::addBoundaryBox(const Vec& offset, const Vec& dimension)
     {
         for(int j = -epsilon; j <= heightSize+epsilon; ++j)
         {
-            Vec position(i*h, j*h, 0);
+            Vec position(i*h, j*h, offset[2]);
             boundaries.push_back(Boundary(position,Vec(0.0),0.0));
             boundaryNumber++;
         }
@@ -680,7 +664,7 @@ void System::addBoundaryBox(const Vec& offset, const Vec& dimension)
     {
         for(int j = -epsilon; j <= heightSize-epsilon; ++j)
         {
-            Vec position(i*h, j*h, dimension[2]);
+            Vec position(i*h, j*h, offset[2]+scale[2]);
             boundaries.push_back(Boundary(position,Vec(0.0),0.0));
             boundaryNumber++;
         }
@@ -691,7 +675,7 @@ void System::addBoundaryBox(const Vec& offset, const Vec& dimension)
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            Vec position(0, i*h, j*h);
+            Vec position(offset[0], i*h, j*h);
             boundaries.push_back(Boundary(position,Vec(0.0),0.0));
             boundaryNumber++;
         }
@@ -702,80 +686,15 @@ void System::addBoundaryBox(const Vec& offset, const Vec& dimension)
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            Vec position(dimension[0], i*h, j*h);
+            Vec position(offset[0]+scale[0], i*h, j*h);
             boundaries.push_back(Boundary(position,Vec(0.0),0.0));
             boundaryNumber++;
         }
     }
     translateBoundaries(offset);
-    minBoundary = offset;
-    maxBoundary = offset + dimension;
+
+    gridInfo.update(offset-Vec(2.0*h), scale+Vec(4.0*h), 2.0*h);
 }
-
-void System::createDamBreak()
-{
-    int wishedNumber = 1000;
-    setParameters(wishedNumber, 1.50);
-
-    p_kernel = MonaghanKernel( h );
-    a_kernel = AkinciKernel( 2.0*h );
-    b_kernel = BoundaryKernel( boundaryH, cs );
-
-    Vec minOff(1.2*h,1.2*h,1.2*h);
-    double size = pow(volume,1.0/3.0);
-    createParticleVolume(minOff, 0.6*size, 1.0*size, 2.0*size, h, wishedNumber);
-
-    Vec min(1000), max(0.0);
-    for(int i=0; i<particleNumber; ++i)
-    {
-        if(particles[i].x[0]<min[0]){min[0]=particles[i].x[0];}
-        if(particles[i].x[1]<min[1]){min[1]=particles[i].x[1];}
-        if(particles[i].x[2]<min[2]){min[2]=particles[i].x[2];}
-        if(particles[i].x[0]>max[0]){max[0]=particles[i].x[0];}
-        if(particles[i].x[1]>max[1]){max[1]=particles[i].x[1];}
-        if(particles[i].x[2]>max[2]){max[2]=particles[i].x[2];}
-    }
-
-    Vec minB = Vec(0,0,0);
-    Vec maxB = Vec(2.0,2.0,2.35);
-    addBoundaryBox(minB, maxB, h);
-    visuBox = Box(minB, maxB);
-
-    //Neighbor Grid
-    grid.minCorner = Vec( minB[0] - 20*h, minB[1] - 20*h, minB[2] - 20*h);
-    grid.maxCorner = Vec( maxB[0] + 20*h, maxB[1] + 20*h, maxB[2] + 20*h);
-    grid.init();
-    for( int i = 0; i < boundaryNumber; ++i )
-        grid.addBoundary(i, boundaries[i].x);
-    for(int i = 0; i < particleNumber; ++i)
-        grid.addFluid(i, particles[i]);
-    mortonSort();
-
-    //init
-    computeBoundaryVolume();
-
-    prepareGrid(); 
-
-    for(int i=0; i<particleNumber; ++i)
-    {
-        computeRho(i);
-        particles[i].rho = restDensity;
-    }
-
-    for(int i=0; i<particleNumber; ++i)
-    {
-        computeDii(i);
-        //computeDii_Fluid(i);
-        //computeDii_Boundary(i);
-    }
-
-    for(int i=0; i<particleNumber; ++i)
-        computeAii(i);
-
-    computeSceneParam();
-    debugFluid();
-}
-
 
 void System::translateBoundaries(const Vec& t)
 {
@@ -797,11 +716,11 @@ void System::addParticleMesh(const std::string& filename)
 {
 }
 
-void System::addParticleBox(const Vec& offset, const Vec& dimension)
+void System::addParticleBox(const Vec& offset, const Vec& scale)
 {
-    int widthSize = floor(dimension[0]/h);
-    int heightSize = floor(dimension[1]/h);
-    int depthSize = floor(dimension[2]/h);
+    int widthSize = floor(scale[0]/h);
+    int heightSize = floor(scale[1]/h);
+    int depthSize = floor(scale[2]/h);
 
     for(int i=0; i<widthSize; ++i)
     {
@@ -953,7 +872,10 @@ void System::mortonSort()
     //Fill particleZindex with particle index and Z-index
     for(int i = 0; i < particleNumber; ++i)
     {
-        array<int,3> gridIndex = grid.getGridCoordinate( particles[i].x ); 
+        Vec3i _gridIndex = gridInfo.worldToGrid(particles[i].x);
+        array<int,3> gridIndex;
+        for(int j=0; j<3; ++j)
+            gridIndex[j] = _gridIndex[j];
         int zindex = mortonNumber( gridIndex );
         std::pair<int,int> paire(i, zindex);
         particleZindex.push_back(paire);
@@ -987,13 +909,19 @@ void System::prepareGrid()
     if( countTime%100 == 0 )
         mortonSort();
 
-    grid.clearFluid();
-    for(int i = 0; i < particleNumber; ++i)
-        grid.addFluid(i, particles[i]);
+    for(size_t i=0; i<fluidGrid.size(); ++i)
+        fluidGrid[i].clear();
+
+    for(size_t i=0; i<particles.size(); ++i)
+    {
+        int id = gridInfo.cellId(particles[i].x);
+        if(gridInfo.isInside(id))
+            fluidGrid[id].push_back(i);
+    }
 
 #pragma omp parallel for
     for(int i = 0; i < particleNumber; ++i)
-        grid.getNearestNeighbor(i, particles, boundaries, 4.0*h*h);
+        getNearestNeighbor(i, 2.0*h);
 }
 
 void System::predictAdvection()
@@ -1012,8 +940,6 @@ void System::predictAdvection()
         computeAdvectionForces(i);
         predictVelocity(i);
         computeDii(i);
-        //computeDii_Fluid(i);
-        //computeDii_Boundary(i);
     }
 
 #pragma omp parallel for
@@ -1076,37 +1002,6 @@ void System::simulate()
     computeStats();
 }
 
-//###################################################
-//				System : Drawing function
-//###################################################
-void System::computeSceneParam()
-{
-
-    //Compute center
-    scene_center = Vec(0,0,0);
-    for(int i = 0; i < particleNumber; ++i)
-    {
-        scene_center += particles[i].x;
-    }
-    scene_center /= (double)particleNumber;
-
-    //Compute radius
-    scene_radius = 0.0f;
-    Vec c;
-    for(int i = 0; i < particleNumber; ++i)
-    {
-        c = particles[i].x-scene_center;
-        double r = c.length();
-        scene_radius = r>scene_radius ? r : scene_radius;
-    }
-
-    if(particleNumber < 10)
-    {
-        scene_center= Vec(0,0,0);
-        scene_radius = 5;
-    }
-}
-
 void System::computeStats()
 {
     computeMeanDensity();
@@ -1132,74 +1027,8 @@ void System::debugFluid()
     std::cout << "Timestep : " << dt << std::endl;
 
     std::cout << std::endl;
-    std::cout << "Cell Number : " << grid.cells.size() << std::endl;
-    std::cout << "Size : " << grid.wNumber<< " x " << grid.hNumber<< " x " << grid.dNumber<< std::endl;
-    std::cout << "Min : " << grid.minCorner[0] << ", " << grid.minCorner[1] << ", " << grid.minCorner[2] << std::endl;
-    std::cout << "Max : " << grid.maxCorner[0] << ", " << grid.maxCorner[1] << ", " << grid.maxCorner[2] << std::endl;
+    gridInfo.info();
 }
-
-/*
-   void System::draw()
-   {
-//Draw grid
-//grid.draw();
-glDisable(GL_LIGHTING);
-GLfloat black[] = {0.0f, 0.0f, 0.0f, 1.0f};
-glMaterialfv(GL_FRONT, GL_DIFFUSE, black);
-visuBox.draw();
-glEnable(GL_LIGHTING);
-
-//Draw fluid particle
-//double radius = pow( 3.0*volume/(4*M_PI*particleNumber), 1.0/3.0 );
-double radius = 0.5*h;
-SolidSphere s(radius, 20,20);
-
-//glDisable(GL_COLOR_MATERIAL);
-
-//glColor3f(c[i][0], c[i][1], c[i][2]);
-//GLfloat mat_diffuse[] = { 0.0f, 0.0f, 1.0f, 1.0f  };
-
-GLfloat mat_ambient[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-GLfloat shininess[] = { 20.0f };
-//GLfloat mat_emission[] =  { 0.3f, 0.2f, 0.2f, 0.0f };
-GLfloat white[] = {1.0f, 1.0f, 1.0f, 1.0f};
-glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
-//glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
-//glColor4f(0.0,0.0,1.0,1.0);
-
-//glPointSize(5.0);
-//glBegin(GL_POINTS);
-for(int i = 0; i < particleNumber; ++i)
-{
-Particle& pi = particles[i];
-
-GLfloat mat_diffuse[] = { pi.c[0], pi.c[1], pi.c[2], 1.0f  };
-glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-//glVertex3f(pi.x[0], pi.x[1], pi.x[2]);
-s.draw(pi.x[0], pi.x[1], pi.x[2]);
-}
-//glEnd();
-
-//Draw boundary particles
-//glColor4f(0.0,0.0,0.0,0.1f);
-//glPointSize(0.1);
-//GLfloat boundary_ambient[] = { 1.0f, 1.0f, 0.0f, 0.0f };
-//GLfloat boundary_specular[] = { 1.0f, 1.0f, 1.0f, 0.0f };
-//glMaterialfv(GL_FRONT, GL_AMBIENT, boundary_ambient);
-//glMaterialfv(GL_FRONT, GL_SPECULAR, boundary_specular);
-//for(int i = 0; i < boundaryNumber; ++i)
-//{
-//    //glVertex3f(boundaries[i].x[0], boundaries[i].x[1], boundaries[i].x[2]);
-//    Boundary bi=boundaries[i];
-//    s.draw(bi.x[0], bi.x[1], bi.x[2]);
-//}
-//glEnd();
-
-glMaterialfv(GL_FRONT, GL_DIFFUSE, black);
-}
-*/
 
 void System::write(const char * filename, vector<Vec3<double> > data)
 {

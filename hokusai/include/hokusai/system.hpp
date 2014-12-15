@@ -4,17 +4,16 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
-//#include <GL/gl.h>
 
 #include "Vec.hpp"
 #include "utils.hpp"
-#include "grid3D.hpp"
 #include "particle.hpp"
+#include "gridUtility.hpp"
 
+typedef Vec3<double> Vec;
 
 class System
 {
-    typedef Vec3<double> Vec;
 
     public:
 
@@ -28,7 +27,6 @@ class System
     int particleNumber;
     int boundaryNumber;
 
-    double gridChange;
     double volume;
     double restDensity;
     double mean_density;
@@ -43,11 +41,9 @@ class System
     double boundaryH;
     double dt;
     double time;
-    double scene_radius;
     double rho_avg_l;
     double maxEta;
 
-    Vec scene_center;
     Vec gravity;
 
     AkinciKernel a_kernel;
@@ -57,12 +53,13 @@ class System
     vector<Particle> particles;
     vector<Boundary> boundaries;
 
-    Vec minBoundary, maxBoundary;
-    Grid3D grid;
-    Box visuBox;
-
+    GridUtility gridInfo;
+    vector< vector<int> > boundaryGrid;
+    vector< vector<int> > fluidGrid;
 
     public :
+    void getNearestNeighbor(vector< int >& neighbors, const vector<vector<int> > &grid, const Vec& x);
+    void getNearestNeighbor(const int i, const float radius);
 
     //Simulation Loop
     void prepareGrid();
@@ -96,9 +93,6 @@ class System
     const Vec& getGravity();
     void setGravity(const Vec& _gravity);
     void setParameters(int _number, double _volume=1.0);
-    void createDamBreak(int _particleNumber);
-    void createDamBreak(const Vec & offset, const Vec & dimension, const int pNumber);
-    void createDamBreak();
     void createParticleVolume(Vec& pos, double width, double height, double depth, double spacing, int particleMax);
 
     void translateParticles(const Vec& t);
@@ -107,17 +101,14 @@ class System
     void addParticleMesh(const std::string& filename);
     void addParticleBox(double width, double height, double depth, double spacing);
     void addParticleBox(const Vec& offset, const Vec& dimension);
+    void addParticleSphere(const Vec& offset, const double radius);
     void addBoundaryBox(const Vec& min, const Vec& max, const double spacing);
-    void addBoundaryBox(const Vec& min, const Vec& max);
+    void addBoundaryBox(const Vec& min, const Vec& scale);
 
     void debugFluid();
     void debugIteration(int l);
     void mortonSort();
     void init();
-
-    //Render
-    //void draw();
-    void computeSceneParam();
 
     //Data
     void computeBoundaryVolume();
@@ -145,7 +136,6 @@ class System
     double & getMeanDensityValue(){ return mean_density;}
     double & getDensityFluctuationValue(){ return density_fluctuation;}
     double & getRealVolumeValue(){ return real_volume; }
-    double & getCellChangeValue(){ return gridChange; }
     int & getParticleNumber(){ return particleNumber; }
 
     void applyShepardFilter();
