@@ -12,10 +12,20 @@ How to compile library and examples
     cmake ..
     make
 
-TODO
------
+To do...soon...
+---------------
 
-1. Handle arbitrary boundaries
-2. Output vector field image
-3. Tweak parameters
-4. Smoke simulation
+1. Add more easy primitive shape for boundary and fluid 
+--1.cube
+--3.sphere
+--3.cylinder
+--4.cone
+--5.tetrahedra
+--6.capsule
+--7.torus
+--8.tube
+
+2. Handle arbitrary boundaries
+3. Output vector field image
+4. Parameters preset
+5. Smoke simulation
