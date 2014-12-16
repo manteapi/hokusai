@@ -19,17 +19,20 @@ set(
     HOKUSAI 
     )
 
+add_executable(cube examples/cube.cpp)
+target_link_libraries(cube ${ALL_LIBS})
+
 add_executable(damBreak examples/damBreak.cpp)
 target_link_libraries(damBreak ${ALL_LIBS})
 
-add_executable(cube examples/cube.cpp)
-target_link_libraries(cube ${ALL_LIBS})
+add_executable(sphere examples/sphere.cpp)
+target_link_libraries(sphere ${ALL_LIBS})
+
+add_executable(monkey examples/monkey.cpp)
+target_link_libraries(monkey ${ALL_LIBS})
 
 add_executable(takanaga examples/takanaga.cpp)
 target_link_libraries(takanaga ${ALL_LIBS})
 
 add_executable(zeroGravity examples/zeroGravity.cpp)
 target_link_libraries(zeroGravity ${ALL_LIBS})
-
-add_executable(monkey examples/monkey.cpp)
-target_link_libraries(monkey ${ALL_LIBS})

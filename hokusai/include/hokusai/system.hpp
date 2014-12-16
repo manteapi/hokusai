@@ -101,7 +101,7 @@ class System
     void addParticleMesh(const std::string& filename);
     void addParticleBox(double width, double height, double depth, double spacing);
     void addParticleBox(const Vec& offset, const Vec& dimension);
-    void addParticleSphere(const Vec& offset, const double radius);
+    void addParticleSphere(const Vec& centre, const double radius);
     void addBoundaryBox(const Vec& min, const Vec& max, const double spacing);
     void addBoundaryBox(const Vec& min, const Vec& scale);
 

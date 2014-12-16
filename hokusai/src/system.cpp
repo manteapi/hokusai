@@ -716,6 +716,26 @@ void System::addParticleMesh(const std::string& filename)
 {
 }
 
+void System::addParticleSphere(const Vec& centre, const double radius)
+{
+    Vec scale(2.0*radius, 2.0*radius, 2.0*radius);
+    Vec offset = centre - Vec(radius, radius, radius);
+    GridUtility grid(offset, scale, h);
+
+    for(int i=0; i<grid.size(); ++i)
+    {
+        Vec _x = grid.gridToWorld(i);
+        _x+=grid.spacing()/2.0;
+        Vec _v(0,0,0);
+        double l2 = (centre-_x).lengthSquared();
+        if(l2<=(radius*radius))
+        {
+            particles.push_back( Particle(_x,_v) );
+            particleNumber++;
+        }
+    }
+}
+
 void System::addParticleBox(const Vec& offset, const Vec& scale)
 {
     int widthSize = floor(scale[0]/h);

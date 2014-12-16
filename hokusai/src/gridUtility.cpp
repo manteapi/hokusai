@@ -125,6 +125,13 @@ bool GridUtility::isInside(const Vec3i& v) const
         return false;
 }
 
+Vec3f GridUtility::gridToWorld(const int i) const
+{
+    Vec3i gCoord = gridCoord(i);
+    Vec3f wCoord = gridToWorld(gCoord);
+    return wCoord;
+}
+
 Vec3f GridUtility::gridToWorld(const Vec3i& v) const
 {
     Vec3f result;
@@ -290,12 +297,13 @@ void GridUtility::get7Neighbors(std::vector<int>& neighbors, const Vec3i& p) con
         neighbors.push_back(cellId(neighbor));
 }
 
-Vec3i GridUtility::gridCoord(int i)
+Vec3i GridUtility::gridCoord(int i) const
 {
     Vec3i coord;
     coord[2] = i/(dimension[0]*dimension[1]);
     coord[1] = (i - coord[2]*dimension[0]*dimension[1])/dimension[0];
     coord[0] = (i - coord[1]*dimension[0] - coord[2]*dimension[0]*dimension[1]);
+    return coord;
 }
 
 void GridUtility::info()

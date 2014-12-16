@@ -38,6 +38,8 @@ class GridUtility
         bool isInside(const Vec3f& v) const;
 
         Vec3f gridToWorld(const Vec3i& v) const;
+        Vec3f gridToWorld(const int i) const;
+
         Vec3i worldToGrid(const Vec3f& v) const;
 
         int cellId(const Vec3f& v) const;
@@ -55,7 +57,7 @@ class GridUtility
 
         void init(const Vec3f& _offset, const Vec3f& _scale, const float& _spacing);
         void init(const Vec3f& _offset, const Vec3i& _scale, const float& _spacing);
-        Vec3i gridCoord(int i);
+        Vec3i gridCoord(int i) const;
         void info();
 };
 
