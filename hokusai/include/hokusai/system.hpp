@@ -1,5 +1,5 @@
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef HOKUSAI_SYSTEM_HPP
+#define HOKUSAI_SYSTEM_HPP
 
 #include <iostream>
 #include <fstream>
@@ -9,19 +9,24 @@
 #include "utils.hpp"
 #include "particle.hpp"
 #include "gridUtility.hpp"
+#include "triMesh.hpp"
+#include "sampler.hpp"
+
+
+namespace hokusai
+{
 
 typedef Vec3<double> Vec;
-
 class System
 {
 
-    public:
+public:
 
     System();
     System(int resolution);
     ~System();
 
-    public : 
+public :
     int countTime;
     int countExport;
     int particleNumber;
@@ -57,7 +62,7 @@ class System
     vector< vector<int> > boundaryGrid;
     vector< vector<int> > fluidGrid;
 
-    public :
+public :
     void getNearestNeighbor(vector< int >& neighbors, const vector<vector<int> > &grid, const Vec& x);
     void getNearestNeighbor(const int i, const float radius);
 
@@ -98,10 +103,11 @@ class System
     void translateParticles(const Vec& t);
     void translateBoundaries(const Vec& t);
 
-    void addParticleMesh(const std::string& filename);
     void addParticleBox(double width, double height, double depth, double spacing);
     void addParticleBox(const Vec& offset, const Vec& dimension);
     void addParticleSphere(const Vec& centre, const double radius);
+
+    void addBoundaryMesh(const char* filename);
     void addBoundaryBox(const Vec& min, const Vec& max, const double spacing);
     void addBoundaryBox(const Vec& min, const Vec& scale);
 
@@ -142,5 +148,6 @@ class System
 };
 
 bool pairCompare( const std::pair<int,int>& e1, const std::pair<int,int>& e2 );
+}
 
 #endif // SYSTEM_H

@@ -8,6 +8,8 @@
 #include <fstream>
 #include <sstream>
 
+namespace hokusai
+{
 //-----------------------------------------------------
 //         System : creation and simulation functions
 //-----------------------------------------------------
@@ -600,7 +602,7 @@ void System::init()
 
     //Init simulation values
     computeBoundaryVolume();
-    prepareGrid(); 
+    prepareGrid();
 
     for(int i=0; i<particleNumber; ++i)
     {
@@ -712,10 +714,6 @@ void System::translateParticles(const Vec& t)
     }
 }
 
-void System::addParticleMesh(const std::string& filename)
-{
-}
-
 void System::addParticleSphere(const Vec& centre, const double radius)
 {
     Vec scale(2.0*radius, 2.0*radius, 2.0*radius);
@@ -748,10 +746,10 @@ void System::addParticleBox(const Vec& offset, const Vec& scale)
         {
             for(int k=0; k<depthSize; ++k)
             {
-                    Vec _x(i*h,j*h,k*h);
-                    Vec _v(0,0,0);
-                    particles.push_back( Particle(_x,_v) );
-                    particleNumber++;
+                Vec _x(i*h,j*h,k*h);
+                Vec _v(0,0,0);
+                particles.push_back( Particle(_x,_v) );
+                particleNumber++;
             }
         }
     }
@@ -770,10 +768,10 @@ void System::addParticleBox(double width, double height, double depth, double sp
         {
             for(int k=0; k<depthSize; ++k)
             {
-                    Vec _x(i*spacing,j*spacing,k*spacing);
-                    Vec _v(0,0,0);
-                    particles.push_back( Particle(_x,_v) );
-                    particleNumber++;
+                Vec _x(i*spacing,j*spacing,k*spacing);
+                Vec _v(0,0,0);
+                particles.push_back( Particle(_x,_v) );
+                particleNumber++;
             }
         }
     }
@@ -804,6 +802,27 @@ void System::createParticleVolume(Vec& pos, double width, double /*height*/, dou
         }
         j++;
     }
+}
+
+void System::addBoundaryMesh(const char* filename)
+{
+    TriMesh mesh(filename);
+    std::vector<Vec3f> samples;
+    AkinciMeshSampling(mesh, h/2.0, samples);
+    Vec3f minBB(std::numeric_limits<double>::max()), maxBB(-std::numeric_limits<double>::max());
+    for(size_t i=0; i<samples.size(); ++i)
+    {
+        for(int j=0; j<3; ++j)
+        {
+            minBB[j] = std::min(samples[i][j], minBB[j]);
+            maxBB[j] = std::max(samples[i][j], maxBB[j]);
+        }
+        boundaries.push_back(Boundary(samples[i],Vec(0.0),0.0));
+        boundaryNumber++;
+    }
+    Vec3f offset = minBB;
+    Vec3f scale = maxBB-minBB;
+    gridInfo.update(offset-Vec(2.0*h), scale+Vec(4.0*h), 2.0*h);
 }
 
 void System::addBoundaryBox(const Vec& min, const Vec& max, const double spacing)
@@ -1056,9 +1075,9 @@ void System::write(const char * filename, vector<Vec3<double> > data)
     outputFile.open(filename);
     outputFile.precision(16);
     for(unsigned int i=0; i <data.size(); ++i)
-    {   
+    {
         outputFile << data[i][0] << " " << data[i][1] <<" " <<  data[i][2] << "\n";
-    }   
+    }
     outputFile.close();
 }
 
@@ -1066,13 +1085,13 @@ void System::exportState(const char * baseName)
 {
     vector< Vec3<double> > x = getPosition();
     vector< Vec3<double> > v = getVelocity();
-    stringstream ss_padding; 
+    stringstream ss_padding;
     ss_padding.fill('0');
     ss_padding.width(5);
     ss_padding << countExport++;
-    std::string padding = ss_padding.str(); 
+    std::string padding = ss_padding.str();
 
-    stringstream posFilename, velFilename; 
+    stringstream posFilename, velFilename;
     posFilename << baseName << "/position/position" << padding << ".txt";
     velFilename << baseName << "/velocity/velocity" << padding << ".txt";
 
@@ -1080,3 +1099,4 @@ void System::exportState(const char * baseName)
     write(  velFilename.str().c_str(), v );
 }
 
+}

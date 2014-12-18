@@ -1,13 +1,15 @@
 /*! \file rasterizer.h
  * \brief Useful functions to perform simple rasterization.
  */
-#ifndef RASTERIZER_H
-#define RASTERIZER_H
+#ifndef HOKUSAI_RASTERIZER_H
+#define HOKUSAI_RASTERIZER_H
 
 #include <stdio.h>
 #include <vector>
 #include "Vec.hpp"
 
+namespace hokusai
+{
 typedef Vec3<int> Vec3i;
 
 //! Rasterize a line between two integers points. 
@@ -98,5 +100,5 @@ std::vector<Vec3i> overRasterizeTriangles( const std::vector< std::array<Vec3i,3
  * \return A set which contains for each triangle the points which lie in it.
  */
 std::vector<Vec3i> overRasterizeTrianglesWithoutSpan( const std::vector< std::array<Vec3i,3> >& triangles );
-
+}
 #endif

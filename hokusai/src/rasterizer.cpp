@@ -1,5 +1,7 @@
 #include "./../include/hokusai/rasterizer.hpp"
 
+namespace hokusai
+{
 std::vector<Vec3i> rasterizeLine(const Vec3i& p1, const Vec3i& p2)
 {
     int distance = Vec3i::max(Vec3i::abs(p1-p2)+1);
@@ -35,7 +37,7 @@ std::vector<Vec3i> rasterizeLine(const Vec3i& p1, const Vec3i& p2)
             zd += aP[2];
         }
     }
-    else if( aP[1]>=max(aP[0],aP[2]) ) //y dominant
+    else if( aP[1]>=std::max(aP[0],aP[2]) ) //y dominant
     {
         int xd = aP[0] - aP[1]/2;
         int zd = aP[2] - aP[1]/2;
@@ -59,7 +61,7 @@ std::vector<Vec3i> rasterizeLine(const Vec3i& p1, const Vec3i& p2)
             zd += aP[2];
         }
     }
-    else if( aP[2]>=max(aP[0], aP[1])) //z dominant
+    else if( aP[2]>=std::max(aP[0], aP[1])) //z dominant
     {
         int xd = aP[0] - aP[2]/2;
         int yd = aP[1] - aP[2]/2;
@@ -88,8 +90,8 @@ std::vector<Vec3i> rasterizeLine(const Vec3i& p1, const Vec3i& p2)
 }
 
 void rasterizeSpan(
-        const std::vector<Vec3i>& minLine, 
-        const std::vector<Vec3i>& maxLine, 
+        const std::vector<Vec3i>& minLine,
+        const std::vector<Vec3i>& maxLine,
         const int& axis,
         std::vector<Vec3i>& result, std::array< Vec3i, 2>& leftover)
 {
@@ -99,14 +101,14 @@ void rasterizeSpan(
         return;
     }
 
-    result.clear(); 
+    result.clear();
 
     int minCounter=0;
     int maxCounter=0;
-    while( 
-            (minCounter<(int)(minLine.size())) 
-            && (maxCounter<(int)(maxLine.size())) 
-         )
+    while(
+          (minCounter<(int)(minLine.size()))
+          && (maxCounter<(int)(maxLine.size()))
+          )
     {
         Vec3i p1 = minLine[minCounter];
         Vec3i p2 = maxLine[maxCounter];
@@ -116,19 +118,19 @@ void rasterizeSpan(
         {
             maxCounter++;
         }
-        while( 
-                (maxLine[maxCounter-1][axis] == maxLine[maxCounter][axis]) 
-                && ((maxCounter)<(int)(maxLine.size()))
-             );
+        while(
+              (maxLine[maxCounter-1][axis] == maxLine[maxCounter][axis])
+              && ((maxCounter)<(int)(maxLine.size()))
+              );
 
         do
         {
             minCounter++;
         }
-        while( 
-                (minLine[minCounter-1][axis] == minLine[minCounter][axis]) 
-                && ((minCounter)<(int)(minLine.size())) 
-             );
+        while(
+              (minLine[minCounter-1][axis] == minLine[minCounter][axis])
+              && ((minCounter)<(int)(minLine.size()))
+              );
 
         for(size_t k=0; k<t.size(); ++k)
             result.push_back(t[k]);
@@ -146,7 +148,7 @@ std::vector<Vec3i> rasterizeTriangle(const Vec3i& a, const Vec3i& b, const Vec3i
 
     Vec3i dAB, dAC;
     std::array<Vec3i,2> left;
-    double maxDistAB, maxDistAC; 
+    double maxDistAB, maxDistAC;
     dAB = Vec3i::abs(b-a);
     maxDistAB = Vec3i::max(dAB);
     dAC = Vec3i::abs(c-a);
@@ -199,7 +201,7 @@ std::vector<Vec3i> rasterizeTriangle(const Vec3i& a, const Vec3i& b, const Vec3i
         result.push_back(span[i]);
     }
 
-    return result; 
+    return result;
 }
 
 std::vector<Vec3i> rasterizeTriangleWithoutSpan(const Vec3i& a, const Vec3i& b, const Vec3i &c)
@@ -260,7 +262,7 @@ std::vector<Vec3i> rasterizeTriangles( const std::vector< std::array<Vec3i,3> >&
     std::vector<Vec3i> tmpResult;
     for(size_t i=0; i<triangles.size(); ++i)
     {
-        tmpResult = rasterizeTriangle( triangles[i][0], triangles[i][1], triangles[i][2] ); 
+        tmpResult = rasterizeTriangle( triangles[i][0], triangles[i][1], triangles[i][2] );
         for(size_t j=0; j<tmpResult.size(); ++j)
         {
             result.push_back(tmpResult[j]);
@@ -275,7 +277,7 @@ std::vector<Vec3i> rasterizeTrianglesWithoutSpan( const std::vector< std::array<
     std::vector<Vec3i> tmpResult;
     for(size_t i=0; i<triangles.size(); ++i)
     {
-        tmpResult = rasterizeTriangleWithoutSpan( triangles[i][0], triangles[i][1], triangles[i][2] ); 
+        tmpResult = rasterizeTriangleWithoutSpan( triangles[i][0], triangles[i][1], triangles[i][2] );
         for(size_t j=0; j<tmpResult.size(); ++j)
         {
             result.push_back(tmpResult[j]);
@@ -291,7 +293,7 @@ std::vector<Vec3i> overRasterizeTriangles( const std::vector< std::array<Vec3i,3
     for(size_t i=0; i<triangles.size(); ++i)
     {
         tmpResult.clear();
-        tmpResult = overRasterizeTriangle( triangles[i][0], triangles[i][1], triangles[i][2] ); 
+        tmpResult = overRasterizeTriangle( triangles[i][0], triangles[i][1], triangles[i][2] );
         for(size_t j=0; j<tmpResult.size(); ++j)
         {
             result.push_back(tmpResult[j]);
@@ -307,11 +309,12 @@ std::vector<Vec3i> overRasterizeTrianglesWithoutSpan( const std::vector< std::ar
     for(size_t i=0; i<triangles.size(); ++i)
     {
         tmpResult.clear();
-        tmpResult = overRasterizeTriangleWithoutSpan( triangles[i][0], triangles[i][1], triangles[i][2] ); 
+        tmpResult = overRasterizeTriangleWithoutSpan( triangles[i][0], triangles[i][1], triangles[i][2] );
         for(size_t j=0; j<tmpResult.size(); ++j)
         {
             result.push_back(tmpResult[j]);
         }
     }
     return result;
+}
 }

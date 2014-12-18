@@ -15,19 +15,17 @@ using namespace hokusai;
 int main()
 {
 
-    int resolution = 1000; ///particle number per m3
+    int resolution = 2000; ///particle number per m3
     System sph(resolution);
 
-    Vec fluidBox(1.0,2.0,1.0);
-    Vec fluidOffset(0,0,0);
-    sph.addParticleBox(fluidOffset, fluidBox);
+    std::string filename = "./../mesh/sphere.obj";
+    sph.addBoundaryMesh(filename.c_str());
 
-    Vec securityOffset(1.05*sph.getSmoothingRadius());
-    Vec boundBox(2.5,2.5,1.0);
-    boundBox += securityOffset;
-    Vec boundOffset = fluidOffset;
-    boundOffset -= securityOffset;
-    sph.addBoundaryBox(boundOffset, boundBox);
+    sph.gridInfo.info();
+
+    Vec offsetSphere(1,1,0);
+    double radius = 0.5;
+    sph.addParticleSphere(offsetSphere, radius);
 
     sph.init();
 
@@ -43,6 +41,7 @@ int main()
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
+            sph.exportState("./output/");
             write_frame(sph.particles, count);
             ++count;
         }

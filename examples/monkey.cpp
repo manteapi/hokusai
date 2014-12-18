@@ -10,6 +10,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace hokusai;
 
 int main()
 {

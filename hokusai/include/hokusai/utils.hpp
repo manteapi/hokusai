@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef HOKUSAI_UTILS_HPP
+#define HOKUSAI_UTILS_HPP
 
 //#include <GL/gl.h>
 #include <vector>
@@ -10,13 +10,15 @@
 #include <fstream>
 #include <sstream>
 
+namespace hokusai
+{
 using namespace std;
 
 class AkinciKernel
 {
     typedef Vec3<double> Vec;
 
-    public :
+public :
     AkinciKernel();
     AkinciKernel(double _h);
     AkinciKernel(const AkinciKernel& k);
@@ -31,20 +33,20 @@ class MonaghanKernel
 {
     typedef Vec3<double> Vec;
 
-    public :
+public :
 
     MonaghanKernel();
     MonaghanKernel( double _h );
     MonaghanKernel( const MonaghanKernel& k );
     ~MonaghanKernel();
 
-    public :
+public :
 
     double h;
     double m_v;
     double m_g;
 
-    public :
+public :
 
     double monaghanValue( const Vec& r );
     void monaghanGradient( const Vec& r, Vec& gradient );
@@ -52,21 +54,21 @@ class MonaghanKernel
 
 class BoundaryKernel
 {
-    public :
+public :
 
-        BoundaryKernel();
-        BoundaryKernel( double h, double cs );
-        BoundaryKernel( const BoundaryKernel& k);
-        ~BoundaryKernel();
+    BoundaryKernel();
+    BoundaryKernel( double h, double cs );
+    BoundaryKernel( const BoundaryKernel& k);
+    ~BoundaryKernel();
 
-    public :
+public :
 
-        double h;
-        double cs;
+    double h;
+    double cs;
 
-    public :
+public :
 
-        double gamma( double distance );
+    double gamma( double distance );
 };
 
 inline int mortonNumber( array<int,3>& index )
@@ -84,14 +86,14 @@ void insertionSort( vector< pair<int,int> >& data );
 class Box
 {
     typedef Vec3<double> Vec;
-    public :
+public :
     Vec min;
     Vec max;
-    public :
+public :
     Box();
     Box( Vec& _min, Vec& _max);
     ~Box();
-    public :
+public :
     //void draw();
 };
 
@@ -199,4 +201,6 @@ inline double AkinciKernel::adhesionValue( const double r)
 void write(const char * filename, vector<Vec3<double> > data);
 void write_frame(vector<Particle>& particles, int step);
 
+//---------------------------------------------------------------------
+}
 #endif

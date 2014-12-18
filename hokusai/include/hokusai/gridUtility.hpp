@@ -1,11 +1,12 @@
-#ifndef GRID_UTILITY_HPP
-#define GRID_UTILITY_HPP
+#ifndef HOKUSAI_GRID_UTILITY_HPP
+#define HOKUSAI_GRID_UTILITY_HPP
 
 #include "Vec.hpp"
 
+namespace hokusai
+{
 typedef Vec3<double> Vec3f;
 typedef Vec3<int> Vec3i;
-
 class GridUtility
 {
     public :
@@ -60,5 +61,5 @@ class GridUtility
         Vec3i gridCoord(int i) const;
         void info();
 };
-
+}
 #endif

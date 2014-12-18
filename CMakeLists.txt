@@ -19,6 +19,9 @@ set(
     HOKUSAI 
     )
 
+add_executable(boundaryMesh examples/boundaryMesh.cpp)
+target_link_libraries(boundaryMesh ${ALL_LIBS})
+
 add_executable(cube examples/cube.cpp)
 target_link_libraries(cube ${ALL_LIBS})
 

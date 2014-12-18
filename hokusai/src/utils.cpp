@@ -1,5 +1,7 @@
 #include "../include/hokusai/utils.hpp"
 
+namespace hokusai
+{
 AkinciKernel::AkinciKernel()
 {
     h = 0;
@@ -111,43 +113,43 @@ Box::~Box(){}
     glBegin(GL_LINES);
     
     //Square 1
-    glVertex3f( min[0], min[1], min[2] ); 
-    glVertex3f( max[0], min[1], min[2] ); 
+    glVertex3f( min[0], min[1], min[2] );
+    glVertex3f( max[0], min[1], min[2] );
     
-    glVertex3f( max[0], min[1], min[2] ); 
-    glVertex3f( max[0], max[1], min[2] ); 
+    glVertex3f( max[0], min[1], min[2] );
+    glVertex3f( max[0], max[1], min[2] );
 
-    glVertex3f( max[0], max[1], min[2] ); 
-    glVertex3f( min[0], max[1], min[2] ); 
+    glVertex3f( max[0], max[1], min[2] );
+    glVertex3f( min[0], max[1], min[2] );
 
-    glVertex3f( min[0], max[1], min[2] ); 
-    glVertex3f( min[0], min[1], min[2] ); 
+    glVertex3f( min[0], max[1], min[2] );
+    glVertex3f( min[0], min[1], min[2] );
 
     //Square 2
-    glVertex3f( min[0], min[1], max[2] ); 
-    glVertex3f( max[0], min[1], max[2] ); 
+    glVertex3f( min[0], min[1], max[2] );
+    glVertex3f( max[0], min[1], max[2] );
     
-    glVertex3f( max[0], min[1], max[2] ); 
-    glVertex3f( max[0], max[1], max[2] ); 
+    glVertex3f( max[0], min[1], max[2] );
+    glVertex3f( max[0], max[1], max[2] );
 
-    glVertex3f( max[0], max[1], max[2] ); 
-    glVertex3f( min[0], max[1], max[2] ); 
+    glVertex3f( max[0], max[1], max[2] );
+    glVertex3f( min[0], max[1], max[2] );
 
-    glVertex3f( min[0], max[1], max[2] ); 
-    glVertex3f( min[0], min[1], max[2] ); 
+    glVertex3f( min[0], max[1], max[2] );
+    glVertex3f( min[0], min[1], max[2] );
 
     //Square 3
-    glVertex3f( min[0], min[1], min[2] ); 
-    glVertex3f( min[0], min[1], max[2] ); 
+    glVertex3f( min[0], min[1], min[2] );
+    glVertex3f( min[0], min[1], max[2] );
     
-    glVertex3f( max[0], min[1], min[2] ); 
-    glVertex3f( max[0], min[1], max[2] ); 
+    glVertex3f( max[0], min[1], min[2] );
+    glVertex3f( max[0], min[1], max[2] );
 
-    glVertex3f( min[0], max[1], min[2] ); 
-    glVertex3f( min[0], max[1], max[2] ); 
+    glVertex3f( min[0], max[1], min[2] );
+    glVertex3f( min[0], max[1], max[2] );
     
-    glVertex3f( max[0], max[1], min[2] ); 
-    glVertex3f( max[0], max[1], max[2] ); 
+    glVertex3f( max[0], max[1], min[2] );
+    glVertex3f( max[0], max[1], max[2] );
 
     glEnd();
 }
@@ -233,24 +235,24 @@ static void buildRotationMatrix( float xrad, float yrad, float R[3][3] ) {
         for( int j=0; j<3; j++ ) {
             R[i][j] = Rtmp[i][j] = Rx[i][j];
         }
-    }    
+    }
 
     for( int i=0; i<3; i++ ) {
         for( int j=0; j<3; j++ ) {
-            R[i][j] = 0.0; 
+            R[i][j] = 0.0;
             for( int k=0; k<3; k++ ) R[i][j] += Rtmp[i][k]*Ry[k][j];
         }
-    }    
+    }
 }
 
 static void transform( float p[3], float R[3][3] ) {
     float p0[3] = { p[0], p[1], p[2] };
     for( int i=0; i<3; i++ ) {
-        p[i] = 0.0; 
+        p[i] = 0.0;
         for( int k=0; k<3; k++ ) {
             p[i] += R[i][k]*p0[k];
         }
-    }    
+    }
 }
 
 
@@ -290,7 +292,7 @@ void write_frame(vector<Particle>& particles, int step)
     float eye = 0.02;
     float offset = 0.5;
 
-    for( int n=0; n<particles.size(); n++ ) 
+    for( int n=0; n<particles.size(); n++ )
     {
         //if( particles[n]->type == FLUID ) %{
         //float p[3] = { particles[n]->p[0]-0.5, particles[n]->p[1]-0.5, particles[n]->p[2]-0.5 };
@@ -323,4 +325,5 @@ void write_frame(vector<Particle>& particles, int step)
     char name[256];
     sprintf( name, "frame_%d.bmp", step );
     write_bmp( name, buffer, width, height, true );
+}
 }

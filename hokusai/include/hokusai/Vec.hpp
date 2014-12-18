@@ -1,12 +1,13 @@
-#ifndef VEC_H
-#define VEC_H
+#ifndef HOKUSAI_VEC_HPP
+#define HOKUSAI_VEC_HPP
 
 #include <cmath>
 #include <iostream>
 #include <array>
 #include <algorithm>
 
-using namespace std;
+namespace hokusai
+{
 
 //---------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------
@@ -24,7 +25,7 @@ template<class Real>
 class Vec3
 {
 private:
-    array< Real, 3 > vector;
+    std::array< Real, 3 > vector;
 
 public:
     inline Vec3(){ vector.fill(0);}
@@ -35,8 +36,8 @@ public:
 
     inline void info() const{ std::cout << "Vec : " << vector[0] << ", " << vector[1] << ", " << vector[2] << std::endl; }
 
-    inline const array<Real, 3>& getConstArray() const { return vector; }
-    inline array<Real, 3>& getArrayValue(){ return vector; }
+    inline const std::array<Real, 3>& getConstArray() const { return vector; }
+    inline std::array<Real, 3>& getArrayValue(){ return vector; }
     inline Real lengthSquared() const { return (vector[0]*vector[0]+vector[1]*vector[1]+vector[2]*vector[2]);}
     inline Real length() const { return sqrt(vector[0]*vector[0]+vector[1]*vector[1]+vector[2]*vector[2]);}
     inline void normalize(){ Real l = sqrt(vector[0]*vector[0]+vector[1]*vector[1]+vector[2]*vector[2]); vector[0]/=l; vector[1]/=l; vector[2]/=l;}
@@ -57,6 +58,7 @@ public:
     inline const Real& operator[](int i) const{ return vector[i]; }
 
     inline static Real dotProduct ( const Vec3<Real>& v1, const Vec3<Real>& v2){return Real(v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2] );}
+    inline static Vec3< Real> crossProduct(const Vec3<Real>& v1, const Vec3<Real>& v2) {return Vec3<Real>(v1[1]*v2[2] - v1[2]*v2[1], v1[2]*v2[0] - v1[0]*v2[2], v1[0]*v2[1] - v1[1]*v2[0]);}
 
     inline Vec3< Real > cwiseProd(const Vec3<Real> &v) const { return Vec3<Real>( vector[0]*v[0], vector[1]*v[1], vector[2]*v[2]);}
 
@@ -94,7 +96,7 @@ template<class Real>
 class Vec2
 {
 private:
-    array<Real, 2> vector;
+    std::array<Real, 2> vector;
 
 public:
     inline Vec2(){vector.fill(0);}
@@ -105,8 +107,8 @@ public:
 
     inline void info(){ std::cout << "Vec : " << vector[0] << ", " << vector[1] << std::endl; }
 
-    inline const array<Real, 2>& getConstArray() const { return vector; }
-    inline array<Real, 2>& getArrayValue(){ return vector; }
+    inline const std::array<Real, 2>& getConstArray() const { return vector; }
+    inline std::array<Real, 2>& getArrayValue(){ return vector; }
     inline Real lengthSquared() const { return (vector[0]*vector[0]+vector[1]*vector[1]);}
     inline Real length() const { return sqrt(vector[0]*vector[0]+vector[1]*vector[1]);}
     inline void normalize(){ Real l = sqrt(vector[0]*vector[0]+vector[1]*vector[1]); vector[0]/=l; vector[1]/=l;}
@@ -127,6 +129,7 @@ public:
     inline const Real& operator[](int i) const{ return vector[i]; }
 
     inline static Real dotProduct ( const Vec2<Real>& v1, const Vec2<Real>& v2){return( v1[0]*v2[0]+v1[1]*v2[1]);}
+    inline static Real crossProduct(const Vec3<Real>& v1, const Vec3<Real>& v2){return (v1[0]*v2[1] - v1[1]*v2[0]);}
     inline Vec2< Real > cwiseProd(const Vec2<Real> &v) const { return Vec2<Real>( vector[0]*v[0], vector[1]*v[1]);}
     inline Vec2< Real > maxVector( Real value ){ return Vec2<Real>( std::max( vector[0], value ), std::max( vector[1], value ));}
     inline Vec2< Real > minVector( Real value ){ return Vec2<Real>( std::min( vector[0], value ), std::min( vector[1], value ));}
@@ -149,6 +152,6 @@ template<class Real>
 inline const Vec2<Real>	operator/ ( const Vec2<Real> & vector, Real divisor ){ return Vec2<Real>( vector[0]/divisor, vector[1]/divisor ); }
 template<class Real> inline bool operator== ( const Vec2< Real >& v1, const Vec2< Real >& v2 ){ return ( ( v1[0]==v2[0] ) && ( v1[1]==v2[1]) ); }
 template<class Real> inline bool operator!= ( const Vec2< Real >& v1, const Vec2< Real >& v2 ){ return ( ( v1[0]!=v2[0] ) && ( v1[1]!=v2[1]) ); }
-
+}
 #endif // VEC_H
 

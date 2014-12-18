@@ -14,6 +14,7 @@ set(HOKUSAI_SOURCE
     ./src/io.cpp
     ./src/rasterizer.cpp
     ./src/triMesh.cpp
+    ./src/sampler.cpp
 )
 
 set(HOKUSAI_HEADER
@@ -28,6 +29,7 @@ set(HOKUSAI_HEADER
     ./include/hokusai/rasterizer.hpp
     ./include/hokusai/triMesh.hpp
     ./include/hokusai/strutil.hpp
+    ./include/hokusai/sampler.hpp
 )
 
 include_directories( include )

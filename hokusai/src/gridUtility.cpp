@@ -1,7 +1,10 @@
-#ifndef GRID_UTILITY_CPP
-#define GRID_UTILITY_CPP
+#ifndef HOKUSAI_GRID_UTILITY_CPP
+#define HOKUSAI_GRID_UTILITY_CPP
 
 #include "../include/hokusai/gridUtility.hpp"
+
+namespace hokusai
+{
 
 GridUtility::GridUtility()
 {
@@ -315,4 +318,5 @@ void GridUtility::info()
     std::cout << "Max : " << offset[0]+scale[0] << ", " << offset[1]+scale[1] << ", " << offset[2] + scale[2] << std::endl;
 }
 
+}
 #endif

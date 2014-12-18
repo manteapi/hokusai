@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+namespace hokusai
+{
+
 struct header
 {
     char bfType[3];
@@ -24,17 +27,17 @@ struct header
     int biClrImportant;
 };
 
-    template <class T>
+template <class T>
 static void my_fwrite( T *data, size_t size, size_t n, FILE * fp )
 {
     int x=1; // 0x00000001
     if (*(char*)&x)
-    {   
+    {
         // Little Endian
         fwrite( data, size, n, fp );
-    }   
+    }
     else
-    {   
+    {
         //Big Endian
         T value = *data;
         for( int i=0; i<size; i++ )
@@ -42,7 +45,7 @@ static void my_fwrite( T *data, size_t size, size_t n, FILE * fp )
             int v = (value >> (8*i)) & 0x000000ff;
             putc(v, fp);
         }
-    }   
+    }
 }
 
 void write_bmp( const char *filename, unsigned char *image, int width, int height, bool invertY )
@@ -114,3 +117,4 @@ void write_bmp( const char *filename, unsigned char *image, int width, int heigh
     return;
 }
 
+}

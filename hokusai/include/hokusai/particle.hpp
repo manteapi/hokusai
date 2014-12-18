@@ -1,18 +1,21 @@
-#ifndef PARTICLE_H
-#define PARTICLE_H
+#ifndef HOKUSAI_PARTICLE_H
+#define HOKUSAI_PARTICLE_H
 
 #include "Vec.hpp"
 #include <vector>
+
+namespace hokusai
+{
 
 class Boundary
 {
     typedef Vec3<double> Vec;
 
-    public :
+public :
     double psi; //density number
     Vec x,v; ///position and velocity
 
-    public :
+public :
     Boundary()
     {
         psi=0.0;
@@ -22,14 +25,14 @@ class Boundary
 
     Boundary(Vec& _x, Vec _v, double _psi)
     {
-        x=_x; 
+        x=_x;
         v=_v;
         psi=_psi;
     }
 
     Boundary(const Boundary& b)
     {
-        x=b.x; 
+        x=b.x;
         v=b.v;
         psi=b.psi;
     }
@@ -41,14 +44,14 @@ class Particle
 {
     typedef Vec3<double> Vec;
 
-    public :
+public :
     double rho, rho_adv, rho_corr, p, p_l, previousP, aii;
     Vec x, v, v_adv, f_adv, f_p, dii_fluid, dii_boundary, sum_dij, n;
     Vec3<float> c;
-    vector<int> fluidNeighbor;
-    vector<int> boundaryNeighbor;
+    std::vector<int> fluidNeighbor;
+    std::vector<int> boundaryNeighbor;
     
-    public :
+public :
     Particle()
     {
         rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
@@ -72,13 +75,13 @@ class Particle
 
     Particle(const Particle& _p)
     {
-        rho=_p.rho; 
-        rho_adv=_p.rho_adv; 
+        rho=_p.rho;
+        rho_adv=_p.rho_adv;
         rho_corr=_p.rho_corr;
-        p=_p.p; 
+        p=_p.p;
         p_l=_p.p_l;
         previousP=_p.previousP;
-        aii=_p.aii; 
+        aii=_p.aii;
 
         x = _p.x;
         v = _p.v;
@@ -98,5 +101,5 @@ class Particle
 
     ~Particle(){}
 };
-
+}
 #endif

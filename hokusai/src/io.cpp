@@ -1,66 +1,68 @@
 #include "./../include/hokusai/io.hpp"
 
 using namespace std;
+namespace hokusai
+{
 
 // Skip comments in an ASCII file (lines beginning with #)
 void skip_comments(FILE *f)
 {
-	int c;
-	bool in_comment = false;
-	while (1) {
-		c = fgetc(f);
-		if (c == EOF)
-			return;
-		if (in_comment) {
-			if (c == '\n')
-				in_comment = false;
-		} else if (c == '#') {
-			in_comment = true;
-		} else if (!isspace(c)) {
-			break;
-		}
-	}
-	ungetc(c, f);
+    int c;
+    bool in_comment = false;
+    while (1) {
+        c = fgetc(f);
+        if (c == EOF)
+            return;
+        if (in_comment) {
+            if (c == '\n')
+                in_comment = false;
+        } else if (c == '#') {
+            in_comment = true;
+        } else if (!isspace(c)) {
+            break;
+        }
+    }
+    ungetc(c, f);
 }
 
 // Tesselate an arbitrary n-gon.  Appends triangles to "tris".
-void tess(const vector<Vec3<float> > &verts, const vector<int> &thisface,
-        vector<Vec3<int> > &tris)
+void tess(const vector<Vec3<double> > &verts, const vector<int> &thisface,
+          vector<Vec3<int> > &tris)
 {
     if (thisface.size() < 3)
         return;
     if (thisface.size() == 3) {
         tris.push_back(Vec3<int>(thisface[0],
-                    thisface[1],
-                    thisface[2]));
+                       thisface[1],
+                thisface[2]));
         return;
     }
     if (thisface.size() == 4) {
         // Triangulate in the direction that
         // gives the shorter diagonal
-        const Vec3<float> &p0 = verts[thisface[0]], &p1 = verts[thisface[1]];
-        const Vec3<float> &p2 = verts[thisface[2]], &p3 = verts[thisface[3]];
-        float d02 = (p0-p2).lengthSquared();
-        float d13 = (p1-p3).lengthSquared();
+        const Vec3<double> &p0 = verts[thisface[0]], &p1 = verts[thisface[1]];
+        const Vec3<double> &p2 = verts[thisface[2]], &p3 = verts[thisface[3]];
+        double d02 = (p0-p2).lengthSquared();
+        double d13 = (p1-p3).lengthSquared();
         int i = (d02 < d13) ? 0 : 1;
         tris.push_back(Vec3< int>(thisface[i],
-                    thisface[(i+1)%4],
-                    thisface[(i+2)%4]));
+                                  thisface[(i+1)%4],
+                       thisface[(i+2)%4]));
         tris.push_back(Vec3< int>(thisface[i],
-                    thisface[(i+2)%4],
-                    thisface[(i+3)%4]));
+                                  thisface[(i+2)%4],
+                       thisface[(i+3)%4]));
         return;
     }
 
     // 5-gon or higher - just tesselate arbitrarily...
     for (size_t i = 2; i < thisface.size(); i++)
         tris.push_back(Vec3< int>(thisface[0],
-                    thisface[i-1],
-                    thisface[i]));
+                       thisface[i-1],
+                thisface[i]));
 }
 
 // Read an obj file
-bool read_obj(FILE *f, vector< Vec3<float> >& vertices, vector< Vec3<float> >& normals, vector< Vec3<int> >& triangles)
+bool read_obj(FILE *f, vector< Vec3<double> >& vertices, vector< Vec3<double> >& normals, vector< Vec3<int> >& triangles)
 {
 
 
@@ -76,15 +78,15 @@ bool read_obj(FILE *f, vector< Vec3<float> >& vertices, vector< Vec3<float> >& n
             if (sscanf(buf+1, "%f %f %f", &x, &y, &z) != 3) {
                 return false;
             }
-            vertices.push_back(Vec3<float>(x,y,z));
+            vertices.push_back(Vec3<double>(x,y,z));
         } else if (LINE_IS("vn ") || LINE_IS("vn\t")) {
             float x, y, z;
             if (sscanf(buf+2, "%f %f %f", &x, &y, &z) != 3) {
                 return false;
             }
-            normals.push_back(Vec3<float>(x,y,z));
+            normals.push_back(Vec3<double>(x,y,z));
         } else if (LINE_IS("f ") || LINE_IS("f\t") ||
-                LINE_IS("t ") || LINE_IS("t\t")) {
+                   LINE_IS("t ") || LINE_IS("t\t")) {
             thisface.clear();
             char *c = buf;
             while (1) {
@@ -114,4 +116,5 @@ bool read_obj(FILE *f, vector< Vec3<float> >& vertices, vector< Vec3<float> >& n
         normals.clear();
 
     return true;
+}
 }
