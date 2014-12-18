@@ -25,7 +25,11 @@ To do...soon...
 --7.torus
 --8.tube
 
-2. Handle arbitrary boundaries
 3. Output vector field image
 4. Parameters preset
 5. Smoke simulation
+
+Done
+----
+
+1. Arbitrary boundaries handlling
