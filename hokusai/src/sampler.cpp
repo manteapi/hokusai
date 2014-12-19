@@ -110,6 +110,32 @@ bool AkinciEdgeSampling( const Vec3<double>& p1, const Vec3<double>& p2, const d
     }
 }
 
+bool AkinciFullTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2, const Vec3<double>& p3, const double& particleDiameter, std::vector< Vec3<double> >& samples)
+{
+    std::vector< Vec3<double> > tmp;
+
+    samples.push_back(p1);
+    samples.push_back(p2);
+    samples.push_back(p3);
+
+    AkinciTriangleSampling(p1,p2,p3,particleDiameter, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        samples.push_back(tmp[i]);
+
+    AkinciEdgeSampling(p1,p2,particleDiameter, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        samples.push_back(tmp[i]);
+
+    AkinciEdgeSampling(p1,p3,particleDiameter, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        samples.push_back(tmp[i]);
+
+    AkinciEdgeSampling(p2,p3,particleDiameter, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        samples.push_back(tmp[i]);
+
+}
+
 bool AkinciTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2, const Vec3<double>& p3, const double& particleDiameter, std::vector< Vec3<double> >& samples)
 {
 
@@ -234,4 +260,260 @@ bool AkinciMeshSampling(const TriMesh& mesh, const double& particleDiameter, std
         success = success && tmpSuccess;
     }
 }
+
+std::vector<Vec3<double> > getPyramidSampling(const Vec3<double>& _center, double base, double height, double spacing)
+{
+    std::vector< Vec3<double> > tmp;
+    std::vector< Vec3<double> > result;
+    Vec3<double> v1,v2,v3, center(_center[0], _center[1], _center[2]);
+
+    //Base
+    v1 = center + Vec3<double>(-base/2.0,0, -base/2.0);
+    v2 = center + Vec3<double>(base/2.0, 0,-base/2.0);
+    v3 = center + Vec3<double>(-base/2.0, 0,base/2.0);
+    AkinciFullTriangleSampling(v1, v2, v3, spacing, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        result.push_back(Vec3<double>(tmp[i][0], tmp[i][1], tmp[i][2]));
+
+    v1 = center + Vec3<double>(base/2.0,0, base/2.0);
+    v2 = center + Vec3<double>(base/2.0, 0,-base/2.0);
+    v3 = center + Vec3<double>(-base/2.0, 0,base/2.0);
+    AkinciFullTriangleSampling(v1, v2, v3, spacing, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        result.push_back(Vec3<double>(tmp[i][0], tmp[i][1], tmp[i][2]));
+
+    //Faces
+    v1 = center + Vec3<double>(base/2.0,0, base/2.0);
+    v2 = center + Vec3<double>(base/2.0, 0,-base/2.0);
+    v3 = center + Vec3<double>(0, height,0);
+    AkinciFullTriangleSampling(v1, v2, v3, spacing, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        result.push_back(Vec3<double>(tmp[i][0], tmp[i][1], tmp[i][2]));
+
+    v1 = center + Vec3<double>(base/2.0,0, base/2.0);
+    v2 = center + Vec3<double>(-base/2.0, 0,base/2.0);
+    v3 = center + Vec3<double>(0, height,0);
+    AkinciFullTriangleSampling(v1, v2, v3, spacing, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        result.push_back(Vec3<double>(tmp[i][0], tmp[i][1], tmp[i][2]));
+
+    v1 = center + Vec3<double>(-base/2.0,0, -base/2.0);
+    v2 = center + Vec3<double>(base/2.0, 0,-base/2.0);
+    v3 = center + Vec3<double>(0, height,0);
+    AkinciFullTriangleSampling(v1, v2, v3, spacing, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        result.push_back(Vec3<double>(tmp[i][0], tmp[i][1], tmp[i][2]));
+
+    v1 = center + Vec3<double>(-base/2.0,0, -base/2.0);
+    v2 = center + Vec3<double>(-base/2.0, 0,base/2.0);
+    v3 = center + Vec3<double>(0, height,0);
+
+    AkinciFullTriangleSampling(v1, v2, v3, spacing, tmp);
+    for(size_t i=0; i<tmp.size(); ++i)
+        result.push_back(Vec3<double>(tmp[i][0], tmp[i][1], tmp[i][2]));
+
+    return result;
+}
+
+std::vector< Vec3<double> > getSphereSampling(const Vec3<double>& center, double radius, double spacingX, double spacingY)
+{
+    double theta=0.0;
+    double phi=0.0;
+    double l_theta = 2.0*M_PI*radius;
+    double l_phi = M_PI*radius;
+    int thetaStep = std::floor(l_theta/spacingX);
+    int phiStep = std::floor(l_phi/spacingY);
+    std::vector< Vec3<double> > result;
+
+    for(int i=0; i<thetaStep; ++i)
+    {
+        theta += (2.0*M_PI/(double)thetaStep);
+        phi=0.0;
+        for(int j=0; j<phiStep; ++j)
+        {
+            phi += (M_PI/(double)phiStep);
+            result.push_back( center + Vec3<double>(radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), radius*cos(phi)) );
+        }
+    }
+    return result;
+}
+
+std::vector<Vec3<double> > getEllipsoidSampling(const Vec3<double>& center, double axis_1, double axis_2, double axis_3, double spacingX, double spacingY)
+{
+    double theta=0.0;
+    double phi=0.0;
+    double l_theta = 2.0*M_PI*axis_1;
+    double l_phi = M_PI*axis_2;
+    int thetaStep = std::floor(l_theta/spacingX);
+    int phiStep = std::floor(l_phi/spacingY);
+    std::vector< Vec3<double> > result;
+
+    for(int i=0; i<thetaStep; ++i)
+    {
+        theta += (2.0*M_PI/(double)thetaStep);
+        phi=0.0;
+        for(int j=0; j<phiStep; ++j)
+        {
+            phi += (M_PI/(double)phiStep);
+            result.push_back( center + Vec3<double>(axis_1*cos(theta)*sin(phi), axis_2*sin(theta)*sin(phi), axis_3*cos(phi)) );
+        }
+    }
+    return result;
+
+}
+
+std::vector<Vec3<double> > getCapsuleSampling(const Vec3<double>& center, double radius, double height, double spacingX, double spacingY)
+{
+    double theta=0.0;
+    double phi=0.0;
+    double l_theta = 2.0*M_PI*radius;
+    double l_phi = (M_PI/2.0)*radius;
+    int thetaStep = std::floor(l_theta/spacingX);
+    int phiStep = std::floor(l_phi/spacingY);
+    std::vector< Vec3<double> > result;
+    Vec3<double> c1(center[0], center[2], height);
+    Vec3<double> c2(center[0], center[2], 0);
+
+    for(int i=0; i<thetaStep; ++i)
+    {
+        theta += (2.0*M_PI/(double)thetaStep);
+        phi=0.0;
+        for(int j=0; j<phiStep; ++j)
+        {
+            phi += (M_PI/(double)(2.0*phiStep));
+            result.push_back( c1 + Vec3<double>(radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), radius*cos(phi)) );
+        }
+    }
+
+    for(int i=0; i<thetaStep; ++i)
+    {
+        theta += (2.0*M_PI/(double)thetaStep);
+        phi=M_PI/2.0-(M_PI/(2.0*phiStep));
+        for(int j=0; j<phiStep; ++j)
+        {
+            phi += (M_PI/(double)(2.0*(phiStep)));
+            result.push_back( c2 + Vec3<double>(radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), radius*cos(phi)) );
+        }
+    }
+
+    std::vector< Vec3<double> > tmp = getCylinderSampling(center, height, radius, spacingX, spacingY);
+    for(size_t i=0; i<tmp.size(); ++i)
+        result.push_back(tmp[i]);
+
+    return result;
+}
+
+std::vector< Vec3<double> > getHemiSphereSampling(const Vec3<double>& center, double radius, double spacingX, double spacingY)
+{
+    double theta=0.0;
+    double phi=0.0;
+    double l_theta = 2.0*M_PI*radius;
+    double l_phi = (M_PI/2.0)*radius;
+    int thetaStep = std::floor(l_theta/spacingX);
+    int phiStep = std::floor(l_phi/spacingY);
+    std::vector< Vec3<double> > result;
+
+    for(int i=0; i<thetaStep; ++i)
+    {
+        theta += (2.0*M_PI/(double)thetaStep);
+        phi=0.0;
+        for(int j=0; j<phiStep; ++j)
+        {
+            phi += (M_PI/(double)(2.0*phiStep));
+            result.push_back( center + Vec3<double>(radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), radius*cos(phi)) );
+        }
+    }
+    return result;
+}
+
+std::vector< Vec3<double> > getTorusSampling(const Vec3<double>& center, double tubeRadius, double innerRadius, double spacingX, double spacingY)
+{
+    double u=0.0;
+    double v=0.0;
+    double l_u = 2.0*M_PI*innerRadius;
+    double l_v = 2.0*M_PI*tubeRadius;
+    int uStep = std::floor(l_u/spacingX);
+    int vStep = std::floor(l_v/spacingY);
+    std::vector< Vec3<double> > result;
+
+    for(int i=0; i<uStep; ++i)
+    {
+        u += (2.0*M_PI/(double)uStep);
+        v =0.0;
+        for(int j=0; j<vStep; ++j)
+        {
+            v += (2.0*M_PI/(double)vStep);
+            result.push_back( center + Vec3<double>( (innerRadius+tubeRadius*cos(v))*cos(u), (innerRadius+tubeRadius*cos(v))*sin(u), tubeRadius*sin(v)) );
+        }
+    }
+    return result;
+}
+
+std::vector< Vec3<double> > getConeSampling(const Vec3<double>& center, double height, double stopHeight, double baseRadius, double spacingX, double spacingY)
+{
+    double theta=0.0;
+    double u=0.0;
+    double l_theta = 2.0*M_PI*baseRadius;
+    int thetaStep = std::floor(l_theta/spacingX);
+    int uStep = std::floor(stopHeight/spacingY);
+    std::vector< Vec3<double> > result;
+
+    for(int i=0; i<thetaStep; ++i)
+    {
+        theta += (2.0*M_PI/(double)thetaStep);
+        u =0.0;
+        for(int j=0; j<uStep; ++j)
+        {
+            u += (stopHeight/(double)uStep);
+            result.push_back( center + Vec3<double>( ((height-u)/height)*baseRadius*cos(theta), ((height-u)/height)*baseRadius*sin(theta), u));
+        }
+    }
+    return result;
+}
+
+
+std::vector< Vec3<double> > getCylinderSampling(const Vec3<double>& center, double height, double baseRadius, double spacingX, double spacingY)
+{
+    double theta=0.0;
+    double u=0.0;
+    double l_theta = 2.0*M_PI*baseRadius;
+    int thetaStep = std::floor(l_theta/spacingX);
+    int uStep = std::floor(height/spacingY);
+    std::vector< Vec3<double> > result;
+
+    for(int i=0; i<thetaStep; ++i)
+    {
+        theta += (2.0*M_PI/(double)thetaStep);
+        u =0.0;
+        for(int j=0; j<uStep; ++j)
+        {
+            u += (height/(double)uStep);
+            result.push_back( center + Vec3<double>( baseRadius*cos(theta), baseRadius*sin(theta), u));
+        }
+    }
+    return result;
+}
+
+std::vector<Vec3<double> > getDiskSampling(const Vec3<double>& center, double radius, double spacing)
+{
+    double theta=0.0;
+    double u=0.0;
+    double l_theta = 2.0*M_PI*radius;
+    int thetaStep = std::floor(l_theta/spacing);
+    int uStep = std::floor(radius/spacing);
+    std::vector< Vec3<double> > result;
+
+    for(int i=0; i<thetaStep; ++i)
+    {
+        theta += (2.0*M_PI/(double)thetaStep);
+        u =0.0;
+        for(int j=0; j<uStep; ++j)
+        {
+            u += (radius/(double)uStep);
+            result.push_back( center + Vec3<double>( u*radius*cos(theta), u*radius*sin(theta), 0));
+        }
+    }
+    return result;
+}
+
 }
