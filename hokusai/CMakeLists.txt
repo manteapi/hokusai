@@ -15,6 +15,8 @@ set(HOKUSAI_SOURCE
     ./src/rasterizer.cpp
     ./src/triMesh.cpp
     ./src/sampler.cpp
+    ./src/particleSource.cpp
+    ./src/particleSink.cpp
 )
 
 set(HOKUSAI_HEADER
@@ -30,6 +32,8 @@ set(HOKUSAI_HEADER
     ./include/hokusai/triMesh.hpp
     ./include/hokusai/strutil.hpp
     ./include/hokusai/sampler.hpp
+    ./include/hokusai/particleSource.hpp
+    ./include/hokusai/particleSink.hpp
 )
 
 include_directories( include )

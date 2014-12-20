@@ -693,10 +693,40 @@ void System::addBoundaryBox(const Vec& offset, const Vec& scale)
             boundaryNumber++;
         }
     }
-    translateBoundaries(offset);
 
     gridInfo.update(offset-Vec(2.0*h), scale+Vec(4.0*h), 2.0*h);
 }
+
+void System::addBoundarySphere(const Vec& offset, const double& radius)
+{
+    std::vector<Vec> samples = getSphereSampling(offset, radius, h, h);
+    for(size_t i=0; i<samples.size(); ++i)
+    {
+        boundaries.push_back(Boundary(samples[i],Vec(0.0),0.0));
+        boundaryNumber++;
+    }
+}
+
+void System::addBoundaryHemiSphere(const Vec& offset, const double& radius)
+{
+    std::vector<Vec> samples = getHemiSphereSampling(offset, radius, h, h);
+    for(size_t i=0; i<samples.size(); ++i)
+    {
+        boundaries.push_back(Boundary(samples[i],Vec(0.0),0.0));
+        boundaryNumber++;
+    }
+}
+
+void System::addBoundaryDisk(const Vec& offset, const double& radius)
+{
+    std::vector<Vec> samples = getDiskSampling(offset, radius, h);
+    for(size_t i=0; i<samples.size(); ++i)
+    {
+        boundaries.push_back(Boundary(samples[i],Vec(0.0),0.0));
+        boundaryNumber++;
+    }
+}
+
 
 void System::translateBoundaries(const Vec& t)
 {
@@ -746,14 +776,13 @@ void System::addParticleBox(const Vec& offset, const Vec& scale)
         {
             for(int k=0; k<depthSize; ++k)
             {
-                Vec _x(i*h,j*h,k*h);
+                Vec _x = offset + Vec(i*h,j*h,k*h);
                 Vec _v(0,0,0);
                 particles.push_back( Particle(_x,_v) );
                 particleNumber++;
             }
         }
     }
-    translateParticles(offset);
 }
 
 void System::addParticleBox(double width, double height, double depth, double spacing)
@@ -804,6 +833,18 @@ void System::createParticleVolume(Vec& pos, double width, double /*height*/, dou
     }
 }
 
+void System::addFluidParticle(const Vec& x, const Vec& v)
+{
+    particles.push_back( Particle(x,v) );
+    particleNumber++;
+}
+
+void System::addBoundaryParticle(const Vec& x, const Vec& v)
+{
+    boundaries.push_back( Boundary(x,v) );
+    boundaryNumber++;
+}
+
 void System::addBoundaryMesh(const char* filename)
 {
     TriMesh mesh(filename);
@@ -823,80 +864,6 @@ void System::addBoundaryMesh(const char* filename)
     Vec3f offset = minBB;
     Vec3f scale = maxBB-minBB;
     gridInfo.update(offset-Vec(2.0*h), scale+Vec(4.0*h), 2.0*h);
-}
-
-void System::addBoundaryBox(const Vec& min, const Vec& max, const double spacing)
-{
-    double widthSize = floor( (max[0]-min[0])/(double)spacing );
-    double heightSize = floor( (max[1]-min[1])/(double)spacing );
-    double depthSize = floor( (max[2]-min[2])/(double)spacing );
-    int epsilon = 0;
-
-    //ZX plane - bottom
-    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
-        {
-            Vec position(min[0] + i*spacing, min[1], min[2]+j*spacing);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
-            boundaryNumber++;
-        }
-    }
-
-    //ZX plane - top
-    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
-        {
-            Vec position(min[0] + i*spacing, max[1], min[2]+j*spacing);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
-            boundaryNumber++;
-        }
-    }
-
-    //XY plane - back
-    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= heightSize+epsilon; ++j)
-        {
-            Vec position(min[0] + i*spacing, min[1]+j*spacing, min[2]);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
-            boundaryNumber++;
-        }
-    }
-
-    //XY plane - front
-    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= heightSize-epsilon; ++j)
-        {
-            Vec position(min[0] + i*spacing, min[1]+j*spacing, max[2]);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
-            boundaryNumber++;
-        }
-    }
-
-    //YZ plane - left
-    for(int i = -epsilon; i <= heightSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
-        {
-            Vec position(min[0], min[1]+i*spacing, min[2]+j*spacing);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
-            boundaryNumber++;
-        }
-    }
-
-    //YZ plane - right
-    for(int i = -epsilon; i <= heightSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
-        {
-            Vec position(max[0], min[1]+i*spacing, min[2]+j*spacing);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
-            boundaryNumber++;
-        }
-    }
 }
 
 bool pairCompare( const std::pair<int,int>& e1, const std::pair<int,int>& e2 )

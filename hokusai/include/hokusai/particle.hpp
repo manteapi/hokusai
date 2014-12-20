@@ -23,7 +23,7 @@ public :
         v=Vec(0.0);
     }
 
-    Boundary(Vec& _x, Vec _v, double _psi)
+    Boundary(const Vec& _x, const Vec _v = Vec(0,0,0), const double _psi=0.0)
     {
         x=_x;
         v=_v;
@@ -61,7 +61,7 @@ public :
         boundaryNeighbor.clear();
     }
 
-    Particle(Vec& _x, Vec& _v, Vec3<float> _c = Vec3<float>(0,0,1))
+    Particle(const Vec& _x, const Vec& _v = Vec(0,0,0), const Vec3<float> _c = Vec3<float>(0,0,1))
     {
         x = _x;
         v = _v;

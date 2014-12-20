@@ -94,6 +94,9 @@ public :
     void integration();
     void simulate();
 
+    void addBoundaryParticle(const Vec& x, const Vec& v = Vec(0,0,0));
+    void addFluidParticle(const Vec& x, const Vec& v = Vec(0,0,0));
+
     //Initialize a dam break scenario
     const Vec& getGravity();
     void setGravity(const Vec& _gravity);
@@ -107,9 +110,12 @@ public :
     void addParticleBox(const Vec& offset, const Vec& dimension);
     void addParticleSphere(const Vec& centre, const double radius);
 
+    //Boundary sampling
     void addBoundaryMesh(const char* filename);
-    void addBoundaryBox(const Vec& min, const Vec& max, const double spacing);
-    void addBoundaryBox(const Vec& min, const Vec& scale);
+    void addBoundaryBox(const Vec& offset, const Vec& scale);
+    void addBoundarySphere(const Vec& offset, const double& radius);
+    void addBoundaryHemiSphere(const Vec& offset, const double& radius);
+    void addBoundaryDisk(const Vec& offset, const double& radius);
 
     void debugFluid();
     void debugIteration(int l);
