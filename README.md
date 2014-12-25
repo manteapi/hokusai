@@ -14,6 +14,14 @@ How to compile/run examples
     make
     ./dambreak
 
+How to compile/run tests
+--------------------------
+    cd tests
+    mkdir build
+    cd build
+    cmake ..
+    make test
+
 To do...soon...
 ---------------
 
