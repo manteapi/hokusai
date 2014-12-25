@@ -1,0 +1,6 @@
+language: cpp
+#Sorry no visual studio available in travis...
+compiler:
+    - gcc
+    - clang
+script: ./script/run-tests.sh

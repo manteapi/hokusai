@@ -5,12 +5,14 @@ Author
 ------
 *manteapi*
 
-How to compile library and examples
+How to compile/run examples
 ------------------------------------
+    cd examples
     mkdir build
     cd build
     cmake ..
     make
+    ./dambreak
 
 To do...soon...
 ---------------

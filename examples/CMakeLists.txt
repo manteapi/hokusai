@@ -4,8 +4,8 @@ project(fluid)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "-std=c++0x -fopenmp" ${CMAKE_CXX_FLAGS})
 
-add_subdirectory(hokusai hokusai/build)
-include_directories(hokusai/include)
+add_subdirectory(../hokusai hokusai/build)
+include_directories(../hokusai/include)
 
 #find_package(OpenGL REQUIRED)
 #include_directories( ${OPENGL_INCLUDE_DIRS} )
@@ -19,23 +19,23 @@ set(
     HOKUSAI 
     )
 
-add_executable(boundaryMesh examples/boundaryMesh.cpp)
+add_executable(boundaryMesh boundaryMesh.cpp)
 target_link_libraries(boundaryMesh ${ALL_LIBS})
 
-add_executable(cube examples/cube.cpp)
+add_executable(cube cube.cpp)
 target_link_libraries(cube ${ALL_LIBS})
 
-add_executable(damBreak examples/damBreak.cpp)
+add_executable(damBreak damBreak.cpp)
 target_link_libraries(damBreak ${ALL_LIBS})
 
-add_executable(sphere examples/sphere.cpp)
+add_executable(sphere sphere.cpp)
 target_link_libraries(sphere ${ALL_LIBS})
 
-add_executable(monkey examples/monkey.cpp)
+add_executable(monkey monkey.cpp)
 target_link_libraries(monkey ${ALL_LIBS})
 
-add_executable(takanaga examples/takanaga.cpp)
+add_executable(takanaga takanaga.cpp)
 target_link_libraries(takanaga ${ALL_LIBS})
 
-add_executable(zeroGravity examples/zeroGravity.cpp)
+add_executable(zeroGravity zeroGravity.cpp)
 target_link_libraries(zeroGravity ${ALL_LIBS})
