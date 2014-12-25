@@ -108,6 +108,8 @@ bool AkinciEdgeSampling( const Vec3<double>& p1, const Vec3<double>& p2, const d
         p = p1 + (double)j*pe;
         samples.push_back(p);
     }
+
+    return true;
 }
 
 bool AkinciFullTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2, const Vec3<double>& p3, const double& particleDiameter, std::vector< Vec3<double> >& samples)
@@ -118,7 +120,7 @@ bool AkinciFullTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2,
     samples.push_back(p2);
     samples.push_back(p3);
 
-    AkinciTriangleSampling(p1,p2,p3,particleDiameter, tmp);
+    bool success = AkinciTriangleSampling(p1,p2,p3,particleDiameter, tmp);
     for(size_t i=0; i<tmp.size(); ++i)
         samples.push_back(tmp[i]);
 
@@ -133,7 +135,8 @@ bool AkinciFullTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2,
     AkinciEdgeSampling(p2,p3,particleDiameter, tmp);
     for(size_t i=0; i<tmp.size(); ++i)
         samples.push_back(tmp[i]);
-
+   
+    return success;
 }
 
 bool AkinciTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2, const Vec3<double>& p3, const double& particleDiameter, std::vector< Vec3<double> >& samples)
@@ -229,6 +232,7 @@ bool AkinciTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2, con
             samples.push_back(p);
         }
     }
+    return success;
 }
 
 bool AkinciMeshSampling(const TriMesh& mesh, const double& particleDiameter, std::vector<Vec3f>& samples)
@@ -259,6 +263,7 @@ bool AkinciMeshSampling(const TriMesh& mesh, const double& particleDiameter, std
             samples.push_back(tmpSample[j]);
         success = success && tmpSuccess;
     }
+    return success;
 }
 
 std::vector<Vec3<double> > getPyramidSampling(const Vec3<double>& _center, double base, double height, double spacing)
