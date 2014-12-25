@@ -4,10 +4,10 @@ project(HOKUSAI) #Make HOKUSAI_SOURCE_DIR, HOKUSAI_BIN_DIR and HOKUSAI available
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
-if(WIN32 OR APPLE)
-    option(HOKUSAI_OPENMP "Use OpenMP" OFF)
-else()
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     option(HOKUSAI_OPENMP "Use OpenMP" ON)
+else()
+    option(HOKUSAI_OPENMP "Use OpenMP" OFF)
 endif()
 
 if(HOKUSAI_OPENMP)
