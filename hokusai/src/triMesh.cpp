@@ -270,7 +270,7 @@ void TriMesh::getBorderEdges(const int triangleId, std::vector< std::pair<int,in
 }
 
 //To do : debug
-void TriMesh::getContour(std::vector< std::pair<int, int> >& edges)
+void TriMesh::getContour(std::vector< std::pair<int, int> >& /*edges*/)
 {
     /*
     edges.clear();
