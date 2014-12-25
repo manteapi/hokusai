@@ -4,7 +4,11 @@
 #include "../include/hokusai/HSL2RGB.hpp"
 #include <algorithm>
 #include <assert.h>
-#include <omp.h>
+
+#ifdef HOKUSAI_USING_OPENMP
+    #include <omp.h>
+#endif
+
 #include <fstream>
 #include <sstream>
 
@@ -136,11 +140,15 @@ bool System::isSurfaceParticle(int i, double treshold)
 
 vector<Particle> System::getSurfaceParticle()
 {
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
         computeRho(i);
 
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
         computeNormal(i);
 
@@ -925,22 +933,30 @@ void System::prepareGrid()
             fluidGrid[id].push_back(i);
     }
 
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
     for(int i = 0; i < particleNumber; ++i)
         getNearestNeighbor(i, 2.0*h);
 }
 
 void System::predictAdvection()
 {
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
         computeRho(i);
 
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
         computeNormal(i);
 
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
     {
         computeAdvectionForces(i);
@@ -948,7 +964,9 @@ void System::predictAdvection()
         computeDii(i);
     }
 
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
     {
         predictRho(i);
@@ -963,11 +981,15 @@ void System::pressureSolve()
 
     while( ( (rho_avg_l-restDensity)>maxEta ) || (l<2) )
     {
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
         for(int i=0; i<particleNumber; ++i)
             computeSumDijPj(i);
 
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
         for(int i=0; i<particleNumber; ++i)
         {
             computePressure(i);
@@ -986,11 +1008,15 @@ void System::integration()
 {
     countTime++; time+=dt;
 
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
         computePressureForce(i);
 
+#ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
     {
         Particle& pi=particles[i];

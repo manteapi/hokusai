@@ -4,11 +4,19 @@ project(HOKUSAI) #Make HOKUSAI_SOURCE_DIR, HOKUSAI_BIN_DIR and HOKUSAI available
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
-find_package(OpenMP)
-if(OPENMP_FOUND)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+if(WIN32 OR APPLE)
+    option(HOKUSAI_OPENMP "Use OpenMP" OFF)
+else()
+    option(HOKUSAI_OPENMP "Use OpenMP" ON)
 endif()
 
+if(HOKUSAI_OPENMP)
+    add_definitions( -DHOKUSAI_USING_OPENMP )
+    find_package(OpenMP)
+    if(OPENMP_FOUND)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    endif()
+endif()
 
 set(HOKUSAI_SOURCE
     ./src/particle.cpp
