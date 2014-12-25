@@ -189,7 +189,7 @@ bool AkinciTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2, con
     findVertex[edgesI[sEdge][0]] = false;
     findVertex[edgesI[sEdge][1]] = false;
     int thirdVertex = -1;
-    for(int i=0; i<findVertex.size(); ++i)
+    for(size_t i=0; i<findVertex.size(); ++i)
         if(findVertex[i]==true)
             thirdVertex = i;
     Vec3<double> tmpVec = v[thirdVertex] - v[edgesI[sEdge][0]];

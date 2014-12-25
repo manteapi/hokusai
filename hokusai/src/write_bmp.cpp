@@ -40,7 +40,7 @@ static void my_fwrite( T *data, size_t size, size_t n, FILE * fp )
     {
         //Big Endian
         T value = *data;
-        for( int i=0; i<size; i++ )
+        for( size_t i=0; i<size; i++ )
         {
             int v = (value >> (8*i)) & 0x000000ff;
             putc(v, fp);
