@@ -292,7 +292,7 @@ void write_frame(vector<Particle>& particles, int step)
     float eye = 0.02;
     float offset = 0.5;
 
-    for( int n=0; n<particles.size(); n++ )
+    for( size_t n=0; n<particles.size(); n++ )
     {
         //if( particles[n]->type == FLUID ) %{
         //float p[3] = { particles[n]->p[0]-0.5, particles[n]->p[1]-0.5, particles[n]->p[2]-0.5 };

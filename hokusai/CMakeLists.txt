@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project(HOKUSAI) #Make HOKUSAI_SOURCE_DIR, HOKUSAI_BIN_DIR and HOKUSAI available
 
 set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")

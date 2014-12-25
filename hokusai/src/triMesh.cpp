@@ -180,7 +180,7 @@ void TriMesh::getAcrossFaces(const int faceId, std::vector<int>& neighbors)
     for(int l=0; l<3; ++l)
     {
         getVertexAdjacentFaces(vertex[l], neighborFaces);
-        for(int i=0; i<neighborFaces.size(); ++i)
+        for(size_t i=0; i<neighborFaces.size(); ++i)
         {
             int commonVertex = 0;
             for(int j=0; j< 3; ++j)
@@ -256,7 +256,7 @@ void TriMesh::getBorderEdges(const int triangleId, std::vector< std::pair<int,in
         tmpEdge.second = triangles[triangleId][(i+1)%3];
         tmpTriangles = adjacentFaces[tmpEdge.first];
         int acrossEdgeTriangle = 0;
-        for(int j=0; j<tmpTriangles.size(); ++j)
+        for(size_t j=0; j<tmpTriangles.size(); ++j)
         {
             for(int k=0; k<3; ++k)
             {

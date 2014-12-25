@@ -208,10 +208,10 @@ std::vector<Vec3i> rasterizeTriangleWithoutSpan(const Vec3i& a, const Vec3i& b, 
 {
     std::vector<Vec3i> ab, ac, tmp, result;
     ab = rasterizeLine(a,b);
-    for(int i=0; i<ab.size(); ++i)
+    for(size_t i=0; i<ab.size(); ++i)
     {
         tmp = rasterizeLine(c,ab[i]);
-        for(int j=0; j<tmp.size(); ++j)
+        for(size_t j=0; j<tmp.size(); ++j)
         {
             result.push_back(tmp[j]);
         }
