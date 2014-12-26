@@ -27,11 +27,7 @@ set(
     gtest_main
     )
 
-add_executable(test1 test1.cpp)
-target_link_libraries(test1 ${ALL_LIBS})
+add_executable(vecTest vecTest.cpp)
+target_link_libraries(vecTest ${ALL_LIBS})
 
-add_executable(test2 test2.cpp)
-target_link_libraries(test2 ${ALL_LIBS})
-
-add_test(TEST1 test1)
-add_test(TEST2 test2)
+add_test(VECTEST vecTest)
