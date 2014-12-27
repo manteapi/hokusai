@@ -1,0 +1,323 @@
+\hypertarget{classhokusai_1_1System}{\section{hokusai\+:\+:System Class Reference}
+\label{classhokusai_1_1System}\index{hokusai\+::\+System@{hokusai\+::\+System}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classhokusai_1_1System_ac69d6b544cc0c28bcbe21881eafaf4f4}{{\bfseries System} (int resolution)}\label{classhokusai_1_1System_ac69d6b544cc0c28bcbe21881eafaf4f4}
+
+\item 
+\hypertarget{classhokusai_1_1System_a0d3fa37f929ce81b00949bc057787885}{void {\bfseries get\+Nearest\+Neighbor} (vector$<$ int $>$ \&neighbors, const vector$<$ vector$<$ int $>$ $>$ \&grid, const \hyperlink{classhokusai_1_1Vec3}{Vec} \&x)}\label{classhokusai_1_1System_a0d3fa37f929ce81b00949bc057787885}
+
+\item 
+\hypertarget{classhokusai_1_1System_adba058b687571d9fde96cce55532cdfd}{void {\bfseries get\+Nearest\+Neighbor} (const int i, const float radius)}\label{classhokusai_1_1System_adba058b687571d9fde96cce55532cdfd}
+
+\item 
+\hypertarget{classhokusai_1_1System_ab9b62d601ea3688a8e750029957954d5}{void {\bfseries prepare\+Grid} ()}\label{classhokusai_1_1System_ab9b62d601ea3688a8e750029957954d5}
+
+\item 
+\hypertarget{classhokusai_1_1System_a64334b7f182e61fee1461dcd59afee48}{void {\bfseries predict\+Advection} ()}\label{classhokusai_1_1System_a64334b7f182e61fee1461dcd59afee48}
+
+\item 
+\hypertarget{classhokusai_1_1System_a24981d71c6a6bbb542989fb043ba0c27}{void {\bfseries predict\+Rho} (int i)}\label{classhokusai_1_1System_a24981d71c6a6bbb542989fb043ba0c27}
+
+\item 
+\hypertarget{classhokusai_1_1System_ad03bdd283b7e2ced76f49586b6539e0d}{void {\bfseries initialize\+Pressure} (int i)}\label{classhokusai_1_1System_ad03bdd283b7e2ced76f49586b6539e0d}
+
+\item 
+\hypertarget{classhokusai_1_1System_a3dd4abd4ca3c3df144f4544af62e924c}{void {\bfseries compute\+Normal} (int i)}\label{classhokusai_1_1System_a3dd4abd4ca3c3df144f4544af62e924c}
+
+\item 
+\hypertarget{classhokusai_1_1System_aa94aef91ba4304cb095df38001ea6a87}{bool {\bfseries is\+Surface\+Particle} (int i, double treshold)}\label{classhokusai_1_1System_aa94aef91ba4304cb095df38001ea6a87}
+
+\item 
+\hypertarget{classhokusai_1_1System_a36ea9ad4d239a3b2d9ca212f096e024c}{vector$<$ \hyperlink{classhokusai_1_1Particle}{Particle} $>$ {\bfseries get\+Surface\+Particle} ()}\label{classhokusai_1_1System_a36ea9ad4d239a3b2d9ca212f096e024c}
+
+\item 
+\hypertarget{classhokusai_1_1System_ababeb259a66d4c8860a907bf37b0daac}{void {\bfseries compute\+Rho} (int i)}\label{classhokusai_1_1System_ababeb259a66d4c8860a907bf37b0daac}
+
+\item 
+\hypertarget{classhokusai_1_1System_ab5698c6c009cf3f53d7fd7ea83124943}{void {\bfseries compute\+Advection\+Forces} (int i)}\label{classhokusai_1_1System_ab5698c6c009cf3f53d7fd7ea83124943}
+
+\item 
+\hypertarget{classhokusai_1_1System_a99dc5437815b3b06d839f8c14a6f5082}{void {\bfseries compute\+Viscosity\+Forces} (int i, int j)}\label{classhokusai_1_1System_a99dc5437815b3b06d839f8c14a6f5082}
+
+\item 
+\hypertarget{classhokusai_1_1System_a2e346ab27cf2975cfa722de07f6be13b}{void {\bfseries compute\+Surface\+Tension\+Forces} (int i, int j)}\label{classhokusai_1_1System_a2e346ab27cf2975cfa722de07f6be13b}
+
+\item 
+\hypertarget{classhokusai_1_1System_a96cafd0c6ed280d14a5274521c2a0ea8}{void {\bfseries compute\+Boundary\+Friction\+Forces} (int i, int j)}\label{classhokusai_1_1System_a96cafd0c6ed280d14a5274521c2a0ea8}
+
+\item 
+\hypertarget{classhokusai_1_1System_aef6475d83f8281dd994290a1a8e35f73}{void {\bfseries compute\+Boundary\+Adhesion\+Forces} (int i, int j)}\label{classhokusai_1_1System_aef6475d83f8281dd994290a1a8e35f73}
+
+\item 
+\hypertarget{classhokusai_1_1System_ac4a46ec961ba687f0cf9d6e7c3ca2fa7}{void {\bfseries predict\+Velocity} (int i)}\label{classhokusai_1_1System_ac4a46ec961ba687f0cf9d6e7c3ca2fa7}
+
+\item 
+\hypertarget{classhokusai_1_1System_a270f28102086bbb8eb329bace876cfa3}{void {\bfseries compute\+Dii} (int i)}\label{classhokusai_1_1System_a270f28102086bbb8eb329bace876cfa3}
+
+\item 
+\hypertarget{classhokusai_1_1System_a016eb53960340223ed8db78b565c8b81}{void {\bfseries compute\+Dii\+\_\+\+Fluid} (int i)}\label{classhokusai_1_1System_a016eb53960340223ed8db78b565c8b81}
+
+\item 
+\hypertarget{classhokusai_1_1System_a9bc6ba8499fba641146360fb9b213f5f}{void {\bfseries compute\+Dii\+\_\+\+Boundary} (int i)}\label{classhokusai_1_1System_a9bc6ba8499fba641146360fb9b213f5f}
+
+\item 
+\hypertarget{classhokusai_1_1System_ad9c5e4600c71f0dbf25393c32dc062e8}{void {\bfseries compute\+Aii} (int i)}\label{classhokusai_1_1System_ad9c5e4600c71f0dbf25393c32dc062e8}
+
+\item 
+\hypertarget{classhokusai_1_1System_aa917a7ddc9c3b7628e24fe168159d8d9}{void {\bfseries pressure\+Solve} ()}\label{classhokusai_1_1System_aa917a7ddc9c3b7628e24fe168159d8d9}
+
+\item 
+\hypertarget{classhokusai_1_1System_a219264b7b9323ccd8b05cb4ee4bc8496}{void {\bfseries compute\+Sum\+Dij\+Pj} (int i)}\label{classhokusai_1_1System_a219264b7b9323ccd8b05cb4ee4bc8496}
+
+\item 
+\hypertarget{classhokusai_1_1System_abe44c2642a1e1655f0993a1ac176dafd}{\hyperlink{classhokusai_1_1Vec3}{Vec} {\bfseries compute\+Dij} (int i, int j)}\label{classhokusai_1_1System_abe44c2642a1e1655f0993a1ac176dafd}
+
+\item 
+\hypertarget{classhokusai_1_1System_a73a80cac48ba446aeb9d4314d56f9d83}{void {\bfseries compute\+Pressure} (int i)}\label{classhokusai_1_1System_a73a80cac48ba446aeb9d4314d56f9d83}
+
+\item 
+\hypertarget{classhokusai_1_1System_a911d322713ba6f687fa199cd53a33ffd}{void {\bfseries compute\+Pressure\+Force} (int i)}\label{classhokusai_1_1System_a911d322713ba6f687fa199cd53a33ffd}
+
+\item 
+\hypertarget{classhokusai_1_1System_aac21a8100e9844eb4e7c0f9d2d5a2032}{void {\bfseries compute\+Error} ()}\label{classhokusai_1_1System_aac21a8100e9844eb4e7c0f9d2d5a2032}
+
+\item 
+\hypertarget{classhokusai_1_1System_a8ef23f50c8e29c3707202f7e3db69399}{void {\bfseries integration} ()}\label{classhokusai_1_1System_a8ef23f50c8e29c3707202f7e3db69399}
+
+\item 
+\hypertarget{classhokusai_1_1System_a5f610d18b2e156efa68714eb56b2a71b}{void {\bfseries simulate} ()}\label{classhokusai_1_1System_a5f610d18b2e156efa68714eb56b2a71b}
+
+\item 
+\hypertarget{classhokusai_1_1System_ab1ae8b4b1cbed97eee6a4d141f9b7202}{void {\bfseries add\+Boundary\+Particle} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&x, const \hyperlink{classhokusai_1_1Vec3}{Vec} \&v=\hyperlink{classhokusai_1_1Vec3}{Vec}(0, 0, 0))}\label{classhokusai_1_1System_ab1ae8b4b1cbed97eee6a4d141f9b7202}
+
+\item 
+\hypertarget{classhokusai_1_1System_ac1eb0ec0639794d33433da30947931fe}{void {\bfseries add\+Fluid\+Particle} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&x, const \hyperlink{classhokusai_1_1Vec3}{Vec} \&v=\hyperlink{classhokusai_1_1Vec3}{Vec}(0, 0, 0))}\label{classhokusai_1_1System_ac1eb0ec0639794d33433da30947931fe}
+
+\item 
+\hypertarget{classhokusai_1_1System_adfd39e4458c17585f416476fd326da96}{const \hyperlink{classhokusai_1_1Vec3}{Vec} \& {\bfseries get\+Gravity} ()}\label{classhokusai_1_1System_adfd39e4458c17585f416476fd326da96}
+
+\item 
+\hypertarget{classhokusai_1_1System_a0e5239e88b09033d3cb741f4e81650e3}{void {\bfseries set\+Gravity} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&\+\_\+gravity)}\label{classhokusai_1_1System_a0e5239e88b09033d3cb741f4e81650e3}
+
+\item 
+\hypertarget{classhokusai_1_1System_add27dc99988b76deba23f930692dafa7}{void {\bfseries set\+Parameters} (int \+\_\+number, double \+\_\+volume=1.\+0)}\label{classhokusai_1_1System_add27dc99988b76deba23f930692dafa7}
+
+\item 
+\hypertarget{classhokusai_1_1System_a113840a2f2333719576eefcc02be0af4}{void {\bfseries create\+Particle\+Volume} (\hyperlink{classhokusai_1_1Vec3}{Vec} \&pos, double width, double height, double depth, double spacing, int particle\+Max)}\label{classhokusai_1_1System_a113840a2f2333719576eefcc02be0af4}
+
+\item 
+\hypertarget{classhokusai_1_1System_aef8fadaa38d9e784e9c73d294be3eccd}{void {\bfseries translate\+Particles} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&t)}\label{classhokusai_1_1System_aef8fadaa38d9e784e9c73d294be3eccd}
+
+\item 
+\hypertarget{classhokusai_1_1System_a0a3d7e4e33895f50de7462265f9dbdc1}{void {\bfseries translate\+Boundaries} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&t)}\label{classhokusai_1_1System_a0a3d7e4e33895f50de7462265f9dbdc1}
+
+\item 
+\hypertarget{classhokusai_1_1System_afdf9d3e25f2577cf8ca0587020f4a915}{void {\bfseries add\+Particle\+Box} (double width, double height, double depth, double spacing)}\label{classhokusai_1_1System_afdf9d3e25f2577cf8ca0587020f4a915}
+
+\item 
+\hypertarget{classhokusai_1_1System_a6791b6a6a6404891d2081f70f3c7d65b}{void {\bfseries add\+Particle\+Box} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&offset, const \hyperlink{classhokusai_1_1Vec3}{Vec} \&dimension)}\label{classhokusai_1_1System_a6791b6a6a6404891d2081f70f3c7d65b}
+
+\item 
+\hypertarget{classhokusai_1_1System_a347bd0d11ca4848d5175707f08dcbbf4}{void {\bfseries add\+Particle\+Sphere} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&centre, const double radius)}\label{classhokusai_1_1System_a347bd0d11ca4848d5175707f08dcbbf4}
+
+\item 
+\hypertarget{classhokusai_1_1System_a1690431cc65e14a334509893fe463aa3}{void {\bfseries add\+Boundary\+Mesh} (const char $\ast$filename)}\label{classhokusai_1_1System_a1690431cc65e14a334509893fe463aa3}
+
+\item 
+\hypertarget{classhokusai_1_1System_a77e48404cd67489b7c015ee141e0da69}{void {\bfseries add\+Boundary\+Box} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&offset, const \hyperlink{classhokusai_1_1Vec3}{Vec} \&scale)}\label{classhokusai_1_1System_a77e48404cd67489b7c015ee141e0da69}
+
+\item 
+\hypertarget{classhokusai_1_1System_a1c035dcf309d5509023f7fd6aa0cb502}{void {\bfseries add\+Boundary\+Sphere} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&offset, const double \&radius)}\label{classhokusai_1_1System_a1c035dcf309d5509023f7fd6aa0cb502}
+
+\item 
+\hypertarget{classhokusai_1_1System_a626e71abfa7bd63f6cd9c8310bc3eff7}{void {\bfseries add\+Boundary\+Hemi\+Sphere} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&offset, const double \&radius)}\label{classhokusai_1_1System_a626e71abfa7bd63f6cd9c8310bc3eff7}
+
+\item 
+\hypertarget{classhokusai_1_1System_a1c7bc4b0c82937b65da0b445450e9b06}{void {\bfseries add\+Boundary\+Disk} (const \hyperlink{classhokusai_1_1Vec3}{Vec} \&offset, const double \&radius)}\label{classhokusai_1_1System_a1c7bc4b0c82937b65da0b445450e9b06}
+
+\item 
+\hypertarget{classhokusai_1_1System_a576ed060f4b123eb3621ff1e5e2db8f2}{void {\bfseries debug\+Fluid} ()}\label{classhokusai_1_1System_a576ed060f4b123eb3621ff1e5e2db8f2}
+
+\item 
+\hypertarget{classhokusai_1_1System_a2f9ffc1b0288aef9d590f904b73f7d98}{void {\bfseries debug\+Iteration} (int l)}\label{classhokusai_1_1System_a2f9ffc1b0288aef9d590f904b73f7d98}
+
+\item 
+\hypertarget{classhokusai_1_1System_ad555a840021b69ebc3d23bddf29161cf}{void {\bfseries morton\+Sort} ()}\label{classhokusai_1_1System_ad555a840021b69ebc3d23bddf29161cf}
+
+\item 
+\hypertarget{classhokusai_1_1System_aa1b0cd0ea1da4d636f07fd19e09553d4}{void {\bfseries init} ()}\label{classhokusai_1_1System_aa1b0cd0ea1da4d636f07fd19e09553d4}
+
+\item 
+\hypertarget{classhokusai_1_1System_a6474261bf6782c04bcf3cc1f17e42bcc}{void {\bfseries compute\+Boundary\+Volume} ()}\label{classhokusai_1_1System_a6474261bf6782c04bcf3cc1f17e42bcc}
+
+\item 
+\hypertarget{classhokusai_1_1System_a56297f2e801b1f619b5b85efe13dc309}{void {\bfseries compute\+Mean\+Density} ()}\label{classhokusai_1_1System_a56297f2e801b1f619b5b85efe13dc309}
+
+\item 
+\hypertarget{classhokusai_1_1System_a586f89058e9eb2024b58e96ab6383b02}{void {\bfseries compute\+Stats} ()}\label{classhokusai_1_1System_a586f89058e9eb2024b58e96ab6383b02}
+
+\item 
+\hypertarget{classhokusai_1_1System_a978da9f525adbe32b93862b4a607219c}{void {\bfseries compute\+Density\+Fluctuation} ()}\label{classhokusai_1_1System_a978da9f525adbe32b93862b4a607219c}
+
+\item 
+\hypertarget{classhokusai_1_1System_a5f9be7947b05b3bf0fb94f04bff9c8be}{void {\bfseries compute\+Volume} ()}\label{classhokusai_1_1System_a5f9be7947b05b3bf0fb94f04bff9c8be}
+
+\item 
+\hypertarget{classhokusai_1_1System_afc3b5fcd99f7833cbcdff9bffc01aead}{void {\bfseries compute\+Cell\+Change} ()}\label{classhokusai_1_1System_afc3b5fcd99f7833cbcdff9bffc01aead}
+
+\item 
+\hypertarget{classhokusai_1_1System_abe02eb4186b7435da62ae8a1faf34729}{void {\bfseries compute\+Scalar\+Field} ()}\label{classhokusai_1_1System_abe02eb4186b7435da62ae8a1faf34729}
+
+\item 
+\hypertarget{classhokusai_1_1System_acb64e47f72964c8c3c93e1cf8056d8a0}{void {\bfseries compute\+Surface} ()}\label{classhokusai_1_1System_acb64e47f72964c8c3c93e1cf8056d8a0}
+
+\item 
+\hypertarget{classhokusai_1_1System_a9b8590d75098c5aa4b11287c692eeaf9}{vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3}$<$ double $>$ $>$ {\bfseries get\+Position} ()}\label{classhokusai_1_1System_a9b8590d75098c5aa4b11287c692eeaf9}
+
+\item 
+\hypertarget{classhokusai_1_1System_ab0b1c9d22844dc40635fe89bcae82f36}{vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3}$<$ double $>$ $>$ {\bfseries get\+Velocity} ()}\label{classhokusai_1_1System_ab0b1c9d22844dc40635fe89bcae82f36}
+
+\item 
+\hypertarget{classhokusai_1_1System_a3ac3dfd10317d3e371b8e3dfa59c0fdd}{vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3}$<$ double $>$ $>$ {\bfseries get\+Normal} ()}\label{classhokusai_1_1System_a3ac3dfd10317d3e371b8e3dfa59c0fdd}
+
+\item 
+\hypertarget{classhokusai_1_1System_ae2b2f8df92f89f760a32c2366f110f95}{void {\bfseries write} (const char $\ast$filename, vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3}$<$ double $>$ $>$ data)}\label{classhokusai_1_1System_ae2b2f8df92f89f760a32c2366f110f95}
+
+\item 
+\hypertarget{classhokusai_1_1System_a829bce7b9916f4e566b42dacfd3c90ab}{void {\bfseries export\+State} (const char $\ast$base\+Name)}\label{classhokusai_1_1System_a829bce7b9916f4e566b42dacfd3c90ab}
+
+\item 
+\hypertarget{classhokusai_1_1System_ac9b5c1427e26ac91bfadefb9d50a7828}{double {\bfseries get\+Time\+Step} ()}\label{classhokusai_1_1System_ac9b5c1427e26ac91bfadefb9d50a7828}
+
+\item 
+\hypertarget{classhokusai_1_1System_a9a14ef94a4461ade443eba89564e9d24}{void {\bfseries set\+Time\+Step} (const double \+\_\+dt)}\label{classhokusai_1_1System_a9a14ef94a4461ade443eba89564e9d24}
+
+\item 
+\hypertarget{classhokusai_1_1System_a049cc39de7dd2ca0a6c147b103bc4f3c}{double {\bfseries get\+Time} ()}\label{classhokusai_1_1System_a049cc39de7dd2ca0a6c147b103bc4f3c}
+
+\item 
+\hypertarget{classhokusai_1_1System_a9796f1748b1f21fcc42fcd4837b2800c}{double \& {\bfseries get\+Smoothing\+Radius\+Value} ()}\label{classhokusai_1_1System_a9796f1748b1f21fcc42fcd4837b2800c}
+
+\item 
+\hypertarget{classhokusai_1_1System_a0c68c48de813fd9db6d3fd7c46bf3c67}{const double \& {\bfseries get\+Smoothing\+Radius} ()}\label{classhokusai_1_1System_a0c68c48de813fd9db6d3fd7c46bf3c67}
+
+\item 
+\hypertarget{classhokusai_1_1System_a9963a5f8be15d0b1a4b9260f21afde8d}{double \& {\bfseries get\+Time\+Step\+Value} ()}\label{classhokusai_1_1System_a9963a5f8be15d0b1a4b9260f21afde8d}
+
+\item 
+\hypertarget{classhokusai_1_1System_acb284ca670c2a6ba50f058dfb0b663a2}{double \& {\bfseries get\+Mass\+Value} ()}\label{classhokusai_1_1System_acb284ca670c2a6ba50f058dfb0b663a2}
+
+\item 
+\hypertarget{classhokusai_1_1System_ae3c199849ee3fcbb859e936da395eb54}{double \& {\bfseries get\+Mean\+Density\+Value} ()}\label{classhokusai_1_1System_ae3c199849ee3fcbb859e936da395eb54}
+
+\item 
+\hypertarget{classhokusai_1_1System_a0cf0b5465d7fc37e12cfca441fe95679}{double \& {\bfseries get\+Density\+Fluctuation\+Value} ()}\label{classhokusai_1_1System_a0cf0b5465d7fc37e12cfca441fe95679}
+
+\item 
+\hypertarget{classhokusai_1_1System_ac6f56d92e106837cb8f7090aae0464b7}{double \& {\bfseries get\+Real\+Volume\+Value} ()}\label{classhokusai_1_1System_ac6f56d92e106837cb8f7090aae0464b7}
+
+\item 
+\hypertarget{classhokusai_1_1System_a42925e5c44d3660e695a40118cbde885}{int \& {\bfseries get\+Particle\+Number} ()}\label{classhokusai_1_1System_a42925e5c44d3660e695a40118cbde885}
+
+\item 
+\hypertarget{classhokusai_1_1System_a38e8eeb4efa0ced6d8ce8c33f8919689}{void {\bfseries apply\+Shepard\+Filter} ()}\label{classhokusai_1_1System_a38e8eeb4efa0ced6d8ce8c33f8919689}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classhokusai_1_1System_af1d25e92a8bf8584d3eab550a64a9ef4}{int {\bfseries count\+Time}}\label{classhokusai_1_1System_af1d25e92a8bf8584d3eab550a64a9ef4}
+
+\item 
+\hypertarget{classhokusai_1_1System_a6e07cf94f8f0e8cfa06c9ffc328f7f69}{int {\bfseries count\+Export}}\label{classhokusai_1_1System_a6e07cf94f8f0e8cfa06c9ffc328f7f69}
+
+\item 
+\hypertarget{classhokusai_1_1System_aa68a9a5fa995457bc1097aee2c79698e}{int {\bfseries particle\+Number}}\label{classhokusai_1_1System_aa68a9a5fa995457bc1097aee2c79698e}
+
+\item 
+\hypertarget{classhokusai_1_1System_a5dc361ffc505de9b61d143b443c5b3df}{int {\bfseries boundary\+Number}}\label{classhokusai_1_1System_a5dc361ffc505de9b61d143b443c5b3df}
+
+\item 
+\hypertarget{classhokusai_1_1System_a935b1a6a7234b565889df351c3b92ddd}{double {\bfseries volume}}\label{classhokusai_1_1System_a935b1a6a7234b565889df351c3b92ddd}
+
+\item 
+\hypertarget{classhokusai_1_1System_a2cd3c7cfd8f1af70a8bebd7f9a6dd990}{double {\bfseries rest\+Density}}\label{classhokusai_1_1System_a2cd3c7cfd8f1af70a8bebd7f9a6dd990}
+
+\item 
+\hypertarget{classhokusai_1_1System_a5be169dc0b5230c6d61b1acdd2fe5605}{double {\bfseries mean\+\_\+density}}\label{classhokusai_1_1System_a5be169dc0b5230c6d61b1acdd2fe5605}
+
+\item 
+\hypertarget{classhokusai_1_1System_ab618a2e196444befb085c2f76cd92a3f}{double {\bfseries density\+\_\+fluctuation}}\label{classhokusai_1_1System_ab618a2e196444befb085c2f76cd92a3f}
+
+\item 
+\hypertarget{classhokusai_1_1System_a47fa8e10ecebdac8e5c5372d19f00d0b}{double {\bfseries real\+\_\+volume}}\label{classhokusai_1_1System_a47fa8e10ecebdac8e5c5372d19f00d0b}
+
+\item 
+\hypertarget{classhokusai_1_1System_a27bd4f68cec8e24839e4f4a792e0e835}{double {\bfseries mass}}\label{classhokusai_1_1System_a27bd4f68cec8e24839e4f4a792e0e835}
+
+\item 
+\hypertarget{classhokusai_1_1System_ab063fb3fb6b28ea01ef699bcfaf0585b}{double {\bfseries h}}\label{classhokusai_1_1System_ab063fb3fb6b28ea01ef699bcfaf0585b}
+
+\item 
+\hypertarget{classhokusai_1_1System_add4493ec253551fe6e5373d5ed6c6c01}{double {\bfseries fcohesion}}\label{classhokusai_1_1System_add4493ec253551fe6e5373d5ed6c6c01}
+
+\item 
+\hypertarget{classhokusai_1_1System_a170cb42ae7f2ab0dd0c3e1e2c57bf55d}{double {\bfseries badhesion}}\label{classhokusai_1_1System_a170cb42ae7f2ab0dd0c3e1e2c57bf55d}
+
+\item 
+\hypertarget{classhokusai_1_1System_a681bb01f5fd5cbe946f185547fc4572b}{double {\bfseries cs}}\label{classhokusai_1_1System_a681bb01f5fd5cbe946f185547fc4572b}
+
+\item 
+\hypertarget{classhokusai_1_1System_af5ad711d7ea2342108dd028a627750f0}{double {\bfseries alpha}}\label{classhokusai_1_1System_af5ad711d7ea2342108dd028a627750f0}
+
+\item 
+\hypertarget{classhokusai_1_1System_af492c74a7f8e35e122d26cdee10651b5}{double {\bfseries boundary\+H}}\label{classhokusai_1_1System_af492c74a7f8e35e122d26cdee10651b5}
+
+\item 
+\hypertarget{classhokusai_1_1System_a84cb5893571394584f950c5678eb7abb}{double {\bfseries dt}}\label{classhokusai_1_1System_a84cb5893571394584f950c5678eb7abb}
+
+\item 
+\hypertarget{classhokusai_1_1System_a8ef03b27a68b4bef2da4dc3e9853ecf4}{double {\bfseries time}}\label{classhokusai_1_1System_a8ef03b27a68b4bef2da4dc3e9853ecf4}
+
+\item 
+\hypertarget{classhokusai_1_1System_a78bf4813438ff67626599b0766b762bd}{double {\bfseries rho\+\_\+avg\+\_\+l}}\label{classhokusai_1_1System_a78bf4813438ff67626599b0766b762bd}
+
+\item 
+\hypertarget{classhokusai_1_1System_a1e56fa9706454b6b7aaa940f00b36de3}{double {\bfseries max\+Eta}}\label{classhokusai_1_1System_a1e56fa9706454b6b7aaa940f00b36de3}
+
+\item 
+\hypertarget{classhokusai_1_1System_a69ba084f17a09169536b7e1e14a6b01b}{\hyperlink{classhokusai_1_1Vec3}{Vec} {\bfseries gravity}}\label{classhokusai_1_1System_a69ba084f17a09169536b7e1e14a6b01b}
+
+\item 
+\hypertarget{classhokusai_1_1System_a643e5fd74ea16fb4c94cb1dba484d8d5}{\hyperlink{classhokusai_1_1AkinciKernel}{Akinci\+Kernel} {\bfseries a\+\_\+kernel}}\label{classhokusai_1_1System_a643e5fd74ea16fb4c94cb1dba484d8d5}
+
+\item 
+\hypertarget{classhokusai_1_1System_a210262981b4c32489816b3bb4702bb24}{\hyperlink{classhokusai_1_1MonaghanKernel}{Monaghan\+Kernel} {\bfseries p\+\_\+kernel}}\label{classhokusai_1_1System_a210262981b4c32489816b3bb4702bb24}
+
+\item 
+\hypertarget{classhokusai_1_1System_a44eb775a7d71f952df7bbb07e672f578}{\hyperlink{classhokusai_1_1BoundaryKernel}{Boundary\+Kernel} {\bfseries b\+\_\+kernel}}\label{classhokusai_1_1System_a44eb775a7d71f952df7bbb07e672f578}
+
+\item 
+\hypertarget{classhokusai_1_1System_a997cffd35278726141a3f60562c0d86f}{vector$<$ \hyperlink{classhokusai_1_1Particle}{Particle} $>$ {\bfseries particles}}\label{classhokusai_1_1System_a997cffd35278726141a3f60562c0d86f}
+
+\item 
+\hypertarget{classhokusai_1_1System_a73cd0e32f2873847545766a9355933aa}{vector$<$ \hyperlink{classhokusai_1_1Boundary}{Boundary} $>$ {\bfseries boundaries}}\label{classhokusai_1_1System_a73cd0e32f2873847545766a9355933aa}
+
+\item 
+\hypertarget{classhokusai_1_1System_a5fc6ffe6a54a5e71cbd339a048903e30}{\hyperlink{classhokusai_1_1GridUtility}{Grid\+Utility} {\bfseries grid\+Info}}\label{classhokusai_1_1System_a5fc6ffe6a54a5e71cbd339a048903e30}
+
+\item 
+\hypertarget{classhokusai_1_1System_a24c3504ef6adbcb0a5c211725cd66b78}{vector$<$ vector$<$ int $>$ $>$ {\bfseries boundary\+Grid}}\label{classhokusai_1_1System_a24c3504ef6adbcb0a5c211725cd66b78}
+
+\item 
+\hypertarget{classhokusai_1_1System_ae0b53e043579b0fe98e9b3c6be714960}{vector$<$ vector$<$ int $>$ $>$ {\bfseries fluid\+Grid}}\label{classhokusai_1_1System_ae0b53e043579b0fe98e9b3c6be714960}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/chardon/\+Documents/perso/hokusai/hokusai/include/hokusai/system.\+hpp\end{DoxyCompactItemize}

@@ -1,0 +1,83 @@
+\hypertarget{classhokusai_1_1TriMesh}{\section{hokusai\+:\+:Tri\+Mesh Class Reference}
+\label{classhokusai_1_1TriMesh}\index{hokusai\+::\+Tri\+Mesh@{hokusai\+::\+Tri\+Mesh}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a08aee2e9b97aad346ad33cf72983d963}{{\bfseries Tri\+Mesh} (const std\+::vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3f} $>$ \&\+\_\+vertices, const std\+::vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3f} $>$ \&\+\_\+normals, const std\+::vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3i} $>$ \&\+\_\+triangles)}\label{classhokusai_1_1TriMesh_a08aee2e9b97aad346ad33cf72983d963}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a5416ebebbeb7fe9255ec3f9c73f7a312}{{\bfseries Tri\+Mesh} (const \hyperlink{classhokusai_1_1TriMesh}{Tri\+Mesh} \&\+\_\+tri\+Mesh)}\label{classhokusai_1_1TriMesh_a5416ebebbeb7fe9255ec3f9c73f7a312}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a7ea2ebddf1c6e5ea8ea0363de3164716}{{\bfseries Tri\+Mesh} (const char $\ast$filename)}\label{classhokusai_1_1TriMesh_a7ea2ebddf1c6e5ea8ea0363de3164716}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_aa8588c3988d925ffcac6e744bad22c9c}{void {\bfseries add\+Cube\+Mesh} (const \hyperlink{classhokusai_1_1Vec3}{Vec3f} \&default\+Position, const double \&scale)}\label{classhokusai_1_1TriMesh_aa8588c3988d925ffcac6e744bad22c9c}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a547fb0be7eb9096dfc9d124bb51b8f37}{void {\bfseries get\+Vertex\+Neighbor} (const int vertex\+Id, std\+::vector$<$ int $>$ \&vneighbors)}\label{classhokusai_1_1TriMesh_a547fb0be7eb9096dfc9d124bb51b8f37}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a0b82eb1e85bdf753d765d1dc98ee5f14}{void {\bfseries get\+Vertex\+Adjacent\+Faces} (const int vertex\+Id, std\+::vector$<$ int $>$ \&vneighbors)}\label{classhokusai_1_1TriMesh_a0b82eb1e85bdf753d765d1dc98ee5f14}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a74571808736926d7e1da7c3f11da53a9}{void {\bfseries get\+Across\+Faces} (const int face\+Id, std\+::vector$<$ int $>$ \&vneighbors)}\label{classhokusai_1_1TriMesh_a74571808736926d7e1da7c3f11da53a9}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a463c7b3b3520229dcff9bf8dfbc26bb0}{void {\bfseries get\+Edges} (const std\+::vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3i} $>$ \&\+\_\+triangles, std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \&\+\_\+edges) const }\label{classhokusai_1_1TriMesh_a463c7b3b3520229dcff9bf8dfbc26bb0}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a2917bfb0b59ac20e9ff0cbb2d803a8eb}{void {\bfseries get\+Border\+Edges} (const int triangle\+Id, std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \&edges)}\label{classhokusai_1_1TriMesh_a2917bfb0b59ac20e9ff0cbb2d803a8eb}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_aae75e7386a67fd114e395998f0c5c8d8}{void {\bfseries get\+Contour} (std\+::vector$<$ std\+::pair$<$ int, int $>$ $>$ \&edges)}\label{classhokusai_1_1TriMesh_aae75e7386a67fd114e395998f0c5c8d8}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_aea6b01075e022e37818987ff6801c398}{void {\bfseries build\+Neighbors} ()}\label{classhokusai_1_1TriMesh_aea6b01075e022e37818987ff6801c398}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a17fb8eb871e93c69135a062cf6eb3629}{void {\bfseries clean} ()}\label{classhokusai_1_1TriMesh_a17fb8eb871e93c69135a062cf6eb3629}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_aa87d4cca81c424576e84583bd6928502}{void {\bfseries info} ()}\label{classhokusai_1_1TriMesh_aa87d4cca81c424576e84583bd6928502}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_ad92f180199c07a0dccf14abb804efae6}{bool {\bfseries test\+Build\+Neighbors} ()}\label{classhokusai_1_1TriMesh_ad92f180199c07a0dccf14abb804efae6}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_aa0730193838372e72b608b94de7dbd66}{bool {\bfseries test\+Get\+Edges} ()}\label{classhokusai_1_1TriMesh_aa0730193838372e72b608b94de7dbd66}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a4c27fe9bb62759960a561d0761e5233a}{bool {\bfseries test\+Get\+Border\+Edges} ()}\label{classhokusai_1_1TriMesh_a4c27fe9bb62759960a561d0761e5233a}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_ac9c21797b8d15631bcc046d4a7d4bae3}{bool {\bfseries test\+Get\+Contour} ()}\label{classhokusai_1_1TriMesh_ac9c21797b8d15631bcc046d4a7d4bae3}
+
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a7cdbc7d9e4248431f08c369c00e56ae4}{std\+::vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3f} $>$ {\bfseries vertices}}\label{classhokusai_1_1TriMesh_a7cdbc7d9e4248431f08c369c00e56ae4}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_af6d1acef7aaba6edabd63e9a33420443}{std\+::vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3f} $>$ {\bfseries normals}}\label{classhokusai_1_1TriMesh_af6d1acef7aaba6edabd63e9a33420443}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a4e46368161f576701d4d0d3797f8b0e1}{std\+::vector$<$ \hyperlink{classhokusai_1_1Vec3}{Vec3i} $>$ {\bfseries triangles}}\label{classhokusai_1_1TriMesh_a4e46368161f576701d4d0d3797f8b0e1}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_a08a649a7d4e011d5f9f80f7f15328e17}{std\+::vector$<$ std\+::vector$<$ int $>$ $>$ {\bfseries vneighbors}}\label{classhokusai_1_1TriMesh_a08a649a7d4e011d5f9f80f7f15328e17}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_ae953089e83d75a007c785ebf3b7c8a7a}{std\+::vector$<$ std\+::vector$<$ int $>$ $>$ {\bfseries adjacent\+Faces}}\label{classhokusai_1_1TriMesh_ae953089e83d75a007c785ebf3b7c8a7a}
+
+\item 
+\hypertarget{classhokusai_1_1TriMesh_ac599100574b4866af51def5f94f480ea}{std\+::vector$<$ std\+::vector$<$ int $>$ $>$ {\bfseries across\+Faces}}\label{classhokusai_1_1TriMesh_ac599100574b4866af51def5f94f480ea}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/chardon/\+Documents/perso/hokusai/hokusai/include/hokusai/tri\+Mesh.\+hpp\end{DoxyCompactItemize}
