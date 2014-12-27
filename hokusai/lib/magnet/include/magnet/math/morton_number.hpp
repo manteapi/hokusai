@@ -72,7 +72,7 @@ namespace magnet {
                 }
 
                 /*! \brief Simple math operation for adding two morton numbers.
-                 */
+                */
                 inline MortonNumber operator+(const MortonNumber& o) const
                 {
                     MortonNumber retval;

@@ -7,6 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 add_subdirectory(../hokusai hokusai/build)
 include_directories(../hokusai/include)
+include_directories(../hokusai/lib/magnet/include)
 
 find_package(Boost COMPONENTS timer system REQUIRED)
 include_directories( ${BOOST_INCLUDE_DIRS} )

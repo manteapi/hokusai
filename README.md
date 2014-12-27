@@ -22,6 +22,20 @@ How to compile/run tests
     cmake ..
     make test
 
+How to compile the library
+----------------------------
+    cd hokusai
+    mkdir build
+    cmake ..
+    make
+
+How to generate the documentation
+-----------------------------------
+    cd hokusai
+    mkdir build
+    cmake ..
+    make doc
+
 To do...soon...
 ---------------
 

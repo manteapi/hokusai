@@ -4,7 +4,7 @@
 //#include <GL/gl.h>
 #include <vector>
 #include "Vec.hpp"
-#include "magnet/math/morton_number.hpp"
+#include <magnet/math/morton_number.hpp>
 #include "write_bmp.hpp"
 #include "particle.hpp"
 #include <fstream>
