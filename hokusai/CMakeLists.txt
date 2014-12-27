@@ -59,10 +59,17 @@ if(DOXYGEN_FOUND)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
     add_custom_target(doc
         ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
+        file(MAKE_DIRECTORY doc) 
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc
         COMMENT "Generating API documentation with Doxygen" VERBATIM
         )
 endif(DOXYGEN_FOUND)
+
+set(EXTRA_CLEANING
+    ${CMAKE_CURRENT_SOURCE_DIR}/doc/html
+    ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex
+    )
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${EXTRA_CLEANING}")
 
 add_library(HOKUSAI STATIC
     ${HOKUSAI_SOURCE}
