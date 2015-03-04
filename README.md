@@ -3,7 +3,8 @@ README
 
 Author
 ------
-*manteapi*
+*Pierre-Luc Manteaux*
+*pierre-luc.manteaux@inria.fr*
 
 How to compile/run examples
 ------------------------------------
