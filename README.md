@@ -6,6 +6,11 @@ Author
 *Pierre-Luc Manteaux*
 *pierre-luc.manteaux@inria.fr*
 
+Licence
+-------
+This project is licensed under the terms of the GNU GPL v3.0 license.
+See Licence file
+
 How to compile/run examples
 ------------------------------------
     cd examples
