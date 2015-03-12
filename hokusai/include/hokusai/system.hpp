@@ -158,7 +158,11 @@ public :
     vector< Vec3<double> > getPosition(){ vector<Vec3<double> > pos; for(int i=0; i<particleNumber; ++i){pos.push_back(particles[i].x);} return pos;}
     vector< Vec3<double> > getVelocity(){ vector<Vec3<double> > vel; for(int i=0; i<particleNumber; ++i){vel.push_back(particles[i].v);} return vel;}
     vector< Vec3<double> > getNormal(){ vector<Vec3<double> > normal; for(int i=0; i<particleNumber; ++i){normal.push_back(particles[i].n);} return normal;}
+    vector< double > getDensity(){ vector<double> density; for(int i=0; i<particleNumber; ++i){density.push_back(particles[i].rho);} return density;}
+    vector< double > getMass(){ vector<double> o_mass; for(int i=0; i<particleNumber; ++i){o_mass.push_back(mass);} return o_mass;}
+
     void write(const char* filename, vector< Vec3<double> > data);
+    void write(const char* filename, vector<double> data);
     void exportState(const char* baseName);
     double getTimeStep(){return dt;}
     void setTimeStep(const double _dt){dt = _dt;}

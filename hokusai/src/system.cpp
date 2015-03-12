@@ -21,6 +21,7 @@
 */
 
 #include "../include/hokusai/system.hpp"
+#include "../include/hokusai/utils.hpp"
 #include "../include/hokusai/rasterizer.hpp"
 #include "../include/hokusai/gridUtility.hpp"
 #include "../include/hokusai/HSL2RGB.hpp"
@@ -1084,6 +1085,18 @@ void System::debugFluid()
     gridInfo.info();
 }
 
+void System::write(const char * filename, vector<double> data)
+{
+    ofstream outputFile;
+    outputFile.open(filename);
+    outputFile.precision(16);
+    for(unsigned int i=0; i <data.size(); ++i)
+    {
+        outputFile << data[i] << "\n";
+    }
+    outputFile.close();
+}
+
 void System::write(const char * filename, vector<Vec3<double> > data)
 {
     ofstream outputFile;
@@ -1100,18 +1113,25 @@ void System::exportState(const char * baseName)
 {
     vector< Vec3<double> > x = getPosition();
     vector< Vec3<double> > v = getVelocity();
+    vector< double > d = getDensity();
+    vector< double > m = getMass();
+
     stringstream ss_padding;
     ss_padding.fill('0');
     ss_padding.width(5);
     ss_padding << countExport++;
     std::string padding = ss_padding.str();
 
-    stringstream posFilename, velFilename;
+    stringstream posFilename, velFilename, densFilename, massFilename;
     posFilename << baseName << "/position/position" << padding << ".txt";
     velFilename << baseName << "/velocity/velocity" << padding << ".txt";
+    densFilename << baseName << "/density/density" << padding << ".txt";
+    massFilename << baseName << "/mass/mass" << padding << ".txt";
 
     write(  posFilename.str().c_str(), x );
     write(  velFilename.str().c_str(), v );
+    write(  densFilename.str().c_str(), d );
+    write(  massFilename.str().c_str(), m );
 }
 
 }

@@ -221,6 +221,7 @@ inline double AkinciKernel::adhesionValue( const double r)
 
 //IO functions
 void write(const char * filename, vector<Vec3<double> > data);
+void write(const char * filename, vector<double> data);
 void write_frame(vector<Particle>& particles, int step);
 
 //---------------------------------------------------------------------

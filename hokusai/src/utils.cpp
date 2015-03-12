@@ -237,6 +237,18 @@ void SolidSphere::draw(GLfloat x, GLfloat y, GLfloat z)
 }
 */
 
+void write(const char * filename, vector<double> data)
+{
+    ofstream outputFile;
+    outputFile.open(filename);
+    outputFile.precision(16);
+    for(unsigned int i=0; i <data.size(); ++i)
+    {
+        outputFile << data[i] <<"\n";
+    }
+    outputFile.close();
+}
+
 void write(const char * filename, vector<Vec3<double> > data)
 {
     ofstream outputFile;

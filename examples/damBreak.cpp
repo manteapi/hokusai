@@ -15,7 +15,7 @@ using namespace hokusai;
 int main()
 {
 
-    int resolution = 1000; ///particle number per m3
+    int resolution = 10000; ///particle number per m3
     System sph(resolution);
 
     Vec fluidBox(1.0,2.0,1.0);
@@ -44,6 +44,7 @@ int main()
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
             write_frame(sph.particles, count);
+            sph.exportState("./");
             ++count;
         }
 
