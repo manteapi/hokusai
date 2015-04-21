@@ -28,11 +28,11 @@
 
 #include <stdio.h>
 #include <vector>
-#include "Vec.hpp"
+#include <aljabr/Vec.hpp>
 
 namespace hokusai
 {
-typedef Vec3<int> Vec3i;
+typedef aljabr::Vec3<int> Vec3i;
 
 //! Rasterize a line between two integers points. 
 /*!

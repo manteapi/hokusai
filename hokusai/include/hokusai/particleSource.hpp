@@ -1,10 +1,12 @@
 #ifndef HOKUSAI_PARTICLE_SOURCE_HPP
 #define HOKUSAI_PARTICLE_SOURCE_HPP
 
-#include "Vec.hpp"
+#include <aljabr/Vec.hpp>
 
 namespace hokusai
 {
+
+    typedef aljabr::Vec3<double> Vec3r;
 
 class ParticleSource
 {
@@ -12,8 +14,8 @@ public :
     ParticleSource();
     ~ParticleSource();
 
-    Vec3<double> position;
-    Vec3<double> velocity;
+    Vec3r position;
+    Vec3r velocity;
     double radius, startTime, endTime;
 };
 

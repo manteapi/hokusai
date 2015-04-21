@@ -25,7 +25,7 @@
 
 //#include <GL/gl.h>
 #include <vector>
-#include "Vec.hpp"
+#include <aljabr/Vec.hpp>
 #include <magnet/math/morton_number.hpp>
 #include "write_bmp.hpp"
 #include "particle.hpp"
@@ -36,10 +36,10 @@ namespace hokusai
 {
 using namespace std;
 
+typedef aljabr::Vec3<double> Vec;
+
 class AkinciKernel
 {
-    typedef Vec3<double> Vec;
-
 public :
     AkinciKernel();
     AkinciKernel(double _h);
@@ -53,7 +53,7 @@ public :
 //Monaghan 3D kernel
 class MonaghanKernel
 {
-    typedef Vec3<double> Vec;
+    typedef Vec3r Vec;
 
 public :
 
@@ -107,7 +107,7 @@ void insertionSort( vector< pair<int,int> >& data );
 
 class Box
 {
-    typedef Vec3<double> Vec;
+    typedef Vec3r Vec;
 public :
     Vec min;
     Vec max;
@@ -220,7 +220,7 @@ inline double AkinciKernel::adhesionValue( const double r)
 //--------------------------------------------------------------------
 
 //IO functions
-void write(const char * filename, vector<Vec3<double> > data);
+void write(const char * filename, vector<Vec3r > data);
 void write(const char * filename, vector<double> data);
 void write_frame(vector<Particle>& particles, int step);
 

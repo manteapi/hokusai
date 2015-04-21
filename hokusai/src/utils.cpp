@@ -249,7 +249,7 @@ void write(const char * filename, vector<double> data)
     outputFile.close();
 }
 
-void write(const char * filename, vector<Vec3<double> > data)
+void write(const char * filename, vector<Vec3r > data)
 {
     ofstream outputFile;
     outputFile.open(filename);

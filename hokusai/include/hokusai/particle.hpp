@@ -23,7 +23,7 @@
 #ifndef HOKUSAI_PARTICLE_H
 #define HOKUSAI_PARTICLE_H
 
-#include "Vec.hpp"
+#include <aljabr/Vec.hpp>
 #include <vector>
 
 /*! \brief Brief description.
@@ -31,27 +31,27 @@
  *
  *  Detailed description starts here.
  */
+typedef aljabr::Vec3<float> Vec3f;
+typedef aljabr::Vec3<double> Vec3r;
 
 namespace hokusai
 {
 
     class Boundary
     {
-        typedef Vec3<double> Vec;
-
         public :
         double psi; //density number
-        Vec x,v; ///position and velocity
+        Vec3r x,v; ///position and velocity
 
         public :
         Boundary()
         {
             psi=0.0;
-            x=Vec(0.0);
-            v=Vec(0.0);
+            x=Vec3r(0.0);
+            v=Vec3r(0.0);
         }
 
-        Boundary(const Vec& _x, const Vec _v = Vec(0,0,0), const double _psi=0.0)
+        Boundary(const Vec3r& _x, const Vec3r _v = Vec3r(0,0,0), const double _psi=0.0)
         {
             x=_x;
             v=_v;
@@ -70,12 +70,10 @@ namespace hokusai
 
     class Particle
     {
-        typedef Vec3<double> Vec;
-
         public :
         double rho, rho_adv, rho_corr, p, p_l, previousP, aii;
-        Vec x, v, v_adv, f_adv, f_p, dii_fluid, dii_boundary, sum_dij, n;
-        Vec3<float> c;
+        Vec3r x, v, v_adv, f_adv, f_p, dii_fluid, dii_boundary, sum_dij, n;
+        Vec3f c;
         std::vector<int> fluidNeighbor;
         std::vector<int> boundaryNeighbor;
 
@@ -83,20 +81,20 @@ namespace hokusai
         Particle()
         {
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
-            x = v = v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec(0.0);
-            c = Vec3<float>(0.0);
+            x = v = v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec3r(0.0);
+            c = Vec3f(0.0);
             fluidNeighbor.clear();
             boundaryNeighbor.clear();
         }
 
-        Particle(const Vec& _x, const Vec& _v = Vec(0,0,0), const Vec3<float> _c = Vec3<float>(0,0,1))
+        Particle(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0), const Vec3f _c = Vec3f(0,0,1))
         {
             x = _x;
             v = _v;
             c = _c;
 
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
-            v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec(0.0);
+            v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec3r(0.0);
             fluidNeighbor.clear();
             boundaryNeighbor.clear();
         }

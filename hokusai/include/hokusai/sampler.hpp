@@ -23,36 +23,40 @@
 #ifndef HOKUSAI_SAMPLER_HPP
 #define HOKUSAI_SAMPLER_HPP
 
-#include "Vec.hpp"
+#include <aljabr/Vec.hpp>
 #include "triMesh.hpp"
 #include <vector>
 
 namespace hokusai
 {
 
-bool LineLineIntersect(const Vec3<double>& p1, const Vec3<double>& p2, const Vec3<double>& p3, const Vec3<double>& p4, Vec3<double>& pa, Vec3<double>& pb,double & mua, double & mub);
-bool LineIntersect(const Vec2<double>& p1, const Vec2<double>& p2, const Vec2<double>& p3, const Vec2<double>& p4, Vec2<double>& p);
-bool LineIntersect(const Vec3<double>& p1, const Vec3<double>& p2, const Vec3<double>& p3, const Vec3<double>& p4, Vec3<double>& p);
+typedef aljabr::Vec3<double> Vec3r;
+typedef aljabr::Vec2<double> Vec2r;
+typedef aljabr::Vec2<int> Vec2i;
+
+bool LineLineIntersect(const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const Vec3r& p4, Vec3r& pa, Vec3r& pb,double & mua, double & mub);
+bool LineIntersect(const Vec2r& p1, const Vec2r& p2, const Vec2r& p3, const Vec2r& p4, Vec2r& p);
+bool LineIntersect(const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const Vec3r& p4, Vec3r& p);
 
 //Surface sampling
-bool AkinciTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2, const Vec3<double>& p3, const double& particleDiameter, std::vector< Vec3<double> >& samples);
-bool AkinciEdgeSampling( const Vec3<double>& p1, const Vec3<double>& p2, const double& particleDiameter, std::vector< Vec3<double> >& samples);
+bool AkinciTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const double& particleDiameter, std::vector< Vec3r >& samples);
+bool AkinciEdgeSampling( const Vec3r& p1, const Vec3r& p2, const double& particleDiameter, std::vector< Vec3r >& samples);
 bool AkinciMeshSampling(const TriMesh& mesh, const double &particleDiameter, std::vector<Vec3f>& samples);
-bool AkinciFullTriangleSampling( const Vec3<double>& p1, const Vec3<double>& p2, const Vec3<double>& p3, const double& particleDiameter, std::vector< Vec3<double> >& samples);
+bool AkinciFullTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const double& particleDiameter, std::vector< Vec3r >& samples);
 
 
 
-std::vector<Vec3<double> > getDiskSampling(const Vec3<double>& center, double radius, double spacing);
-std::vector<Vec3<double> > getSphereSampling(const Vec3<double>& center, double radius, double spacingX, double spacingY);
-std::vector<Vec3<double> > getHemiSphereSampling(const Vec3<double>& center, double radius, double spacingX, double spacingY);
+std::vector<Vec3r > getDiskSampling(const Vec3r& center, double radius, double spacing);
+std::vector<Vec3r > getSphereSampling(const Vec3r& center, double radius, double spacingX, double spacingY);
+std::vector<Vec3r > getHemiSphereSampling(const Vec3r& center, double radius, double spacingX, double spacingY);
 
-std::vector<Vec3<double> > getEllipsoidSampling(const Vec3<double>& center, double axis_1, double axis_2, double axis_3, double spacingX, double spacingY);
-std::vector< Vec3<double> > getTorusSampling(const Vec3<double>& center, double tubeRadius, double innerRadius, double spacingX, double spacingY);
+std::vector<Vec3r > getEllipsoidSampling(const Vec3r& center, double axis_1, double axis_2, double axis_3, double spacingX, double spacingY);
+std::vector< Vec3r > getTorusSampling(const Vec3r& center, double tubeRadius, double innerRadius, double spacingX, double spacingY);
 
-std::vector< Vec3<double> > getConeSampling(const Vec3<double>& center, double height, double stopHeight, double baseRadius, double spacingX, double spacingY);
-std::vector<Vec3<double> > getPyramidSampling(const Vec3<double>& _center, double base, double height, double spacing);
-std::vector< Vec3<double> > getCylinderSampling(const Vec3<double>& center, double height, double baseRadius, double spacingX, double spacingY);
-std::vector<Vec3<double> > getCapsuleSampling(const Vec3<double>& center, double radius, double height, double spacingX, double spacingY);
+std::vector< Vec3r > getConeSampling(const Vec3r& center, double height, double stopHeight, double baseRadius, double spacingX, double spacingY);
+std::vector<Vec3r > getPyramidSampling(const Vec3r& _center, double base, double height, double spacing);
+std::vector< Vec3r > getCylinderSampling(const Vec3r& center, double height, double baseRadius, double spacingX, double spacingY);
+std::vector<Vec3r > getCapsuleSampling(const Vec3r& center, double radius, double height, double spacingX, double spacingY);
 
 }
 #endif

@@ -39,7 +39,7 @@ set(HOKUSAI_HEADER
     ./include/hokusai/system.hpp
     ./include/hokusai/utils.hpp
     ./include/hokusai/HSL2RGB.hpp
-    ./include/hokusai/Vec.hpp
+    #./include/hokusai/Vec.hpp
     ./include/hokusai/write_bmp.hpp
     ./include/hokusai/gridUtility.hpp
     ./include/hokusai/io.hpp
@@ -51,7 +51,12 @@ set(HOKUSAI_HEADER
     ./include/hokusai/particleSink.hpp
 )
 
-include_directories( lib/magnet/include )
+set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
+include_directories(${ALJABR_INCLUDE_DIRS})
+
+set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
+include_directories(${MAGNET_INCLUDE_DIRS})
+
 include_directories( include )
 
 find_package(Doxygen)

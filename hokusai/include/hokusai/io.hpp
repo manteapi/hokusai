@@ -3,11 +3,14 @@
 
 #include <stdio.h>
 #include <vector>
-#include "Vec.hpp"
+#include <aljabr/Vec.hpp>
 #include "strutil.hpp"
 
 namespace hokusai
 {
+
+typedef aljabr::Vec3<double> Vec3r;
+typedef aljabr::Vec3<int> Vec3i;
 
 #define GET_LINE() do { if (!fgets(buf, 1024, f)) return false; } while (0)
 #define COND_READ(cond, where, len) do { if ((cond) && !fread((void *)&(where), (len), 1, f)) return false; } while (0)
@@ -19,11 +22,11 @@ namespace hokusai
 void skip_comments(FILE *f);
 
 // Tesselate an arbitrary n-gon.  Appends triangles to "tris".
-void tess(const std::vector<Vec3<double> > &verts, const std::vector<int> &thisface, std::vector<Vec3<int> > &tris);
+void tess(const std::vector<Vec3r > &verts, const std::vector<int> &thisface, std::vector<Vec3i > &tris);
 
 // Read an obj file
-bool read_obj(FILE *f,  std::vector< Vec3<double> >& vertices, 
-              std::vector< Vec3<double> >& normals,
-              std::vector< Vec3<int> >& triangles);
+bool read_obj(FILE *f,  std::vector< Vec3r >& vertices, 
+              std::vector< Vec3r >& normals,
+              std::vector< Vec3i >& triangles);
 }
 #endif

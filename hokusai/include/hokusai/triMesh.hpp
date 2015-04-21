@@ -5,12 +5,12 @@
 #include <array>
 #include <set>
 #include <utility>
-#include "Vec.hpp"
+#include <aljabr/Vec.hpp>
 
 namespace hokusai
 {
-    typedef Vec3<double> Vec3f;
-    typedef Vec3<int> Vec3i;
+    typedef aljabr::Vec3<double> Vec3f;
+    typedef aljabr::Vec3<int> Vec3i;
 
     class TriMesh
     {

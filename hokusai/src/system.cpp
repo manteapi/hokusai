@@ -1097,7 +1097,7 @@ void System::write(const char * filename, vector<double> data)
     outputFile.close();
 }
 
-void System::write(const char * filename, vector<Vec3<double> > data)
+void System::write(const char * filename, vector<Vec3r > data)
 {
     ofstream outputFile;
     outputFile.open(filename);
@@ -1111,8 +1111,8 @@ void System::write(const char * filename, vector<Vec3<double> > data)
 
 void System::exportState(const char * baseName)
 {
-    vector< Vec3<double> > x = getPosition();
-    vector< Vec3<double> > v = getVelocity();
+    vector< Vec3r > x = getPosition();
+    vector< Vec3r > v = getVelocity();
     vector< double > d = getDensity();
     vector< double > m = getMass();
 
