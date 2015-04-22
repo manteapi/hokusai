@@ -624,30 +624,33 @@ void System::init()
     }
 
     fluidGrid.resize(gridInfo.size());
-    for(size_t i=0; i<particles.size(); ++i)
-    {
-        int id = gridInfo.cellId(particles[i].x);
-        if(gridInfo.isInside(id))
-            fluidGrid[id].push_back(i);
-    }
+
+//    for(size_t i=0; i<particles.size(); ++i)
+//    {
+//        int id = gridInfo.cellId(particles[i].x);
+//        if(gridInfo.isInside(id))
+//            fluidGrid[id].push_back(i);
+//    }
 
     //Init simulation values
     computeBoundaryVolume();
     prepareGrid();
 
-    for(int i=0; i<particleNumber; ++i)
-    {
-        computeRho(i);
-        particles[i].rho = restDensity;
-    }
+//    for(int i=0; i<particleNumber; ++i)
+//    {
+//        computeRho(i);
+//        particles[i].rho = restDensity;
+//    }
 
-    for(int i=0; i<particleNumber; ++i)
-    {
-        computeDii(i);
-    }
+//    for(int i=0; i<particleNumber; ++i)
+//    {
+//        computeDii(i);
+//    }
 
-    for(int i=0; i<particleNumber; ++i)
-        computeAii(i);
+//    for(int i=0; i<particleNumber; ++i)
+//    {
+//        computeAii(i);
+//    }
 
     debugFluid();
 }
@@ -793,6 +796,11 @@ void System::addParticleSphere(const Vec& centre, const double radius)
             particleNumber++;
         }
     }
+}
+
+void System::addParticleSource(const ParticleSource& s)
+{
+    p_sources.push_back(s);
 }
 
 void System::addParticleBox(const Vec& offset, const Vec& scale)
@@ -1054,7 +1062,26 @@ void System::simulate()
     predictAdvection();
     pressureSolve();
     integration();
+    applySources();
+    applySinks();
     computeStats();
+}
+
+void System::applySources()
+{
+    for(ParticleSource& s : p_sources)
+    {
+        std::vector<Particle> p_new = s.apply(this->time);
+        for(const Particle& p : p_new)
+        {
+            particles.push_back(p);
+            particleNumber++;
+        }
+    }
+}
+
+void System::applySinks()
+{
 }
 
 void System::computeStats()

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(fluid)
+project(hokusai_examples)
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
@@ -17,6 +17,9 @@ include_directories(${ALJABR_INCLUDE_DIRS})
 set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
 include_directories(${MAGNET_INCLUDE_DIRS})
 
+set(EIGEN_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
+include_directories(${EIGEN_INCLUDE_DIRS})
+
 if(HOKUSAI_OPENMP)
     find_package(OpenMP)
     if(OPENMP_FOUND)
@@ -29,6 +32,9 @@ set(
     ${Boost_LIBRARIES}
     HOKUSAI 
     )
+
+add_executable(particleSource particleSource.cpp)
+target_link_libraries(particleSource ${ALL_LIBS})
 
 add_executable(boundaryMesh boundaryMesh.cpp)
 target_link_libraries(boundaryMesh ${ALL_LIBS})

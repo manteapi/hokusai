@@ -33,7 +33,7 @@
 #include "gridUtility.hpp"
 #include "triMesh.hpp"
 #include "sampler.hpp"
-
+#include "particleSource.hpp"
 
 namespace hokusai
 {
@@ -84,6 +84,8 @@ public :
     vector< vector<int> > boundaryGrid;
     vector< vector<int> > fluidGrid;
 
+    vector< ParticleSource > p_sources;
+
 public :
     void getNearestNeighbor(vector< int >& neighbors, const vector<vector<int> > &grid, const Vec& x);
     void getNearestNeighbor(const int i, const float radius);
@@ -115,6 +117,8 @@ public :
     void computeError();
     void integration();
     void simulate();
+    void applySources();
+    void applySinks();
 
     void addBoundaryParticle(const Vec& x, const Vec& v = Vec(0,0,0));
     void addFluidParticle(const Vec& x, const Vec& v = Vec(0,0,0));
@@ -131,6 +135,8 @@ public :
     void addParticleBox(double width, double height, double depth, double spacing);
     void addParticleBox(const Vec& offset, const Vec& dimension);
     void addParticleSphere(const Vec& centre, const double radius);
+
+    void addParticleSource(const ParticleSource& s);
 
     //Boundary sampling
     void addBoundaryMesh(const char* filename);
