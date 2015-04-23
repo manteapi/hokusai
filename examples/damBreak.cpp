@@ -30,9 +30,10 @@ int main()
 
     sph.init();
 
-    sph.getViscosity() = 0.1;
+    sph.getViscosity() = 0.01;
     sph.getFluidCohesion() = 0.05;
-    sph.getBoundaryAdhesion() = 0.0001;
+    sph.getBoundaryAdhesion() = 0.001;
+    sph.getBoundaryFriction() = 0.01;
 
     std::cout << "Viscosity : " << sph.getViscosity() << std::endl;
     std::cout << "Cohesion : " << sph.getFluidCohesion() << std::endl;

@@ -61,8 +61,9 @@ public :
     double real_volume;
     double mass;
     double h; // Smoothing radius
-    double fcohesion;
-    double badhesion;
+    double fcohesion; //Fluid cohesion
+    double badhesion; //Boundary adhesion
+    double sigma; //Boundary friction
     double cs;// Sound speed
     double alpha; // Viscosity
     double boundaryH;
@@ -188,6 +189,8 @@ public :
     const SReal & getFluidCohesion() const {return fcohesion;}
     SReal & getBoundaryAdhesion(){return badhesion;}
     const SReal & getBoundaryAdhesion() const {return badhesion;}
+    const SReal & getBoundaryFriction() const {return sigma;}
+    SReal & getBoundaryFriction() {return sigma;}
 
     void applyShepardFilter();
 };

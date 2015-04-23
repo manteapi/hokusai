@@ -213,7 +213,6 @@ void System::computeBoundaryFrictionForces(int i, int j)
     {
         Vec gradient(0.0);
         double epsilon=0.01;
-        double sigma=1.0;
         double nu = (sigma*h*cs)/(2.0*pi.rho);
         double Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.lengthSquared() + epsilon*h*h) );
         p_kernel.monaghanGradient(xij, gradient);
@@ -602,6 +601,7 @@ void System::setParameters( int _wishedNumber, double _volume )
     alpha = 0.1;
     fcohesion = 0.05;
     badhesion = 0.001;
+    sigma=1.0;
     boundaryH = h/2.0; //boundaryH must be <= h (neighbor search purpose)
 
     dt = 0.004;
