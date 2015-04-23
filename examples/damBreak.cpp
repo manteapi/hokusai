@@ -14,7 +14,6 @@ using namespace hokusai;
 
 int main()
 {
-
     int resolution = 10000; ///particle number per m3
     System sph(resolution);
 
@@ -31,7 +30,15 @@ int main()
 
     sph.init();
 
-    double time = 2.0;
+    sph.getViscosity() = 0.1;
+    sph.getFluidCohesion() = 0.05;
+    sph.getBoundaryAdhesion() = 0.0001;
+
+    std::cout << "Viscosity : " << sph.getViscosity() << std::endl;
+    std::cout << "Cohesion : " << sph.getFluidCohesion() << std::endl;
+    std::cout << "Adhesion : " << sph.getBoundaryAdhesion() << std::endl;
+
+    double time = 5.0;
     int count=0;
     boost::timer::auto_cpu_timer t;
     boost::progress_display show_progress( std::floor(time/sph.getTimeStep()) );
@@ -43,7 +50,7 @@ int main()
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            write_frame(sph.particles, count);
+            write_frame(sph.particles, count, 10.0);
             sph.exportState("./");
             ++count;
         }

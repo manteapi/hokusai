@@ -17,34 +17,35 @@ typedef double SReal;
 
 int main()
 {
-
-    int resolution = 1000; ///particle number per m3
+    int resolution = 20000; ///particle number per m3
     System sph(resolution);
 
-//    Vec fluidBox(1.0,2.0,1.0);
-//    Vec fluidOffset(0,0,0);
-//    sph.addParticleBox(fluidOffset, fluidBox);
-
     Vec securityOffset(1.05*sph.getSmoothingRadius());
-    Vec boundBox(2.5,2.5,1.0);
+    Vec boundBox(2.0,2.5,1.0);
     boundBox += securityOffset;
     Vec boundOffset(0,0,0);
     boundOffset -= securityOffset;
     sph.addBoundaryBox(boundOffset, boundBox);
 
-    SReal startTime, endTime, delay;
+    SReal startTime, endTime, delay, spacing;
     Vec position, orientation, scale, velocity;
 
     startTime=0;
-    endTime = 10;
-    delay=0.04;
-    position = Vec(0.5,0.5,0.5);
-    orientation = Vec(0,0,0);
-    scale = Vec(1,1,1);
-    velocity = Vec(0.1,0,0);
+    endTime = 3.0;
+    delay=0.02;
+    spacing = 1.05*sph.getSmoothingRadius();
+    velocity = Vec(0.0,0.0,2.0);
+    scale = Vec(0.15,0.15,0.15);
 
-    ParticleSource source(startTime, endTime, delay, position, orientation, scale, velocity);
-    sph.addParticleSource(source);
+    position = Vec(0.25,1.0,0.5);
+    orientation = Vec(0,M_PI/2.0,0);
+    ParticleSource source1(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    sph.addParticleSource(source1);
+
+    position = Vec(1.75,1.0,0.5);
+    orientation = Vec(0,-M_PI/2.0,0);
+    ParticleSource source2(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    sph.addParticleSource(source2);
 
     sph.init();
 

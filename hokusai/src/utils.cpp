@@ -291,7 +291,7 @@ static void transform( float p[3], float R[3][3] ) {
 
 
 
-void write_frame(vector<Particle>& particles, int step)
+void write_frame(vector<Particle>& particles, int step, float offset)
 {
     int width = 1024;
     int height = 700;
@@ -323,8 +323,7 @@ void write_frame(vector<Particle>& particles, int step)
     // Simple Point-based Rendering
     //float eye = 2.0;
     //float offset = 0.3;
-    float eye = 0.02;
-    float offset = 0.5;
+    float eye = 2.0;
 
     for( size_t n=0; n<particles.size(); n++ )
     {

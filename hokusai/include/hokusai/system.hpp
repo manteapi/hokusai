@@ -174,13 +174,20 @@ public :
     void setTimeStep(const double _dt){dt = _dt;}
     double getTime(){return time;}
     double & getSmoothingRadiusValue(){ return h; }
-    const double & getSmoothingRadius(){ return h; }
+    const double & getSmoothingRadius() const { return h; }
     double & getTimeStepValue(){ return dt; }
     double & getMassValue(){ return mass; }
     double & getMeanDensityValue(){ return mean_density;}
     double & getDensityFluctuationValue(){ return density_fluctuation;}
     double & getRealVolumeValue(){ return real_volume; }
     int & getParticleNumber(){ return particleNumber; }
+
+    SReal & getViscosity(){return alpha;}
+    const SReal & getViscosity() const {return alpha;}
+    SReal & getFluidCohesion(){return fcohesion;}
+    const SReal & getFluidCohesion() const {return fcohesion;}
+    SReal & getBoundaryAdhesion(){return badhesion;}
+    const SReal & getBoundaryAdhesion() const {return badhesion;}
 
     void applyShepardFilter();
 };

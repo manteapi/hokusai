@@ -30,7 +30,7 @@ namespace hokusai
 
 typedef Eigen::Vector3d EigenVec;
 
-ParticleSource::ParticleSource(const SReal& startTime_, const SReal& endTime_, const SReal& delay_, const Vec3r& position_, const Vec3r& orientation_, const Vec3r& scale_, const Vec3r& velocity_)
+ParticleSource::ParticleSource(const SReal& startTime_, const SReal& endTime_, const SReal& delay_, const SReal &spacing_, const Vec3r& position_, const Vec3r& orientation_, const Vec3r& scale_, const Vec3r& velocity_)
 {
     position = position_;
     orientation = orientation_;
@@ -41,6 +41,7 @@ ParticleSource::ParticleSource(const SReal& startTime_, const SReal& endTime_, c
     startTime = startTime_;
     endTime = endTime_;
     delay = delay_;
+    spacing = spacing_;
 
     lastTime = 0.0;
 
@@ -57,6 +58,8 @@ ParticleSource::ParticleSource(const ParticleSource& source)
     startTime = source.startTime;
     endTime = source.endTime;
     delay = source.delay;
+    spacing = source.spacing;
+
     lastTime = source.lastTime;
 
     init();
@@ -72,6 +75,7 @@ ParticleSource::ParticleSource()
     startTime = 0;
     endTime = 0;
     delay = 0;
+    spacing = 0;
 
     lastTime = 0.0;
 
@@ -82,28 +86,28 @@ void ParticleSource::init()
 {
     //Create a transformation based on the given position, radius and orientation.
     Affine transformation;
-    transformation = Eigen::AngleAxisd(orientation[0], EigenVec::UnitX()) * Eigen::AngleAxisd(orientation[1],  EigenVec::UnitY()) * Eigen::AngleAxisd(orientation[2], EigenVec::UnitZ());
-    transformation *= Eigen::Translation3d(position[0], position[1], position[2]);
-    transformation *= Eigen::Scaling(scale[0], scale[1], scale[2]);
+    transformation = Eigen::Translation3d(position[0], position[1], position[2]) * Eigen::AngleAxisd(orientation[0], EigenVec::UnitX()) * Eigen::AngleAxisd(orientation[1],  EigenVec::UnitY()) * Eigen::AngleAxisd(orientation[2], EigenVec::UnitZ());
 
     //Create a stencil of particles for the unit disc in a reference frame and orientate it using the transformation
-    p_stencil.resize(4);
-    EigenVec tmp_x;
-    tmp_x = transformation*EigenVec(0,0,0);
-    p_stencil[0].x = Vec3r(tmp_x[0], tmp_x[1], tmp_x[2]);
-    p_stencil[0].v = velocity;
+    EigenVec radiusVec = Eigen::Scaling(scale[0], scale[1], scale[2])*EigenVec(1.0,1.0,1.0);
+    SReal maxRadius = radiusVec.maxCoeff();
 
-    tmp_x = transformation*EigenVec(1,0,0);
-    p_stencil[1].x = Vec3r(tmp_x[0], tmp_x[1], tmp_x[2]);
-    p_stencil[1].v = velocity;
-
-    tmp_x = transformation*EigenVec(0,1,0);
-    p_stencil[2].x = Vec3r(tmp_x[0], tmp_x[1], tmp_x[2]);
-    p_stencil[2].v = velocity;
-
-    tmp_x = transformation*EigenVec(1,1,0);
-    p_stencil[3].x = Vec3r(tmp_x[0], tmp_x[1], tmp_x[2]);
-    p_stencil[3].v = velocity;
+    for(SReal x=-maxRadius; x<=maxRadius; x+=spacing)
+    {
+        for(SReal y=-maxRadius; y<=maxRadius; y+=spacing)
+        {
+            if( (x>=-radiusVec[0] && x<=radiusVec[0]) &&
+                    (y>=-radiusVec[1] && x<=radiusVec[1]) )
+            {
+                EigenVec tmp_x = transformation*EigenVec(x, y, 0.0);
+                EigenVec tmp_v = Eigen::AngleAxisd(orientation[0], EigenVec::UnitX()) * Eigen::AngleAxisd(orientation[1],  EigenVec::UnitY()) * Eigen::AngleAxisd(orientation[2], EigenVec::UnitZ())*EigenVec(velocity[0], velocity[1], velocity[2]);
+                Particle tmp_p;
+                tmp_p.x = Vec3r(tmp_x[0], tmp_x[1], tmp_x[2]);
+                tmp_p.v = Vec3r(tmp_v[0], tmp_v[1], tmp_v[2]);
+                p_stencil.push_back(tmp_p);
+            }
+        }
+    }
 }
 
 
@@ -113,7 +117,7 @@ ParticleSource::~ParticleSource()
 std::vector<Particle> ParticleSource::apply(const SReal time)
 {
     int isOk = (int)((time-lastTime)/delay);
-    if(isOk>0)
+    if(isOk>0 && time<=endTime && time>=startTime)
     {
         lastTime = time;
         return p_stencil;

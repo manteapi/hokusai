@@ -13,7 +13,7 @@ typedef double SReal;
 class ParticleSource
 {
 public :
-    ParticleSource(const SReal& startTime_, const SReal& endTime_, const SReal& delay_, const Vec3r& position_=Vec3r(0,0,0), const Vec3r& orientation_=Vec3r(0,0,0), const Vec3r& scale_=Vec3r(1,1,1), const Vec3r& velocity_=Vec3r(0,0,0));
+    ParticleSource(const SReal& startTime_, const SReal& endTime_, const SReal& delay_, const SReal& spacing_, const Vec3r& position_=Vec3r(0,0,0), const Vec3r& orientation_=Vec3r(0,0,0), const Vec3r& scale_=Vec3r(1,1,1), const Vec3r& velocity_=Vec3r(0,0,0));
     ParticleSource(const ParticleSource& source);
     ParticleSource();
     ~ParticleSource();
@@ -28,6 +28,8 @@ public :
 
     Vec3r velocity;
     SReal startTime;
+
+    SReal spacing;
     SReal endTime;
     SReal delay;
     SReal lastTime;
