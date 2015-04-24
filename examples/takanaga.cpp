@@ -29,7 +29,7 @@ int main()
     boundOffset -= securityOffset;
     sph.addBoundaryBox(boundOffset, boundBox);
 
-    sph.setTimeStep(0.002);
+    sph.getTimeStep() = 0.002;
 
     sph.init();
 

@@ -171,8 +171,6 @@ public :
     void write(const char* filename, vector< Vec3r > data);
     void write(const char* filename, vector<double> data);
     void exportState(const char* baseName);
-    double getTimeStep(){return dt;}
-    void setTimeStep(const double _dt){dt = _dt;}
     double getTime(){return time;}
     double & getSmoothingRadiusValue(){ return h; }
     const double & getSmoothingRadius() const { return h; }
@@ -191,6 +189,8 @@ public :
     const SReal & getBoundaryAdhesion() const {return badhesion;}
     const SReal & getBoundaryFriction() const {return sigma;}
     SReal & getBoundaryFriction() {return sigma;}
+    SReal & getTimeStep() {return dt;}
+    const SReal& getTimeStep() const {return dt;}
 
     void applyShepardFilter();
 };

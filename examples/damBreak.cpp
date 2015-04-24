@@ -14,10 +14,10 @@ using namespace hokusai;
 
 int main()
 {
-    int resolution = 10000; ///particle number per m3
+    int resolution = 140000; ///particle number per m3
     System sph(resolution);
 
-    Vec fluidBox(1.0,2.0,1.0);
+    Vec fluidBox(1.0,1.0,1.0);
     Vec fluidOffset(0,0,0);
     sph.addParticleBox(fluidOffset, fluidBox);
 
@@ -31,15 +31,16 @@ int main()
     sph.init();
 
     sph.getViscosity() = 0.01;
-    sph.getFluidCohesion() = 0.05;
+    sph.getFluidCohesion() = 0.2;
     sph.getBoundaryAdhesion() = 0.001;
     sph.getBoundaryFriction() = 0.01;
+    sph.getTimeStep() = 2e-3;
 
     std::cout << "Viscosity : " << sph.getViscosity() << std::endl;
     std::cout << "Cohesion : " << sph.getFluidCohesion() << std::endl;
     std::cout << "Adhesion : " << sph.getBoundaryAdhesion() << std::endl;
 
-    double time = 5.0;
+    double time = 2.0;
     int count=0;
     boost::timer::auto_cpu_timer t;
     boost::progress_display show_progress( std::floor(time/sph.getTimeStep()) );
