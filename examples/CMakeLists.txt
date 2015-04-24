@@ -45,6 +45,9 @@ target_link_libraries(cube ${ALL_LIBS})
 add_executable(damBreak damBreak.cpp)
 target_link_libraries(damBreak ${ALL_LIBS})
 
+add_executable(doubleDamBreak doubleDamBreak.cpp)
+target_link_libraries(doubleDamBreak ${ALL_LIBS})
+
 add_executable(sphere sphere.cpp)
 target_link_libraries(sphere ${ALL_LIBS})
 
