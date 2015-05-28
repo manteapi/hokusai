@@ -54,6 +54,7 @@ public :
     int particleNumber;
     int boundaryNumber;
 
+    double particlePerCell;
     double volume;
     double restDensity;
     double mean_density;
@@ -93,6 +94,7 @@ public :
 
     //Simulation Loop
     void prepareGrid();
+    void computeSurfaceParticle();
     void predictAdvection();
     void predictRho(int i);
     void initializePressure(int i);
@@ -101,10 +103,6 @@ public :
     vector<Particle> getSurfaceParticle();
     void computeRho(int i);
     void computeAdvectionForces(int i);
-    void computeViscosityForces(int i, int j);
-    void computeSurfaceTensionForces(int i, int j);
-    void computeBoundaryFrictionForces(int i, int j);
-    void computeBoundaryAdhesionForces(int i, int j);
     void predictVelocity(int i);
     void computeDii(int i);
     void computeDii_Fluid(int i);
@@ -112,9 +110,105 @@ public :
     void computeAii(int i);
     void pressureSolve();
     void computeSumDijPj(int i);
-    Vec computeDij(int i, int j);
+    
+    void computeViscosityForces(int i, int j)
+    {
+        Particle& pi=particles[i];
+        Particle& pj=particles[j];
+        Vec r = pi.x - pj.x;
+        Vec vij = pi.v - pj.v;
+        double dotVijRij = Vec::dotProduct(vij,r);
+        if(dotVijRij < 0)
+        {
+            double kij = 2.0*restDensity/(pi.rho+pj.rho);
+            double epsilon=0.01;
+            Vec gradient(0.0);
+            p_kernel.monaghanGradient(r, gradient);
+            double Pij = -kij*(2.0*alpha*h*cs/(pi.rho+pj.rho)) * ( dotVijRij / (r.lengthSquared() + epsilon*h*h) );
+            pi.f_adv += -kij*mass*mass*Pij*gradient;
+        }
+    }
+
+    void computeBoundaryFrictionForces(int i, int j)
+    {
+        Particle& pi=particles[i];
+            Boundary& bj=boundaries[j];
+            Vec vij = pi.v;//-pj.v;
+            Vec xij= pi.x - bj.x;
+            double dotVijRij = Vec::dotProduct(vij,xij);
+            if(dotVijRij<0)
+            {
+                Vec gradient(0.0);
+                double epsilon=0.01;
+                double nu = (sigma*h*cs)/(2.0*pi.rho);
+                double Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.lengthSquared() + epsilon*h*h) );
+                p_kernel.monaghanGradient(xij, gradient);
+                pi.f_adv += -mass*bj.psi*Pij*gradient;
+            }
+    }
+
+    void computeSurfaceTensionForces(int i, int j)
+    {
+        if(i!=j)
+        {
+            Particle& pi=particles[i];
+            Particle& pj=particles[j];
+            if(pi.isSurface==true || pj.isSurface==true)
+            {
+                Vec r = pi.x - pj.x;
+                double kij = 2.0*restDensity/(pi.rho+pj.rho);
+                double l = r.length();
+                Vec cohesionForce = -(fcohesion*mass*mass*a_kernel.cohesionValue(l)/l) * r;
+                Vec nij = pi.n-pj.n;
+                Vec curvatureForce = -fcohesion*mass*nij;
+                pi.f_adv += kij*(cohesionForce+curvatureForce);
+            }
+        }
+    }
+    
+    void computeBoundaryAdhesionForces(int i, int j)
+    {
+        Particle& pi=particles[i];
+            Boundary& bj=boundaries[j];
+            Vec xij= pi.x - bj.x;
+            double l = xij.length();
+            pi.f_adv += -(badhesion*mass*boundaries[j].psi*a_kernel.adhesionValue(l)/l)*xij;
+    }
+
+    Vec computeDij(int i, int j)
+    {
+        Particle& pi=particles[i];
+        Particle& pj=particles[j];
+        Vec gradient(0.0);
+        p_kernel.monaghanGradient(pi.x-pj.x, gradient);
+        Vec d=-(dt*dt*mass)/pow(pj.rho,2)*gradient;
+        return d;
+    }
+
     void computePressure(int i);
     void computePressureForce(int i);
+
+    void computeFluidPressureForce(int i, int j)
+    {
+        Vec gradient(0.0);
+        Particle& pi=particles[i];
+        Particle& pj=particles[j];
+        p_kernel.monaghanGradient(pi.x-pj.x, gradient);
+        if( i!=j )
+        {
+            pi.f_p += -mass*mass*( pi.p/pow(pi.rho,2) + pj.p/pow(pj.rho,2) ) * gradient;
+        }
+    }
+
+    void computeBoundaryPressureForce(int i, int j)
+    {
+        Vec gradient(0.0);
+        Particle& pi=particles[i];
+        Boundary& bj=boundaries[j];
+            p_kernel.monaghanGradient(pi.x-bj.x, gradient);
+            pi.f_p += -mass*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
+    }
+
     void computeError();
     void integration();
     void simulate();

@@ -156,9 +156,13 @@ bool System::isSurfaceParticle(int i, double treshold)
 {
     double n_length = particles[i].n.lengthSquared();
     if( n_length > treshold )
+    {
         return true;
+    }
     else
+    {
         return false;
+    }
 }
 
 vector<Particle> System::getSurfaceParticle()
@@ -202,67 +206,6 @@ void System::computeAdvectionForces(int i)
     pi.f_adv+=gravity*mass;
 }
 
-void System::computeBoundaryFrictionForces(int i, int j)
-{
-    Particle& pi=particles[i];
-    Boundary& bj=boundaries[j];
-    Vec vij = pi.v;//-pj.v;
-    Vec xij= pi.x - bj.x;
-    double dotVijRij = Vec::dotProduct(vij,xij);
-    if(dotVijRij<0)
-    {
-        Vec gradient(0.0);
-        double epsilon=0.01;
-        double nu = (sigma*h*cs)/(2.0*pi.rho);
-        double Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.lengthSquared() + epsilon*h*h) );
-        p_kernel.monaghanGradient(xij, gradient);
-        pi.f_adv += -mass*bj.psi*Pij*gradient;
-    }
-}
-
-void System::computeBoundaryAdhesionForces(int i, int j)
-{
-    Particle& pi=particles[i];
-    Boundary& bj=boundaries[j];
-    Vec xij= pi.x - bj.x;
-    double l = xij.length();
-    pi.f_adv += -(badhesion*mass*boundaries[j].psi*a_kernel.adhesionValue(l)/l)*xij;
-}
-
-void System::computeViscosityForces(int i, int j)
-{
-    Particle& pi=particles[i];
-    Particle& pj=particles[j];
-    Vec r = pi.x - pj.x;
-    Vec vij = pi.v - pj.v;
-    double dotVijRij = Vec::dotProduct(vij,r);
-    if(dotVijRij < 0)
-    {
-        double kij = 2.0*restDensity/(pi.rho+pj.rho);
-        double epsilon=0.01;
-        Vec gradient(0.0);
-        p_kernel.monaghanGradient(r, gradient);
-        double Pij = -kij*(2.0*alpha*h*cs/(pi.rho+pj.rho)) * ( dotVijRij / (r.lengthSquared() + epsilon*h*h) );
-        pi.f_adv += -kij*mass*mass*Pij*gradient;
-    }
-}
-
-void System::computeSurfaceTensionForces(int i, int j)
-{
-    if(i!=j)
-    {
-        Particle& pi=particles[i];
-        Particle& pj=particles[j];
-        Vec r = pi.x - pj.x;
-        double kij = 2.0*restDensity/(pi.rho+pj.rho);
-        double l = r.length();
-        Vec cohesionForce = -(fcohesion*mass*mass*a_kernel.cohesionValue(l)/l) * r;
-        Vec nij = pi.n-pj.n;
-        Vec curvatureForce = -fcohesion*mass*nij;
-        pi.f_adv += kij*(cohesionForce+curvatureForce);
-    }
-}
-
 void System::predictVelocity(int i)
 {
     Particle& pi=particles[i];
@@ -297,16 +240,6 @@ void System::predictRho(int i)
     }
 
     pi.rho_adv = pi.rho + dt*( fdrho + bdrho );
-}
-
-Vec System::computeDij(int i, int j)
-{
-    Particle& pi=particles[i];
-    Particle& pj=particles[j];
-    Vec gradient(0.0);
-    p_kernel.monaghanGradient(pi.x-pj.x, gradient);
-    Vec d=-(dt*dt*mass)/pow(pj.rho,2)*gradient;
-    return d;
 }
 
 void System::computeSumDijPj(int i)
@@ -375,20 +308,13 @@ void System::computePressureForce(int i)
     //Fluid Pressure Force
     for(int& j : fneighbors)
     {
-        Particle& pj=particles[j];
-        p_kernel.monaghanGradient(pi.x-pj.x, gradient);
-        if( i!=j )
-        {
-            pi.f_p += -mass*mass*( pi.p/pow(pi.rho,2) + pj.p/pow(pj.rho,2) ) * gradient;
-        }
+        computeFluidPressureForce(i, j);
     }
 
     //Boundary Pressure Force [Akinci 2012]
     for(int& j : bneighbors )
     {
-        Boundary& bj=boundaries[j];
-        p_kernel.monaghanGradient(pi.x-bj.x, gradient);
-        pi.f_p += -mass*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
+        computeBoundaryPressureForce(i, j);
     }
 }
 
@@ -590,8 +516,8 @@ void System::setParameters( int _wishedNumber, double _volume )
     maxEta=1.0;
     restDensity = 1000;
     mass = (restDensity * volume) / _wishedNumber;
-    float particleAverage = 33.8; //better
-    h = 0.5*pow( double(3*volume*particleAverage) / double(4*M_PI*_wishedNumber), 1.0/3.0);
+    particlePerCell = 33.8; //better
+    h = 0.5*pow( double(3*volume*particlePerCell) / double(4*M_PI*_wishedNumber), 1.0/3.0);
 
     double eta = 0.01;
     double H = 0.1;
@@ -635,6 +561,11 @@ void System::init()
     //Init simulation values
     computeBoundaryVolume();
     prepareGrid();
+
+    for(size_t i=0; i<particles.size(); ++i)
+    {
+        particles[i].isSurface = true;
+    }
 
 //    for(int i=0; i<particleNumber; ++i)
 //    {
@@ -949,6 +880,46 @@ void System::mortonSort()
     }
 }
 
+void System::computeSurfaceParticle()
+{
+    for(size_t i=0; i<particles.size(); ++i)
+    {
+        particles[i].isSurface = false;
+    }
+
+    std::vector<int> tmpParticleStack;
+    for(size_t i=0; i<particles.size(); ++i)
+    {
+        //Not good enough
+        if( isSurfaceParticle(i, 0.2) || particles[i].fluidNeighbor.size() < 0.5*particlePerCell)
+            tmpParticleStack.push_back(i);
+    }
+
+    std::set<int> surfaceParticles;
+    for(size_t i=0; i<tmpParticleStack.size(); ++i)
+    {
+        surfaceParticles.insert( tmpParticleStack[i] );
+        for(size_t j=0; j<particles[ tmpParticleStack[i] ].fluidNeighbor.size(); ++j)
+        {
+            surfaceParticles.insert( particles[ tmpParticleStack[i] ].fluidNeighbor[j] );
+        }
+    }
+
+    for(int pId : surfaceParticles)
+    {
+        particles[pId].isSurface=true;
+    }
+
+    int surfaceParticle = 0;
+    for(size_t i=0; i<particles.size(); ++i)
+    {
+        if(particles[i].isSurface == true)
+        {
+            surfaceParticle++;    
+        }
+    }
+}
+
 void System::prepareGrid()
 {
     if( countTime%100 == 0 )
@@ -984,6 +955,8 @@ void System::predictAdvection()
 #endif
     for(int i=0; i<particleNumber; ++i)
         computeNormal(i);
+
+    computeSurfaceParticle();
 
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for

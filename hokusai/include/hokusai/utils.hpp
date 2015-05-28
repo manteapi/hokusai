@@ -199,9 +199,15 @@ inline double AkinciKernel::cohesionValue( const double r )
 {
     double value=0;
     if( (2.0*r>h) && (r<=h) )
-        value=m_v1*pow(h-r,3.0)*pow(r,3.0);
+    {
+        //value=m_v1*pow(h-r,3.0)*pow(r,3.0);
+        value=m_v1*(h-r)*(h-r)*(h-r)*r*r*r;
+    }
     else if( (r>0.0) && (2.0*r<=h) )
-        value=m_v1*(2.0*pow(h-r,3.0)*pow(r,3.0)-m_v2);
+    {
+        //value=m_v1*(2.0*pow(h-r,3.0)*pow(r,3.0)-m_v2);
+        value=m_v1*(2.0*(h-r)*(h-r)*(h-r)*r*r*r-m_v2);
+    }
     else
         value=0.0;
     return value;

@@ -187,6 +187,18 @@ int GridUtility::cellId(int i, int j, int k) const
     return i + j*dimension[0] + k*dimension[0]*dimension[1];
 }
 
+void GridUtility::get27Neighbors(std::vector<int>& neighbors, const int i, const float radius)
+{
+    Vec3i gCoord= gridCoord(i);
+    get27Neighbors(neighbors, gCoord, std::floor(radius/h) );
+}
+
+void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const int i, const float radius)
+{
+    Vec3i gCoord = gridCoord(i);
+    get27Neighbors(neighbors, gCoord, std::floor(radius/h) );
+}
+
 void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3f& p, const float radius)
 {
     Vec3i gridCoord = worldToGrid(p);

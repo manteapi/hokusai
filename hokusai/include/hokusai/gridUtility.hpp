@@ -42,6 +42,9 @@ class GridUtility
         float h;
         Vec3i dimension;
 
+        void get27Neighbors(std::vector<int>& neighbors, const int i, const float radius);
+        void get27Neighbors(std::vector<Vec3i>& neighbors,const int i, const float radius);
+
         void get27Neighbors(std::vector<int>& neighbors, const Vec3f& p, const float radius);
         void get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p, const float radius);
 

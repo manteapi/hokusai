@@ -71,6 +71,7 @@ namespace hokusai
     class Particle
     {
         public :
+        bool isSurface;
         double rho, rho_adv, rho_corr, p, p_l, previousP, aii;
         Vec3r x, v, v_adv, f_adv, f_p, dii_fluid, dii_boundary, sum_dij, n;
         Vec3f c;
@@ -80,6 +81,7 @@ namespace hokusai
         public :
         Particle()
         {
+            isSurface=true;
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
             x = v = v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec3r(0.0);
             c = Vec3f(0.0);
@@ -93,6 +95,7 @@ namespace hokusai
             v = _v;
             c = _c;
 
+            isSurface=true;
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
             v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec3r(0.0);
             fluidNeighbor.clear();
@@ -120,6 +123,8 @@ namespace hokusai
             n = _p.n;
 
             c = _p.c;
+
+            isSurface=_p.isSurface;
 
             fluidNeighbor=_p.fluidNeighbor;
             boundaryNeighbor=_p.boundaryNeighbor;

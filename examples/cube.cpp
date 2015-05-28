@@ -15,7 +15,7 @@ using namespace hokusai;
 int main()
 {
 
-    int resolution = 5000; ///particle number per m3
+    int resolution = 1e4; ///particle number per m3
     System sph(resolution);
 
     Vec fluidBox(1.0,1.0,1.0);
