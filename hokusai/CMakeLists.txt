@@ -39,7 +39,6 @@ set(HOKUSAI_HEADER
     ./include/hokusai/system.hpp
     ./include/hokusai/utils.hpp
     ./include/hokusai/HSL2RGB.hpp
-    #./include/hokusai/Vec.hpp
     ./include/hokusai/write_bmp.hpp
     ./include/hokusai/gridUtility.hpp
     ./include/hokusai/io.hpp
