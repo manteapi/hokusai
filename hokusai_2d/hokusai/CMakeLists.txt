@@ -23,40 +23,19 @@ set(HOKUSAI_SOURCE
     ./src/particle.cpp
     ./src/system.cpp
     ./src/utils.cpp
-    ./src/HSL2RGB.cpp
-    ./src/write_bmp.cpp
-    ./src/gridUtility.cpp
-    ./src/io.cpp
-    ./src/rasterizer.cpp
-    ./src/triMesh.cpp
-    ./src/sampler.cpp
-    ./src/particleSource.cpp
-    ./src/particleSink.cpp
 )
 
 set(HOKUSAI_HEADER
+    ./include/hokusai/utility.hpp
     ./include/hokusai/particle.hpp
     ./include/hokusai/system.hpp
     ./include/hokusai/utils.hpp
-    ./include/hokusai/HSL2RGB.hpp
-    ./include/hokusai/write_bmp.hpp
-    ./include/hokusai/gridUtility.hpp
-    ./include/hokusai/io.hpp
-    ./include/hokusai/rasterizer.hpp
-    ./include/hokusai/triMesh.hpp
-    ./include/hokusai/strutil.hpp
-    ./include/hokusai/sampler.hpp
-    ./include/hokusai/particleSource.hpp
-    ./include/hokusai/particleSink.hpp
 )
 
-set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
-include_directories(${ALJABR_INCLUDE_DIRS})
-
-set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
+set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to magnet headers")
 include_directories(${MAGNET_INCLUDE_DIRS})
 
-set(EIGEN_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
+set(EIGEN_INCLUDE_DIRS "" CACHE PATH "path to eigen headers")
 include_directories(${EIGEN_INCLUDE_DIRS})
 
 include_directories( include )

@@ -23,68 +23,75 @@
 #ifndef HOKUSAI_GRID_UTILITY_HPP
 #define HOKUSAI_GRID_UTILITY_HPP
 
-#include <aljabr/Vec.hpp>
+#include "utility.hpp"
 
 namespace hokusai
 {
-typedef aljabr::Vec3<double> Vec3f;
-typedef aljabr::Vec3<int> Vec3i;
-class GridUtility
+
+class Grid2dUtility
 {
     public :
-        GridUtility();
-        GridUtility(const Vec3f& _offset, const Vec3f& _scale, const float& _spacing);
-        GridUtility(const Vec3f& _offset, const Vec3i& _dimension, const float& _spacing);
-        ~GridUtility();
+        Grid2dUtility();
+        Grid2dUtility( const Grid2dUtility& gridInfo );
+        Grid2dUtility(const Vec2r& _offset, const Vec2r& _scale, const SReal& _spacing);
+        Grid2dUtility(const Vec2r& _offset, const Vec2i& _dimension, const SReal& _spacing);
+        ~Grid2dUtility();
 
-        Vec3f offset;
-        Vec3f scale;
-        float h;
-        Vec3i dimension;
+        Vec2r offset;
+        Vec2r scale;
+        SReal h;
+        Vec2i dimension;
 
-        void get27Neighbors(std::vector<int>& neighbors, const int i, const float radius);
-        void get27Neighbors(std::vector<Vec3i>& neighbors,const int i, const float radius);
+        void get9Neighbors(std::vector<int>& neighbors, const Vec2r& p, const SReal radius);
+        void get9Neighbors(std::vector<Vec2i>& neighbors,const Vec2r& p, const SReal radius);
 
-        void get27Neighbors(std::vector<int>& neighbors, const Vec3f& p, const float radius);
-        void get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p, const float radius);
-
-        void get27Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius);
-        void get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius);
+        void get9Neighbors(std::vector<int>& neighbors, const Vec2i& p, const int radius);
+        void get9Neighbors(std::vector<Vec2i>& neighbors, const Vec2i& p, const int radius);
 
 
-        void get7Neighbors(std::vector<int>& neighbors, const Vec3f& p) const;
-        void get7Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p) const;
+        void get5Neighbors(std::vector<int>& neighbors, const Vec2r& p) const;
+        void get5Neighbors(std::vector<Vec2i>& neighbors,const Vec2r& p) const;
 
-        void get7Neighbors(std::vector<int>& neighbors, const Vec3i& p) const;
-        void get7Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p) const;
+        void get5Neighbors(std::vector<int>& neighbors, const Vec2i& p) const;
+        void get5Neighbors(std::vector<Vec2i>& neighbors, const Vec2i& p) const;
 
         bool isInside(int id) const;
-        bool isInside(int i, int j, int k) const;
-        bool isInside(const Vec3i& v) const;
-        bool isInside(const Vec3f& v) const;
+        bool isInside(int i, int j) const;
+        bool isInside(const Vec2i& v) const;
+        bool isInside(const Vec2r& v) const;
 
-        Vec3f gridToWorld(const Vec3i& v) const;
-        Vec3f gridToWorld(const int i) const;
+        Vec2r gridToWorld(const Vec2i& v) const;
+        Vec2r gridToWorld(const int i) const;
 
-        Vec3i worldToGrid(const Vec3f& v) const;
+        Vec2i worldToGrid(const Vec2r& v) const;
 
-        int cellId(const Vec3f& v) const;
-        int cellId(const Vec3i& v) const;
-        int cellId(int i, int j, int k) const;
+        int cellId(const Vec2r& v) const;
+        int cellId(const Vec2i& v) const;
+        int cellId(int i, int j) const;
+
+        /*! \brief Return the reference to the neighbor of a pixel givent the side of the neighbor.
+        *
+        * For the side of the neighbor, 0 corresponds to the bottom side, 1 to the right, 2 to the top and 3 to the left.
+        *
+        * \param pixelId a reference to the current pixel.
+        * \param neighborId the side of the neighbor
+        * \return a reference to the neighbor pixel
+        */
+        int neighborPixelId(int pixelId, int neighborId) const;
 
         int width() const;
         int height() const;
-        int depth() const;
         int size() const;
-        float spacing() const;
+        SReal spacing() const;
 
-        void update(const Vec3f& _offset, const Vec3i& _scale, const float& _spacing);
-        void update(const Vec3f& _offset, const Vec3f& _scale, const float& _spacing);
+        void update(const Vec2r& _offset, const Vec2i& _scale, const SReal& _spacing);
+        void update(const Vec2r& _offset, const Vec2r& _scale, const SReal& _spacing);
 
-        void init(const Vec3f& _offset, const Vec3f& _scale, const float& _spacing);
-        void init(const Vec3f& _offset, const Vec3i& _scale, const float& _spacing);
-        Vec3i gridCoord(int i) const;
+        void init(const Vec2r& _offset, const Vec2r& _scale, const SReal& _spacing);
+        void init(const Vec2r& _offset, const Vec2i& _scale, const SReal& _spacing);
+        Vec2i gridCoord(int i) const;
         void info();
 };
+
 }
 #endif

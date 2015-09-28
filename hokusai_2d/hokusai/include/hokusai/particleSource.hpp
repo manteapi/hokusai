@@ -1,19 +1,17 @@
 #ifndef HOKUSAI_PARTICLE_SOURCE_HPP
 #define HOKUSAI_PARTICLE_SOURCE_HPP
 
-#include <aljabr/Vec.hpp>
-#include <Eigen/Geometry>
+#include "utility.hpp"
 #include "particle.hpp"
+#include <Eigen/Geometry>
 
 namespace hokusai
 {
 
-typedef aljabr::Vec3<double> Vec3r;
-typedef double SReal;
 class ParticleSource
 {
 public :
-    ParticleSource(const SReal& startTime_, const SReal& endTime_, const SReal& delay_, const SReal& spacing_, const Vec3r& position_=Vec3r(0,0,0), const Vec3r& orientation_=Vec3r(0,0,0), const Vec3r& scale_=Vec3r(1,1,1), const Vec3r& velocity_=Vec3r(0,0,0));
+    ParticleSource(const double& startTime_, const double& endTime_, const double& delay_, const double& spacing_, const Vec2d& position_=Vec2d(0,0,0), const Vec2d& orientation_=Vec2d(0,0,0), const Vec2d& scale_=Vec2d(1,1,1), const Vec2d& velocity_=Vec2d(0,0,0));
     ParticleSource(const ParticleSource& source);
     ParticleSource();
     ~ParticleSource();
@@ -22,21 +20,21 @@ public :
 
     typedef Eigen::Affine3d Affine;
 
-    Vec3r position;
-    Vec3r orientation;
-    Vec3r scale;
+    Vec2d position;
+    Vec2d orientation;
+    Vec2d scale;
 
-    Vec3r velocity;
-    SReal startTime;
+    Vec2d velocity;
+    double startTime;
 
-    SReal spacing;
-    SReal endTime;
-    SReal delay;
-    SReal lastTime;
+    double spacing;
+    double endTime;
+    double delay;
+    double lastTime;
 
     std::vector<Particle> p_stencil;
 
-    std::vector<Particle> apply(const SReal time);
+    std::vector<Particle> apply(const double time);
 };
 
 }
