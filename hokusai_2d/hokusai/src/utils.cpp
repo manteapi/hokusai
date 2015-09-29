@@ -35,8 +35,8 @@ MonaghanKernel::MonaghanKernel()
 MonaghanKernel::MonaghanKernel( double _h )
 {
     h = _h;
-    m_v = 15.0/(14.0*M_PI*h*h*h);
-    m_g = 15.0/(14.0*M_PI*h*h*h);
+    m_v = 15.0/(14.0*M_PI*h*h);
+    m_g = 15.0/(14.0*M_PI*h*h);
 }
 
 MonaghanKernel::MonaghanKernel( const MonaghanKernel& k)

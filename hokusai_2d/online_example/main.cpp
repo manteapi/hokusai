@@ -38,24 +38,25 @@ int main()
 
     ///Initialize parameters
     sph.init();
+    sph.setTimeStep(1e-4);
     sph.debugFluid();
 
     //Initialize visualization data
-    std::vector< glm::vec2 > positions;
-    std::vector< glm::vec4 > colors;
-    std::vector< Vec2d > tmp_positions;
+    std::vector< glm::vec2 > particle_center;
+    std::vector< glm::vec4 > particle_color;
+    std::vector< Vec2d > tmp_particle_center;
 
-    tmp_positions = sph.getFluidPosition();
-    for(size_t i=0; i<tmp_positions.size(); ++i)
+    tmp_particle_center = sph.getFluidPosition();
+    for(size_t i=0; i<tmp_particle_center.size(); ++i)
     {
-        positions.push_back(glm::vec2(tmp_positions[i][0], tmp_positions[i][1]));
-        colors.push_back(glm::vec4(0.0,0.0,1.0,1.0));
+        particle_center.push_back(glm::vec2(tmp_particle_center[i][0], tmp_particle_center[i][1]));
+        particle_color.push_back(glm::vec4(0.0,0.0,1.0,1.0));
     }
-    tmp_positions = sph.getBoundaryPosition();
-    for(size_t i=0; i<tmp_positions.size(); ++i)
+    tmp_particle_center = sph.getBoundaryPosition();
+    for(size_t i=0; i<tmp_particle_center.size(); ++i)
     {
-        positions.push_back(glm::vec2(tmp_positions[i][0], tmp_positions[i][1]));
-        colors.push_back(glm::vec4(1.0,0.0,0.0,1.0));
+        particle_center.push_back(glm::vec2(tmp_particle_center[i][0], tmp_particle_center[i][1]));
+        particle_color.push_back(glm::vec4(1.0,0.0,0.0,1.0));
     }
 
     ///Window creation
@@ -89,49 +90,47 @@ int main()
     shader.load(vertexPath.c_str(), fragmentPath.c_str());
 
     //Set Shader variables
-    GLuint positionLoc = glGetAttribLocation(shader.id(), "vertex_position");
-    GLuint colorLoc = glGetAttribLocation(shader.id(), "vertex_color");
+    GLuint particlePositionLoc = glGetAttribLocation(shader.id(), "particle_position");
+    GLuint particleColorLoc = glGetAttribLocation(shader.id(), "particle_color");
 
-    //Allocate buffers
-    GLuint positionBuffer;
-    glGenBuffers(1, &positionBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, positions.size()*sizeof(glm::vec2), positions.data(), GL_STATIC_DRAW);
+    GLuint particlePositionBuffer;
+    glGenBuffers(1, &particlePositionBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, particlePositionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, particle_center.size()*sizeof(glm::vec2), particle_center.data(), GL_STATIC_DRAW);
 
-    GLuint colorBuffer;
-    glGenBuffers(1, &colorBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, colors.size()*sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
-
+    GLuint particleColorBuffer;
+    glGenBuffers(1, &particleColorBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, particleColorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, particle_color.size()*sizeof(glm::vec4), particle_color.data(), GL_STATIC_DRAW);
 
     bool run = true;
     while(run)
     {
         //Simulate
-        sph.simulate();
+        //sph.simulate();
 
         //Gather visualization data
-        positions.clear();
-        colors.clear();
-        tmp_positions = sph.getFluidPosition();
-        for(size_t i=0; i<tmp_positions.size(); ++i)
+        particle_center.clear();
+        particle_color.clear();
+        tmp_particle_center = sph.getFluidPosition();
+        for(size_t i=0; i<tmp_particle_center.size(); ++i)
         {
-            positions.push_back(glm::vec2(tmp_positions[i][0], tmp_positions[i][1]));
-            colors.push_back(glm::vec4(0.0,0.0,1.0,1.0));
+            particle_center.push_back(glm::vec2(tmp_particle_center[i][0], tmp_particle_center[i][1]));
+            particle_color.push_back(glm::vec4(0.0,0.0,1.0,1.0));
         }
-        tmp_positions = sph.getBoundaryPosition();
-        for(size_t i=0; i<tmp_positions.size(); ++i)
+        tmp_particle_center = sph.getBoundaryPosition();
+        for(size_t i=0; i<tmp_particle_center.size(); ++i)
         {
-            positions.push_back(glm::vec2(tmp_positions[i][0], tmp_positions[i][1]));
-            colors.push_back(glm::vec4(1.0,0.0,0.0,1.0));
+            particle_center.push_back(glm::vec2(tmp_particle_center[i][0], tmp_particle_center[i][1]));
+            particle_color.push_back(glm::vec4(1.0,0.0,0.0,1.0));
         }
 
         //Reload vbo
-        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-        glBufferData(GL_ARRAY_BUFFER, positions.size()*sizeof(glm::vec2), positions.data(), GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, particlePositionBuffer);
+        glBufferData(GL_ARRAY_BUFFER, particle_center.size()*sizeof(glm::vec2), particle_center.data(), GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-        glBufferData(GL_ARRAY_BUFFER, colors.size()*sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, particleColorBuffer);
+        glBufferData(GL_ARRAY_BUFFER, particle_color.size()*sizeof(glm::vec4), particle_color.data(), GL_STATIC_DRAW);
 
         ///Clear screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -154,18 +153,18 @@ int main()
         glUseProgram(shader.id());
 
         ///Link buffers and draw
-        glEnableVertexAttribArray(positionLoc);
-        glBindBuffer(GL_ARRAY_BUFFER,positionBuffer);
-        glVertexAttribPointer(positionLoc,2,GL_FLOAT,GL_FALSE,0,(void *)0);
+        glEnableVertexAttribArray(particlePositionLoc);
+        glBindBuffer(GL_ARRAY_BUFFER,particlePositionBuffer);
+        glVertexAttribPointer(particlePositionLoc,2,GL_FLOAT,GL_FALSE,0,(void *)0);
 
-        glEnableVertexAttribArray(colorLoc);
-        glBindBuffer(GL_ARRAY_BUFFER,colorBuffer);
-        glVertexAttribPointer(colorLoc,4,GL_FLOAT,GL_FALSE,0,(void *)0);
+        glEnableVertexAttribArray(particleColorLoc);
+        glBindBuffer(GL_ARRAY_BUFFER,particleColorBuffer);
+        glVertexAttribPointer(particleColorLoc,4,GL_FLOAT,GL_FALSE,0,(void *)0);
 
-        glDrawArrays(GL_POINTS, 0, positions.size());
+        glDrawArrays(GL_POINTS, 0, particle_center.size());
 
-        glDisableVertexAttribArray(positionLoc);
-        glDisableVertexAttribArray(colorLoc);
+        glDisableVertexAttribArray(particlePositionLoc);
+        glDisableVertexAttribArray(particleColorLoc);
 
         //Unbind shader
         glUseProgram(0);
@@ -173,10 +172,9 @@ int main()
         window.display();
     }
 
-
     //Deallocate buffers
-    glDeleteBuffers(1, &positionBuffer);
-    glDeleteBuffers(1, &colorBuffer);
+    glDeleteBuffers(1, &particlePositionBuffer);
+    glDeleteBuffers(1, &particleColorBuffer);
 
     return 0;
 }

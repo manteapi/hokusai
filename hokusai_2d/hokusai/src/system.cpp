@@ -564,7 +564,7 @@ void System::simulate()
 {
     //prepareGrid();
     predictAdvection();
-    pressureSolve();
+    //pressureSolve();
     integration();
     //applySources();
     //applySinks();

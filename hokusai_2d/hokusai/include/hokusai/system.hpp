@@ -256,7 +256,7 @@ public :
     double & getBoundaryFriction() {return sigma;}
     double & getTimeStep() {return dt;}
     const double& getTimeStep() const {return dt;}
-
+    void setTimeStep(double _dt){dt = _dt;}
     void addBoundaryBox(Vec2d offset, Vec2d scale);
     void addParticleBox(Vec2d offset, Vec2d scale);
 };
