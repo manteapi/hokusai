@@ -40,6 +40,8 @@ set(HEADERS
 set(SHADERS
     particle_vertex.glsl
     particle_fragment.glsl
+    grid_vertex.glsl
+    grid_fragment.glsl
 )
 
 set(EXECUTABLE_NAME main)

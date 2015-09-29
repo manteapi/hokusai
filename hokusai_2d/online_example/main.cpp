@@ -20,7 +20,7 @@ using namespace std;
 int main()
 {
     //Set simulation
-    int resolution = 1e3;
+    int resolution = 5e3;
     hokusai::System sph(resolution);
 
     ///Set fluid
@@ -38,8 +38,9 @@ int main()
 
     ///Initialize parameters
     sph.init();
-    sph.setTimeStep(1e-4);
+    sph.setTimeStep(1e-3);
     sph.debugFluid();
+    sph.gridInfo.info();
 
     //Initialize visualization data
     std::vector< glm::vec2 > particle_center;
@@ -58,6 +59,19 @@ int main()
         particle_center.push_back(glm::vec2(tmp_particle_center[i][0], tmp_particle_center[i][1]));
         particle_color.push_back(glm::vec4(1.0,0.0,0.0,1.0));
     }
+
+    std::vector< glm::vec2 > grid_vertices;
+    std::vector< glm::vec4 > grid_color;
+    Vec2d gOffset = sph.gridInfo.offset;
+    Vec2d gScale = sph.gridInfo.scale;
+    grid_vertices.push_back( glm::vec2(gOffset[0], gOffset[1]) );
+    grid_vertices.push_back( glm::vec2(gOffset[0]+gScale[0], gOffset[1]) );
+    grid_vertices.push_back( glm::vec2(gOffset[0]+gScale[0], gOffset[1]+gScale[1]) );
+    grid_vertices.push_back( glm::vec2(gOffset[0], gOffset[1]+gScale[1]) );
+    grid_color.push_back( glm::vec4(0.0,0.0,0.0,1.0) );
+    grid_color.push_back( glm::vec4(0.0,0.0,0.0,1.0) );
+    grid_color.push_back( glm::vec4(0.0,0.0,0.0,1.0) );
+    grid_color.push_back( glm::vec4(0.0,0.0,0.0,1.0) );
 
     ///Window creation
     sf::RenderWindow window(sf::VideoMode(1280,720), "fluid", sf::Style::Default, sf::ContextSettings(32));
@@ -84,14 +98,19 @@ int main()
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     //Compile Shader and link shader
-    Shader shader;
-    string vertexPath = "./../particle_vertex.glsl";
-    string fragmentPath = "./../particle_fragment.glsl";
-    shader.load(vertexPath.c_str(), fragmentPath.c_str());
+    Shader particleShader;
+    string particleVertexPath = "./../particle_vertex.glsl";
+    string particleFragmentPath = "./../particle_fragment.glsl";
+    particleShader.load(particleVertexPath.c_str(), particleFragmentPath.c_str());
+
+    Shader gridShader;
+    string gridVertexPath = "./../grid_vertex.glsl";
+    string gridFragmentPath = "./../grid_fragment.glsl";
+    gridShader.load(gridVertexPath.c_str(), gridFragmentPath.c_str());
 
     //Set Shader variables
-    GLuint particlePositionLoc = glGetAttribLocation(shader.id(), "particle_position");
-    GLuint particleColorLoc = glGetAttribLocation(shader.id(), "particle_color");
+    GLuint particlePositionLoc = glGetAttribLocation(particleShader.id(), "particle_position");
+    GLuint particleColorLoc = glGetAttribLocation(particleShader.id(), "particle_color");
 
     GLuint particlePositionBuffer;
     glGenBuffers(1, &particlePositionBuffer);
@@ -103,11 +122,24 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, particleColorBuffer);
     glBufferData(GL_ARRAY_BUFFER, particle_color.size()*sizeof(glm::vec4), particle_color.data(), GL_STATIC_DRAW);
 
+    GLuint gridPositionLoc = glGetAttribLocation(gridShader.id(), "grid_position");
+    GLuint gridColorLoc = glGetAttribLocation(gridShader.id(), "grid_color");
+
+    GLuint gridPositionBuffer;
+    glGenBuffers(1, &gridPositionBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, gridPositionBuffer);
+    glBufferData(GL_ARRAY_BUFFER, grid_vertices.size()*sizeof(glm::vec2), grid_vertices.data(), GL_STATIC_DRAW);
+
+    GLuint gridColorBuffer;
+    glGenBuffers(1, &gridColorBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, gridColorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, grid_color.size()*sizeof(glm::vec4), grid_color.data(), GL_STATIC_DRAW);
+
     bool run = true;
     while(run)
     {
         //Simulate
-        //sph.simulate();
+        sph.simulate();
 
         //Gather visualization data
         particle_center.clear();
@@ -125,7 +157,7 @@ int main()
             particle_color.push_back(glm::vec4(1.0,0.0,0.0,1.0));
         }
 
-        //Reload vbo
+        //Reload vbo                
         glBindBuffer(GL_ARRAY_BUFFER, particlePositionBuffer);
         glBufferData(GL_ARRAY_BUFFER, particle_center.size()*sizeof(glm::vec2), particle_center.data(), GL_STATIC_DRAW);
 
@@ -149,8 +181,13 @@ int main()
             }
         }
 
+
+        //--------------------------------------------------------
+        //--------------------Particle rendering------------------
+        //--------------------------------------------------------
+
         //Bind shader
-        glUseProgram(shader.id());
+        glUseProgram(particleShader.id());
 
         ///Link buffers and draw
         glEnableVertexAttribArray(particlePositionLoc);
@@ -167,6 +204,27 @@ int main()
         glDisableVertexAttribArray(particleColorLoc);
 
         //Unbind shader
+        glUseProgram(0);
+
+        //--------------------------------------------------------
+        //--------------------Grid rendering------------------
+        //--------------------------------------------------------
+        glUseProgram(gridShader.id());
+
+        ///Link buffers and draw
+        glEnableVertexAttribArray(gridPositionLoc);
+        glBindBuffer(GL_ARRAY_BUFFER,gridPositionBuffer);
+        glVertexAttribPointer(gridPositionLoc,2,GL_FLOAT,GL_FALSE,0,(void *)0);
+
+        glEnableVertexAttribArray(gridColorLoc);
+        glBindBuffer(GL_ARRAY_BUFFER,particleColorBuffer);
+        glVertexAttribPointer(gridColorLoc,4,GL_FLOAT,GL_FALSE,0,(void *)0);
+
+        glDrawArrays(GL_LINE_LOOP, 0, 4);
+
+        glDisableVertexAttribArray(gridPositionLoc);
+        glDisableVertexAttribArray(gridColorLoc);
+
         glUseProgram(0);
 
         window.display();

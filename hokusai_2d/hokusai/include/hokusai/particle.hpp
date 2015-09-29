@@ -45,11 +45,11 @@ namespace hokusai
         Boundary()
         {
             psi=0.0;
-            x=Vec2d(0.0);
-            v=Vec2d(0.0);
+            x=Vec2d(0.0,0.0);
+            v=Vec2d(0.0,0.0);
         }
 
-        Boundary(const Vec2d& _x, const Vec2d _v = Vec2d(0.0), const double _psi=0.0)
+        Boundary(const Vec2d& _x, const Vec2d _v = Vec2d(0.0,0.0), const double _psi=0.0)
         {
             x=_x;
             v=_v;
@@ -81,8 +81,8 @@ namespace hokusai
         {
             isSurface=true;
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
-            x = v = v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec2d(0.0);
-            c = Vec2d(0.0);
+            x = v = v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec2d(0.0,0.0);
+            c = Vec2d(0.0,0.0);
             fluidNeighbor.clear();
             boundaryNeighbor.clear();
         }
@@ -95,7 +95,7 @@ namespace hokusai
 
             isSurface=true;
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
-            v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec2d(0.0);
+            v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec2d(0.0,0.0);
             fluidNeighbor.clear();
             boundaryNeighbor.clear();
         }

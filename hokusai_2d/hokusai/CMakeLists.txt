@@ -23,6 +23,7 @@ set(HOKUSAI_SOURCE
     ./src/particle.cpp
     ./src/system.cpp
     ./src/utils.cpp
+    ./src/gridUtility.cpp
 )
 
 set(HOKUSAI_HEADER
@@ -30,6 +31,7 @@ set(HOKUSAI_HEADER
     ./include/hokusai/particle.hpp
     ./include/hokusai/system.hpp
     ./include/hokusai/utils.hpp
+    ./include/hokusai/gridUtility.hpp
 )
 
 set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to magnet headers")

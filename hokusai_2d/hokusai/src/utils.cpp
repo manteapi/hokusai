@@ -25,6 +25,31 @@
 namespace hokusai
 {
 
+AkinciKernel::AkinciKernel()
+{
+    h = 0;
+    m_v1 = 0;
+    m_v2 = 0;
+}
+
+AkinciKernel::AkinciKernel( double _h)
+{
+    h = _h;
+    m_v1 = 32.0/(M_PI*pow(h,9.0));
+    m_v2 = pow(h,6.0)/64.0;
+    adhesion = 0.007/pow(h,3.25);
+}
+
+AkinciKernel::AkinciKernel( const AkinciKernel& k)
+{
+    h = k.h;
+    m_v1 = k.m_v1;
+    m_v2 = k.m_v2;
+    adhesion = k.adhesion;
+}
+
+AkinciKernel::~AkinciKernel(){}
+
 MonaghanKernel::MonaghanKernel()
 {
     h = 0;

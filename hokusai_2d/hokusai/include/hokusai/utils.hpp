@@ -35,17 +35,17 @@ namespace hokusai
 {
 using namespace std;
 
-//class AkinciKernel
-//{
-//public :
-//    AkinciKernel();
-//    AkinciKernel(double _h);
-//    AkinciKernel(const AkinciKernel& k);
-//    ~AkinciKernel();
-//    double cohesionValue( const double r);
-//    double adhesionValue(const double r);
-//    double h,m_v1,m_v2,adhesion;
-//};
+class AkinciKernel
+{
+public :
+    AkinciKernel();
+    AkinciKernel(double _h);
+    AkinciKernel(const AkinciKernel& k);
+    ~AkinciKernel();
+    double cohesionValue( const double r);
+    double adhesionValue(const double r);
+    double h,m_v1,m_v2,adhesion;
+};
 
 //Monaghan 3D kernel
 class MonaghanKernel
@@ -145,6 +145,35 @@ inline double BoundaryKernel::gamma( double distance )
     }
     coeff *= (0.02*cs*cs/distance);
     return coeff;
+}
+
+
+inline double AkinciKernel::cohesionValue( const double r )
+{
+    double value=0;
+    if( (2.0*r>h) && (r<=h) )
+    {
+        //value=m_v1*pow(h-r,3.0)*pow(r,3.0);
+        value=m_v1*(h-r)*(h-r)*(h-r)*r*r*r;
+    }
+    else if( (r>0.0) && (2.0*r<=h) )
+    {
+        //value=m_v1*(2.0*pow(h-r,3.0)*pow(r,3.0)-m_v2);
+        value=m_v1*(2.0*(h-r)*(h-r)*(h-r)*r*r*r-m_v2);
+    }
+    else
+        value=0.0;
+    return value;
+}
+
+inline double AkinciKernel::adhesionValue( const double r)
+{
+    double value=0;
+    if( (2.0*r)>h && (r<=h) )
+        value=adhesion*pow(-4.0*r*r/h + 6.0*r -2.0*h,1.0/4.0);
+    else
+        value=0.0;
+    return value;
 }
 
 }

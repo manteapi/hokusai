@@ -28,6 +28,7 @@
 #include <ctime>
 
 #include "utility.hpp"
+#include "gridUtility.hpp"
 #include "utils.hpp"
 #include "particle.hpp"
 
@@ -70,15 +71,21 @@ public :
 
     Vec2d gravity;
 
-    //AkinciKernel a_kernel;
+    AkinciKernel a_kernel;
     MonaghanKernel p_kernel;
     BoundaryKernel b_kernel;
 
     vector<Particle> particles;
     vector<Boundary> boundaries;
 
+    Grid2dUtility gridInfo;
+    vector< vector<int> > boundaryGrid;
+    vector< vector<int> > fluidGrid;
+
 public :
     //Simulation Loop
+    void getNearestNeighbor(vector< int >& neighbors, const vector<vector<int> > &grid, const Vec2d& x);
+    void getNearestNeighbor(const int i, const float radius);
     void prepareGrid();
     void computeSurfaceParticle();
     void predictAdvection();
@@ -91,8 +98,6 @@ public :
     void computeAdvectionForces(int i);
     void predictVelocity(int i);
     void computeDii(int i);
-    void computeDii_Fluid(int i);
-    void computeDii_Boundary(int i);
     void computeAii(int i);
     void pressureSolve();
     void computeSumDijPj(int i);
@@ -135,30 +140,30 @@ public :
 
     void computeSurfaceTensionForces(int i, int j)
     {
-//        if(i!=j)
-//        {
-//            Particle& pi=particles[i];
-//            Particle& pj=particles[j];
-//            if(pi.isSurface==true || pj.isSurface==true)
-//            {
-//                Vec2d r = pi.x - pj.x;
-//                double kij = 2.0*restDensity/(pi.rho+pj.rho);
-//                double l = r.norm();
-//                Vec2d cohesionForce = -(fcohesion*mass*mass*a_kernel.cohesionValue(l)/l) * r;
-//                Vec2d nij = pi.n-pj.n;
-//                Vec2d curvatureForce = -fcohesion*mass*nij;
-//                pi.f_adv += kij*(cohesionForce+curvatureForce);
-//            }
-//        }
+        if(i!=j)
+        {
+            Particle& pi=particles[i];
+            Particle& pj=particles[j];
+            if(pi.isSurface==true || pj.isSurface==true)
+            {
+                Vec2d r = pi.x - pj.x;
+                double kij = 2.0*restDensity/(pi.rho+pj.rho);
+                double l = r.norm();
+                Vec2d cohesionForce = -(fcohesion*mass*mass*a_kernel.cohesionValue(l)/l) * r;
+                Vec2d nij = pi.n-pj.n;
+                Vec2d curvatureForce = -fcohesion*mass*nij;
+                pi.f_adv += kij*(cohesionForce+curvatureForce);
+            }
+        }
     }
     
     void computeBoundaryAdhesionForces(int i, int j)
     {
-//        Particle& pi=particles[i];
-//            Boundary& bj=boundaries[j];
-//            Vec2d xij= pi.x - bj.x;
-//            double l = xij.norm();
-//            pi.f_adv += -(badhesion*mass*boundaries[j].psi*a_kernel.adhesionValue(l)/l)*xij;
+        Particle& pi=particles[i];
+            Boundary& bj=boundaries[j];
+            Vec2d xij= pi.x - bj.x;
+            double l = xij.norm();
+            pi.f_adv += -(badhesion*mass*boundaries[j].psi*a_kernel.adhesionValue(l)/l)*xij;
     }
 
     Vec2d computeDij(int i, int j)

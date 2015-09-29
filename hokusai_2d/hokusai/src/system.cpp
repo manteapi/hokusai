@@ -64,10 +64,11 @@ System::System()
 
     gravity = Vec2d(0,-9.81);
 
-    //a_kernel = AkinciKernel();
+    a_kernel = AkinciKernel();
     p_kernel = MonaghanKernel();
     b_kernel = BoundaryKernel();
 
+    gridInfo = Grid2dUtility();
     particles = vector<Particle>();
     boundaries = vector<Boundary>();
 }
@@ -98,10 +99,11 @@ System::System(int resolution)
 
     gravity = Vec2d(0,-9.81);
 
-    //a_kernel = AkinciKernel();
+    a_kernel = AkinciKernel();
     p_kernel = MonaghanKernel();
     b_kernel = BoundaryKernel();
 
+    gridInfo = Grid2dUtility();
     particles = vector<Particle>();
     boundaries = vector<Boundary>();
 
@@ -113,13 +115,15 @@ System::~System(){}
 void System::computeRho(int i)
 {
     Particle& pi=particles[i];
+    vector<int>& fneighbors=pi.fluidNeighbor;
+    vector<int>& bneighbors=pi.boundaryNeighbor;
     pi.rho=0.0;
-    for(int j=0; j<(int)particles.size(); ++j)
+    for(int& j : fneighbors)
     {
         Particle& pj=particles[j];
         pi.rho += mass*p_kernel.monaghanValue(pi.x-pj.x);
     }
-    for(int j=0; j<(int)boundaries.size(); ++j)
+    for(int& j : bneighbors)
     {
         Boundary& bj = boundaries[j];
         pi.rho += p_kernel.monaghanValue(pi.x-bj.x)*bj.psi;
@@ -130,9 +134,10 @@ void System::computeNormal(int i)
 {
     //Compute normal
     Particle& pi=particles[i];
+    vector< int > & neighbors = particles[i].fluidNeighbor;
     Vec2d n(0.0);
     Vec2d gradient(0.0);
-    for(int j=0; j< (int)particles.size(); ++j)
+    for(int& j : neighbors)
     {
         if(i!=j)
         {
@@ -149,13 +154,13 @@ void System::computeAdvectionForces(int i)
     Particle& pi=particles[i];
     pi.f_adv = Vec2d::Zero();
 
-    for(int j=0; j<(int)particles.size(); ++j)
+    for(int& j : pi.fluidNeighbor)
     {
         computeViscosityForces(i, j);
         computeSurfaceTensionForces(i, j);
     }
 
-    for(int j=0; j<(int)boundaries.size(); ++j)
+    for(int& j : pi.boundaryNeighbor)
     {
         computeBoundaryFrictionForces(i, j);
         computeBoundaryAdhesionForces(i, j);
@@ -173,11 +178,12 @@ void System::predictVelocity(int i)
 void System::predictRho(int i)
 {
     Particle& pi=particles[i];
+    vector<int>& fneighbors=pi.fluidNeighbor;
+    vector<int>& bneighbors=pi.boundaryNeighbor;
     double fdrho=0.0, bdrho=0.0;
     Vec2d gradient = Vec2d::Zero();
 
-
-    for(int j=0; j<(int)particles.size(); ++j)
+    for(int& j : fneighbors)
     {
         if(i!=j)
         {
@@ -188,7 +194,7 @@ void System::predictRho(int i)
         }
     }
 
-    for(int j=0; j<(int)boundaries.size(); ++j)
+    for(int& j: bneighbors)
     {
         Boundary& bj=boundaries[j];
         Vec2d vb = 0.1*Vec2d::Ones();
@@ -202,74 +208,76 @@ void System::predictRho(int i)
 
 void System::computeSumDijPj(int i)
 {
-        Particle& pi=particles[i];
-        pi.sum_dij = Vec2d::Zero();
-        for(int j=0; j<(int)particles.size(); ++j)
+    Particle& pi=particles[i];
+    vector<int>& fneighbors=pi.fluidNeighbor;
+    pi.sum_dij = Vec2d::Zero();
+    for(int& j : fneighbors)
+    {
+        if(i!=j)
         {
-            if(i!=j)
-            {
-                Particle& pj=particles[j];
-                Vec2d gradient(0.0);
-                p_kernel.monaghanGradient(pi.x-pj.x, gradient);
-                pi.sum_dij+=(-mass/pow(pj.rho,2))*pj.p_l*gradient;
-            }
+            Particle& pj=particles[j];
+            Vec2d gradient(0.0);
+            p_kernel.monaghanGradient(pi.x-pj.x, gradient);
+            pi.sum_dij+=(-mass/pow(pj.rho,2))*pj.p_l*gradient;
         }
-        pi.sum_dij *= pow(dt,2);
+    }
+    pi.sum_dij *= pow(dt,2);
 }
 
 void System::computePressure(int i)
 {
-        Particle& pi=particles[i];
-        double fsum=0.0, bsum=0.0, omega=0.5;
+    Particle& pi=particles[i];
+    vector<int>& fneighbors=pi.fluidNeighbor, bneighbors=pi.boundaryNeighbor;
+    double fsum=0.0, bsum=0.0, omega=0.5;
 
-        for(int j=0; j<(int)particles.size(); ++j)
+    for(int& j : fneighbors)
+    {
+        if(i!=j)
         {
-            if(i!=j)
-            {
-                Particle& pj=particles[j];
-                Vec2d gradient_ij(0.0), dji=computeDij(j, i);
-                p_kernel.monaghanGradient(pi.x-pj.x, gradient_ij);
-                Vec2d aux = pi.sum_dij - (pj.dii_fluid+pj.dii_boundary)*pj.p_l - (pj.sum_dij - dji*pi.p_l);
-                fsum+=mass*aux.dot(gradient_ij);
-            }
+            Particle& pj=particles[j];
+            Vec2d gradient_ij(0.0), dji=computeDij(j, i);
+            p_kernel.monaghanGradient(pi.x-pj.x, gradient_ij);
+            Vec2d aux = pi.sum_dij - (pj.dii_fluid+pj.dii_boundary)*pj.p_l - (pj.sum_dij - dji*pi.p_l);
+            fsum+=mass*aux.dot(gradient_ij);
         }
+    }
 
-        for(int j=0; j<(int)boundaries.size(); ++j)
-        {
-            Boundary& bj=boundaries[j];
-            Vec2d gradient(0.0), r(0.0); r=pi.x-bj.x;
-            p_kernel.monaghanGradient(r, gradient);
-            bsum+=bj.psi*pi.sum_dij.dot(gradient);
-        }
+    for(int& j : bneighbors)
+    {
+        Boundary& bj=boundaries[j];
+        Vec2d gradient(0.0), r(0.0); r=pi.x-bj.x;
+        p_kernel.monaghanGradient(r, gradient);
+        bsum+=bj.psi*pi.sum_dij.dot(gradient);
+    }
 
-        double previousPl = pi.p_l;
-        pi.rho_corr = pi.rho_adv + fsum + bsum;
-        if(std::abs(pi.aii)>std::numeric_limits<double>::epsilon())
-            pi.p_l = (1-omega)*previousPl + (omega/pi.aii)*(restDensity - pi.rho_corr);
-        else
-            pi.p_l = 0.0;
-        pi.p = std::max(pi.p_l,0.0);
-        pi.p_l = pi.p;
-        pi.rho_corr += pi.aii*previousPl;
+    double previousPl = pi.p_l;
+    pi.rho_corr = pi.rho_adv + fsum + bsum;
+    if(std::abs(pi.aii)>std::numeric_limits<double>::epsilon())
+        pi.p_l = (1-omega)*previousPl + (omega/pi.aii)*(restDensity - pi.rho_corr);
+    else
+        pi.p_l = 0.0;
+    pi.p = std::max(pi.p_l,0.0);
+    pi.p_l = pi.p;
+    pi.rho_corr += pi.aii*previousPl;
 }
 
 void System::computePressureForce(int i)
 {
-        Particle& pi=particles[i];
-        //Vec2d gradient(0.0);
-        pi.f_p = Vec2d::Zero();
+    Particle& pi=particles[i];
+    //Vec2d gradient(0.0);
+    pi.f_p = Vec2d::Zero();
 
-        //Fluid Pressure Force
-        for(int j=0; j<(int)particles.size(); ++j)
-        {
-            computeFluidPressureForce(i, j);
-        }
+    //Fluid Pressure Force
+    for(int j=0; j<(int)particles.size(); ++j)
+    {
+        computeFluidPressureForce(i, j);
+    }
 
-        //Boundary Pressure Force [Akinci 2012]
-        for(int j=0; j<(int)boundaries.size(); ++j)
-        {
-            computeBoundaryPressureForce(i, j);
-        }
+    //Boundary Pressure Force [Akinci 2012]
+    for(int j=0; j<(int)boundaries.size(); ++j)
+    {
+        computeBoundaryPressureForce(i, j);
+    }
 }
 
 void System::initializePressure(int i)
@@ -286,44 +294,13 @@ void System::computeError()
     rho_avg_l /= particleNumber;
 }
 
-
-void System::computeDii_Boundary(int i)
-{
-    //    Particle& pi=particles[i];
-    //    pi.dii_boundary = Vec2d::Zeros();
-    //    for(int& j : pi.boundaryNeighbor)
-    //    {
-    //        Boundary& bj=boundaries[j];
-    //        Vec2d gradient(0.0);
-    //        p_kernel.monaghanGradient(pi.x-bj.x, gradient);
-    //        pi.dii_boundary+=(-dt*dt*bj.psi/pow(pi.rho,2))*gradient;
-    //    }
-    //}
-
-    //void System::computeDii_Fluid(int i)
-    //{
-    //    Particle& pi=particles[i];
-    //    pi.dii_fluid = Vec2d::Zeros();
-    //    pi.dii_boundary = Vec2d::Zeros();
-    //    for(int& j : pi.fluidNeighbor)
-    //    {
-    //        if(i!=j)
-    //        {
-    //            Particle& pj=particles[j];
-    //            Vec2d gradient(0.0);
-    //            p_kernel.monaghanGradient(pi.x-pj.x, gradient);
-    //            pi.dii_fluid+=(-dt*dt*mass/pow(pi.rho,2))*gradient;
-    //        }
-    //    }
-}
-
 void System::computeDii(int i)
 {
     Particle& pi=particles[i];
     pi.dii_fluid = Vec2d::Zero();
     pi.dii_boundary = Vec2d::Zero();
 
-    for(int j=0; j<(int)particles.size();++j)
+    for(int& j : pi.fluidNeighbor)
     {
         if(i!=j)
         {
@@ -334,7 +311,7 @@ void System::computeDii(int i)
         }
     }
 
-    for(int j=0; j<(int)boundaries.size();++j)
+    for(int& j : pi.boundaryNeighbor)
     {
         Boundary& bj=boundaries[j];
         Vec2d gradient(0.0);
@@ -346,7 +323,7 @@ void System::computeDii(int i)
 void System::computeAii( int i)
 {
     Particle& pi=particles[i]; pi.aii=0.0;
-    for(int j=0; j<(int)particles.size();++j)
+    for(int& j : pi.fluidNeighbor)
     {
         if(i!=j)
         {
@@ -357,7 +334,7 @@ void System::computeAii( int i)
             pi.aii+=mass*((pi.dii_fluid+pi.dii_boundary)-dji).dot(gradient_ij);
         }
     }
-    for(int j=0; j<(int)boundaries.size();++j)
+    for(int& j : pi.boundaryNeighbor)
     {
         Boundary& bj=boundaries[j];
         Vec2d gradient_ij(0.0);
@@ -371,11 +348,13 @@ void System::computeBoundaryVolume()
     for(int i=0; i<(int)boundaries.size();++i)
     {
         double densityNumber=0.0;
-        for(int j=0; j<(int)boundaries.size();++j)
+        vector<int> neighbors;
+        getNearestNeighbor(neighbors, boundaryGrid, boundaries[i].x);
+        for(int& j : neighbors)
         {
             densityNumber += p_kernel.monaghanValue(boundaries[i].x-boundaries[j].x);
-            boundaries[i].psi = restDensity/densityNumber;
         }
+        boundaries[i].psi = restDensity/densityNumber;
     }
 }
 
@@ -405,30 +384,36 @@ void System::computeVolume()
 
 void System::addBoundaryBox(Vec2d offset, Vec2d scale)
 {
-    int widthSize = std::floor(scale[0]/h);
-    int heightSize = std::floor(scale[1]/h);
+    double spacing = h;
+    int widthSize = std::floor(scale[0]/spacing);
+    int heightSize = std::floor(scale[1]/spacing);
     //Bottom+Top
-    for(int i=0; i<widthSize; ++i)
+    for(int i=0; i<=widthSize; ++i)
     {
-        Vec2d bPosition(offset[0]+i*h, offset[1]);
-        boundaries.push_back(Boundary(bPosition,Vec2d(0.0),0.0));
+        Vec2d bPosition(offset[0]+i*spacing, offset[1]);
+        boundaries.push_back(Boundary(bPosition,Vec2d(0.0,0.0),0.0));
         boundaryNumber++;
-        Vec2d tPosition(offset[0]+i*h, offset[1]+scale[1]);
-        boundaries.push_back(Boundary(tPosition,Vec2d(0.0),0.0));
+        Vec2d tPosition(offset[0]+i*spacing, offset[1]+scale[1]);
+        boundaries.push_back(Boundary(tPosition,Vec2d(0.0,0.0),0.0));
         boundaryNumber++;
 
     }
     //Left+Right
     for(int i=0; i<=heightSize; ++i)
     {
-        Vec2d lPosition(offset[0],offset[1]+i*h);
-        boundaries.push_back(Boundary(lPosition,Vec2d(0.0),0.0));
+        Vec2d lPosition(offset[0],offset[1]+i*spacing);
+        boundaries.push_back(Boundary(lPosition,Vec2d(0.0,0.0),0.0));
         boundaryNumber++;
-        Vec2d rPosition(offset[0]+scale[0],offset[1]+i*h);
-        boundaries.push_back(Boundary(rPosition,Vec2d(0.0),0.0));
+        Vec2d rPosition(offset[0]+scale[0],offset[1]+i*spacing);
+        boundaries.push_back(Boundary(rPosition,Vec2d(0.0,0.0),0.0));
         boundaryNumber++;
-
     }
+
+    double eOffset = 2.0*h;
+    double eScale = 4.0*h;
+    Vec2d gOffset = offset-Vec2d(eOffset,eOffset);
+    Vec2d gScale = scale+Vec2d(eScale,eScale);
+    gridInfo.update(gOffset, gScale, 2.0*h);
 }
 
 void System::addParticleBox(Vec2d offset, Vec2d scale)
@@ -471,7 +456,7 @@ void System::setParameters( int _wishedNumber, double _volume )
     maxEta=1.0;
     restDensity = 1000;
     mass = (restDensity * volume) / _wishedNumber;
-    particlePerCell = 33.8; //better
+    particlePerCell = 40;
     h = 0.5*pow( double(volume*particlePerCell) / double(M_PI*_wishedNumber), 1.0/2.0);
 
     double eta = 0.01;
@@ -479,22 +464,36 @@ void System::setParameters( int _wishedNumber, double _volume )
     double vf = sqrt( 2*9.81*H );
     cs = vf/(sqrt(eta));
 
-    alpha = 0.1;
-    fcohesion = 0.05;
-    badhesion = 0.001;
-    sigma=1.0;
-    boundaryH = h/2.0; //boundaryH must be <= h (neighbor search purpose)
+    alpha = 1e-3; ///Viscosity
+    fcohesion = 1e-3; ///Fluid cohesion, surface tension
+    badhesion = 1e-3; ///Boundary adhesion
+    sigma=1.0; ///Boundary friction
+    boundaryH = h/2.0; //BoundaryH must be <= h (neighbor search purpose)
 
-    dt = 1e-10;
+    dt = 1e-10; ///Time step
 
     p_kernel = MonaghanKernel( h );
-    //a_kernel = AkinciKernel( 2.0*h );
+    a_kernel = AkinciKernel( 2.0*h );
     b_kernel = BoundaryKernel( boundaryH, cs );
 }
 
 void System::init()
 {
+    boundaryGrid.resize(gridInfo.size());
+    for(size_t i=0; i<boundaries.size(); ++i)
+    {
+        int id = gridInfo.cellId(boundaries[i].x);
+        if(gridInfo.isInside(id))
+            boundaryGrid[id].push_back(i);
+    }
+
+    fluidGrid.resize(gridInfo.size());
+
+    //Init simulation values
     computeBoundaryVolume();
+    prepareGrid();
+
+    debugFluid();
 }
 
 void System::predictAdvection()
@@ -504,8 +503,6 @@ void System::predictAdvection()
 
     for(int i=0; i<particleNumber; ++i)
         computeNormal(i);
-
-    //computeSurfaceParticle();
 
     for(int i=0; i<particleNumber; ++i)
     {
@@ -540,7 +537,7 @@ void System::pressureSolve()
 
         ++l;
 
-        //debugIteration(l);
+        debugIteration(l);
     }
 
 }
@@ -560,11 +557,74 @@ void System::integration()
     }
 }
 
+void System::prepareGrid()
+{
+    for(size_t i=0; i<fluidGrid.size(); ++i)
+        fluidGrid[i].clear();
+
+    for(size_t i=0; i<particles.size(); ++i)
+    {
+        int id = gridInfo.cellId(particles[i].x);
+        if(gridInfo.isInside(id))
+            fluidGrid[id].push_back(i);
+    }
+
+    for(size_t i = 0; i < particles.size(); ++i)
+        getNearestNeighbor(i, 4.0*h);
+}
+
+void System::getNearestNeighbor(const int i, const float radius)
+{
+    Particle& p = particles[i];
+    p.fluidNeighbor.clear();
+    p.boundaryNeighbor.clear();
+
+    std::vector<int> neighborCell;
+    gridInfo.get9Neighbors(neighborCell, p.x, radius);
+
+    for(size_t i=0; i<neighborCell.size(); ++i)
+    {
+        std::vector<int>& bNeighborCell = boundaryGrid[neighborCell[i]];
+        for(size_t j=0; j<bNeighborCell.size(); ++j)
+        {
+            int bParticleId = boundaryGrid[neighborCell[i]][j];
+            Boundary& bParticle = boundaries[bParticleId];
+            Vec2d d = bParticle.x-p.x;
+            if( d.squaredNorm()<radius*radius )
+                p.boundaryNeighbor.push_back(bParticleId);
+        }
+
+        std::vector<int>& fNeighborCell = fluidGrid[neighborCell[i]];
+        for(size_t j=0; j< fNeighborCell.size(); ++j)
+        {
+            int fParticleId = fluidGrid[neighborCell[i]][j];
+            Particle& fParticle = particles[fParticleId];
+            Vec2d d = fParticle.x-p.x;
+            if( d.squaredNorm()<radius*radius)
+                p.fluidNeighbor.push_back(fParticleId);
+        }
+    }
+}
+
+void System::getNearestNeighbor(vector< int >& neighbor, const vector< vector<int> >& grid, const Vec2d &x)
+{
+    std::vector<int> neighborCell;
+    gridInfo.get9Neighbors(neighborCell, x, gridInfo.spacing());
+    neighbor.clear();
+    for(size_t i=0; i<neighborCell.size(); ++i)
+    {
+        for(size_t j=0; j<grid[neighborCell[i]].size(); ++j)
+        {
+            neighbor.push_back(grid[neighborCell[i]][j]);
+        }
+    }
+}
+
 void System::simulate()
 {
-    //prepareGrid();
+    prepareGrid();
     predictAdvection();
-    //pressureSolve();
+    pressureSolve();
     integration();
     //applySources();
     //applySinks();
