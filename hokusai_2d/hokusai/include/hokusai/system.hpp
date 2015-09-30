@@ -84,8 +84,16 @@ public :
 
 public :
     //Simulation Loop
-    void getNearestNeighbor(vector< int >& neighbors, const vector<vector<int> > &grid, const Vec2d& x);
-    void getNearestNeighbor(const int i, const float radius);
+
+    ///Compute fluid particles which are in a given radius from a given position.
+    void getNearestFluidNeighbor(vector< int >& neighbors, const Vec2d& x, const double radius);
+
+    ///Compute fluid and boundary neighbors for a particle i in a given radius.
+    void getNearestNeighbor(const int i, const double radius);
+
+    ///Compute neighbor for a position x in a given radius from a given grid.
+    void getNearestNeighbor(vector< int >& neighbor, const vector< vector<int> >& grid, const Vec2d &x);
+
     void prepareGrid();
     void computeSurfaceParticle();
     void predictAdvection();
@@ -210,13 +218,17 @@ public :
     void addFluidParticle(const Vec2d& x, const Vec2d& v);
 
     //Initialize a dam break scenario
-    const Vec2d& getGravity();
+    Vec2d& getGravity(){return gravity;}
+    const Vec2d& getGravity() const;
     void setGravity(const Vec2d& _gravity);
     void setParameters(int _number, double _volume=1.0);
+    void updateParameters();
     void createParticleVolume(Vec2d& pos, double width, double height, double depth, double spacing, int particleMax);
 
     void translateParticles(const Vec2d& t);
     void translateBoundaries(const Vec2d& t);
+
+    void cleanFluidParticle();
 
     void debugFluid();
     void debugIteration(int l);
@@ -242,9 +254,19 @@ public :
     void write(const char* filename, vector<double> data);
     void exportState(const char* baseName);
     double getTime(){return time;}
-    double & getSmoothingRadiusValue(){ return h; }
+
+    double & getSmoothingRadius(){ return h; }
     const double & getSmoothingRadius() const { return h; }
-    double & getTimeStepValue(){ return dt; }
+    void setSmoothingRadius( double _h){ h = _h; }
+
+    double & getTimeStep() {return dt;}
+    const double& getTimeStep() const {return dt;}
+    void setTimeStep(double _dt){dt = _dt;}
+
+    double & getRestDensity(){ return restDensity;}
+    const double & getRestDensity() const{ return restDensity;}
+    void setRestDensity( const double _restDensity) { restDensity = _restDensity;}
+
     double & getMassValue(){ return mass; }
     double & getMeanDensityValue(){ return mean_density;}
     double & getDensityFluctuationValue(){ return density_fluctuation;}
@@ -253,15 +275,20 @@ public :
 
     double & getViscosity(){return alpha;}
     const double & getViscosity() const {return alpha;}
+    void setViscosity(double _alpha){alpha = _alpha;}
+
     double & getFluidCohesion(){return fcohesion;}
     const double & getFluidCohesion() const {return fcohesion;}
+    void setFluidCohesion(double _fcohesion){fcohesion = _fcohesion;}
+
     double & getBoundaryAdhesion(){return badhesion;}
     const double & getBoundaryAdhesion() const {return badhesion;}
+    void setBoundaryAdhesion(double _badhesion){badhesion = _badhesion;}
+
     const double & getBoundaryFriction() const {return sigma;}
     double & getBoundaryFriction() {return sigma;}
-    double & getTimeStep() {return dt;}
-    const double& getTimeStep() const {return dt;}
-    void setTimeStep(double _dt){dt = _dt;}
+    void setBoundaryFriction(double _sigma){sigma = _sigma;}
+
     void addBoundaryBox(Vec2d offset, Vec2d scale);
     void addParticleBox(Vec2d offset, Vec2d scale);
 };

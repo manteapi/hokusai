@@ -416,6 +416,12 @@ void System::addBoundaryBox(Vec2d offset, Vec2d scale)
     gridInfo.update(gOffset, gScale, 2.0*h);
 }
 
+void System::cleanFluidParticle()
+{
+    particles.clear();
+    particleNumber=0;
+}
+
 void System::addParticleBox(Vec2d offset, Vec2d scale)
 {
     int widthSize = std::floor(scale[0]/h);
@@ -439,9 +445,14 @@ void System::setGravity(const Vec2d& _gravity)
     gravity = _gravity;
 }
 
-const Vec2d& System::getGravity()
+const Vec2d& System::getGravity() const
 {
     return gravity;
+}
+
+void System::updateParameters()
+{
+    ///TODO
 }
 
 void System::setParameters( int _wishedNumber, double _volume )
@@ -454,11 +465,14 @@ void System::setParameters( int _wishedNumber, double _volume )
     volume = _volume;
 
     maxEta=1.0;
-    restDensity = 1000;
-    mass = (restDensity * volume) / _wishedNumber;
-    particlePerCell = 40;
+    restDensity = 100;
+    _wishedNumber = _wishedNumber*6.5;
+    mass = (restDensity * volume) / (_wishedNumber);
+    //mass = (restDensity * volume) / (_wishedNumber);
+    particlePerCell = 38;
+    //h = pow( volume / _wishedNumber, 1.0/2.0);
+    //h = 0.5*pow( double(volume*particlePerCell) / double(M_PI*_wishedNumber), 1.0/2.0);
     h = 0.5*pow( double(volume*particlePerCell) / double(M_PI*_wishedNumber), 1.0/2.0);
-
     double eta = 0.01;
     double H = 0.1;
     double vf = sqrt( 2*9.81*H );
@@ -493,17 +507,26 @@ void System::init()
     computeBoundaryVolume();
     prepareGrid();
 
-    debugFluid();
+    //debugFluid();
 }
 
 void System::predictAdvection()
 {
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
         computeRho(i);
 
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
         computeNormal(i);
 
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
     {
         computeAdvectionForces(i);
@@ -511,6 +534,9 @@ void System::predictAdvection()
         computeDii(i);
     }
 
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
     {
         predictRho(i);
@@ -525,9 +551,15 @@ void System::pressureSolve()
 
     while( ( (rho_avg_l-restDensity)>maxEta ) || (l<2) )
     {
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
         for(int i=0; i<particleNumber; ++i)
             computeSumDijPj(i);
 
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
         for(int i=0; i<particleNumber; ++i)
         {
             computePressure(i);
@@ -537,7 +569,7 @@ void System::pressureSolve()
 
         ++l;
 
-        debugIteration(l);
+        //debugIteration(l);
     }
 
 }
@@ -546,9 +578,15 @@ void System::integration()
 {
     countTime++; time+=dt;
 
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
         computePressureForce(i);
 
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
     for(int i=0; i<particleNumber; ++i)
     {
         Particle& pi=particles[i];
@@ -569,11 +607,14 @@ void System::prepareGrid()
             fluidGrid[id].push_back(i);
     }
 
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
     for(size_t i = 0; i < particles.size(); ++i)
-        getNearestNeighbor(i, 4.0*h);
+        getNearestNeighbor(i, 2.0*h);
 }
 
-void System::getNearestNeighbor(const int i, const float radius)
+void System::getNearestNeighbor(const int i, const double radius)
 {
     Particle& p = particles[i];
     p.fluidNeighbor.clear();
@@ -616,6 +657,27 @@ void System::getNearestNeighbor(vector< int >& neighbor, const vector< vector<in
         for(size_t j=0; j<grid[neighborCell[i]].size(); ++j)
         {
             neighbor.push_back(grid[neighborCell[i]][j]);
+        }
+    }
+}
+
+void System::getNearestFluidNeighbor(vector< int >& neighbor, const Vec2d &x, const double radius)
+{
+    neighbor.clear();
+
+    std::vector<int> neighborCell;
+    gridInfo.get9Neighbors(neighborCell, x, gridInfo.spacing());
+
+    for(size_t i=0; i<neighborCell.size(); ++i)
+    {
+        std::vector<int>& fNeighborCell = fluidGrid[neighborCell[i]];
+        for(size_t j=0; j<fNeighborCell.size(); ++j)
+        {
+            int fParticleId = fluidGrid[neighborCell[i]][j];
+            Particle& fParticle = particles[fParticleId];
+            Vec2d d = fParticle.x-x;
+            if( d.squaredNorm()<radius*radius)
+                neighbor.push_back(fParticleId);
         }
     }
 }

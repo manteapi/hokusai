@@ -28,6 +28,10 @@ set(SFML_WINDOW_LIBRARIES "" CACHE FILEPATH "path to sfml windo library")
 set(SFML_GRAPHICS_LIBRARIES "" CACHE FILEPATH "path to sfml graphics library")
 include_directories(${SFML_INCLUDE_DIRS})
 
+set(ANTTWEAKBAR_INCLUDE_DIRS CACHE PATH "path to antTweakBar headers")
+set(ANTTWEAKBAR_LIBRARIES "" CACHE FILEPATH "path to miro library")
+include_directories(${ANTTWEAKBAR_INCLUDE_DIRS})
+
 set(SOURCES
     main.cpp
 )
@@ -42,6 +46,8 @@ set(SHADERS
     particle_fragment.glsl
     grid_vertex.glsl
     grid_fragment.glsl
+    fluidSurface_vertex.glsl
+    fluidSurface_fragment.glsl
 )
 
 set(EXECUTABLE_NAME main)
@@ -64,5 +70,6 @@ target_link_libraries(${EXECUTABLE_NAME} ${SFML_SYSTEM_LIBRARIES})
 target_link_libraries(${EXECUTABLE_NAME} ${SFML_WINDOW_LIBRARIES})
 target_link_libraries(${EXECUTABLE_NAME} ${SFML_GRAPHICS_LIBRARIES})
 target_link_libraries(${EXECUTABLE_NAME} ${GLEW_LIBRARIES})
+target_link_libraries(${EXECUTABLE_NAME} ${ANTTWEAKBAR_LIBRARIES})
 target_link_libraries(${EXECUTABLE_NAME} ${HOKUSAI_LIBRARIES})
 

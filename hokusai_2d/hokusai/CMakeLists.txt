@@ -24,6 +24,9 @@ set(HOKUSAI_SOURCE
     ./src/system.cpp
     ./src/utils.cpp
     ./src/gridUtility.cpp
+    ./src/marchingSquare.cpp
+    ./src/implicitFunction.cpp
+    ./src/io.cpp
 )
 
 set(HOKUSAI_HEADER
@@ -32,6 +35,9 @@ set(HOKUSAI_HEADER
     ./include/hokusai/system.hpp
     ./include/hokusai/utils.hpp
     ./include/hokusai/gridUtility.hpp
+    ./include/hokusai/marchingSquare.hpp
+    ./include/hokusai/implicitFunction.hpp
+    ./include/hokusai/io.hpp
 )
 
 set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to magnet headers")
