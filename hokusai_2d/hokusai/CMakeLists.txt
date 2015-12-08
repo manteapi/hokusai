@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
 project(HOKUSAI) #Make HOKUSAI_SOURCE_DIR, HOKUSAI_BIN_DIR and HOKUSAI available
 
-set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Release)
+##set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     option(HOKUSAI_OPENMP "Use OpenMP" ON)
@@ -27,6 +29,8 @@ set(HOKUSAI_SOURCE
     ./src/marchingSquare.cpp
     ./src/implicitFunction.cpp
     ./src/io.cpp
+    ./src/particleSource.cpp
+    ./src/particleSink.cpp
 )
 
 set(HOKUSAI_HEADER
@@ -38,6 +42,8 @@ set(HOKUSAI_HEADER
     ./include/hokusai/marchingSquare.hpp
     ./include/hokusai/implicitFunction.hpp
     ./include/hokusai/io.hpp
+    ./include/hokusai/particleSource.hpp
+    ./include/hokusai/particleSink.hpp
 )
 
 set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to magnet headers")
@@ -65,7 +71,10 @@ set(EXTRA_CLEANING
     )
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${EXTRA_CLEANING}")
 
-add_library(HOKUSAI STATIC
-    ${HOKUSAI_SOURCE}
-    ${HOKUSAI_HEADER}
-)
+add_library(HOKUSAI STATIC ${HOKUSAI_SOURCE} ${HOKUSAI_HEADER})
+
+add_executable(benchmark_sink benchmark/benchmark_sink.cpp ${HOKUSAI_SOURCE} ${HOKUSAI_HEADER})
+add_executable(benchmark_source benchmark/benchmark_source.cpp ${HOKUSAI_SOURCE} ${HOKUSAI_HEADER})
+add_executable(benchmark_damBreak benchmark/benchmark_damBreak.cpp ${HOKUSAI_SOURCE} ${HOKUSAI_HEADER})
+add_executable(benchmark_splash benchmark/benchmark_splash.cpp ${HOKUSAI_SOURCE} ${HOKUSAI_HEADER})
+add_executable(benchmark_wave benchmark/benchmark_wave.cpp ${HOKUSAI_SOURCE} ${HOKUSAI_HEADER})

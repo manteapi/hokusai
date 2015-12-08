@@ -6,7 +6,8 @@
 namespace hokusai
 {
 
-void computeScalarField(std::vector<double>& scalarField, Grid2dUtility& gridInfo, System& fluid, const double& resolution, const double& initialValue)
+void computeScalarField(std::vector<double>& scalarField, Grid2dUtility& gridInfo, System& fluid,
+                        const double& resolution, const double& initialValue, const double& radius)
 {
     //Compute scalar field dimensions
     Vec2d minBB(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
@@ -14,48 +15,49 @@ void computeScalarField(std::vector<double>& scalarField, Grid2dUtility& gridInf
     for(size_t i=0; i<fluid.particles.size(); ++i)
     {
         const Vec2d& px = fluid.particles[i].x;
-        minBB[0] = (px[0] < minBB[0]) ? px[0] : minBB[0];
-        minBB[1] = (px[1] < minBB[1]) ? px[1] : minBB[1];
-        maxBB[0] = (px[0] > maxBB[0]) ? px[0] : maxBB[0];
-        maxBB[1] = (px[1] > maxBB[1]) ? px[1] : maxBB[1];
+        for(size_t j=0; j<2; ++j)
+        {
+            minBB[j] = (px[j] < minBB[j]) ? px[j] : minBB[j];
+            maxBB[j] = (px[j] > maxBB[j]) ? px[j] : maxBB[j];
+        }
     }
-    double radius = fluid.getSmoothingRadius();
-    Vec2d offset = minBB - Vec2d(2.0*radius, 2.0*radius);
-    Vec2d scale = (maxBB-minBB) + Vec2d(4.0*radius, 4.0*radius);
+    if(resolution>radius)
+    {
+        std::cout << "Grid resolution should be at least inferior to sph radius" << std::endl;
+        return;
+    }
+    Vec2d scale = (maxBB-minBB) + Vec2d(16.0*std::max(radius,resolution), 16.0*std::max(radius,resolution));
+    Vec2d offset = minBB - Vec2d(8.0*std::max(radius,resolution), 8.0*std::max(radius,resolution));
     if(fluid.particles.size()>0)
         gridInfo = Grid2dUtility(offset, scale, resolution);
     else
         gridInfo = Grid2dUtility();
 
-    //Compute scalar field particle neighbors
-    double implicitFunctionRadius = radius;
-    std::vector< std::vector<int> > gridParticleNeighbors;
-    gridParticleNeighbors.resize(gridInfo.size());
-#ifdef HOKUSAI_USING_OPENMP
-#pragma omp parallel for
-#endif
-    for(int i=0; i<gridInfo.size(); ++i)
-    {
-        Vec2d gridWCoord = gridInfo.gridToWorld(i);
-        fluid.getNearestFluidNeighbor(gridParticleNeighbors[i], gridWCoord, implicitFunctionRadius);
-    }
-
-    //Compute scalar field values
     scalarField.resize(gridInfo.size());
     std::fill(scalarField.begin(), scalarField.end(), initialValue);
-#ifdef HOKUSAI_USING_OPENMP
-#pragma omp parallel for
-#endif
-    for(int i=0; i<gridInfo.size(); ++i)
+    for(size_t p=0; p<fluid.particles.size(); ++p)
     {
-        Vec2d gridWCoord = gridInfo.gridToWorld(i);
-        std::vector<int> neighbors = gridParticleNeighbors[i];
-        if(neighbors.size()>0)
-            scalarField[i] = 0.0;
-        for(const int & j : neighbors)
+        Vec2d & wp = fluid.particles[p].x;
+        Vec2d wMinBB = wp - Vec2d(radius, radius);
+        Vec2d wMaxBB = wp + Vec2d(radius, radius);
+        Vec2i gMinBB = gridInfo.worldToGrid(wMinBB);
+        Vec2i gMaxBB = gridInfo.worldToGrid(wMaxBB);
+        for(int i=gMinBB[0]; i<=gMaxBB[0]; ++i)
         {
-            Vec2d particleCoord = fluid.particles[j].x;
-            scalarField[i] += implicit_sphere(gridWCoord, particleCoord, implicitFunctionRadius);
+            for(int j=gMinBB[1]; j<=gMaxBB[1]; ++j)
+            {
+                int cellId = gridInfo.cellId(i,j);
+                if(gridInfo.isInside(cellId))
+                {
+                    Vec2d wCoord = gridInfo.gridToWorld(cellId);
+                    ///Sphere implicit function
+                    //double implicitFunctionValue = implicit_sphere(wCoord, fluid.particles[p].x, worldRadius);
+                    //scalarField[cellId] = std::min( std::min(0.0, implicitFunctionValue), scalarField[cellId]);
+                    ///Metaball implicit function
+                    double implicitFunctionValue = implicit_metaball(wCoord, fluid.particles[p].x,radius);
+                    scalarField[cellId] += implicitFunctionValue;
+                }
+            }
         }
     }
 }
@@ -63,6 +65,12 @@ void computeScalarField(std::vector<double>& scalarField, Grid2dUtility& gridInf
 double implicit_sphere(const Vec2d & x1, const Vec2d & x2, const double radius)
 {
     return ( (x1-x2).squaredNorm()-radius*radius );
+}
+
+double implicit_metaball(const Vec2d & x1, const Vec2d & x2, const double radius)
+{
+    double distance=(x1-x2).norm();
+    return distance<radius ? 1.0/(1.0+distance*distance) : 0.0;
 }
 
 } //namespace hokusai

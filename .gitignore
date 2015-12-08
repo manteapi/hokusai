@@ -3,3 +3,4 @@
 # can be placed in sub-directories to avoid polluting the root one.
 hokusai/hokusai_2d/CMakeLists.txt.user.*
 hokusai/hokusai_3d/CMakeLists.txt.user.*
+build

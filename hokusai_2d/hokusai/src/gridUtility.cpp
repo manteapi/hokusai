@@ -22,17 +22,12 @@ Grid2dUtility::Grid2dUtility( const Grid2dUtility& gridInfo )
     h = gridInfo.h;
 }
 
-int Grid2dUtility::width() const { return dimension[0]; }
-int Grid2dUtility::height() const { return dimension[1]; }
-int Grid2dUtility::size() const { return dimension[0]*dimension[1]; }
-double Grid2dUtility::spacing() const { return h; }
-
 Grid2dUtility::Grid2dUtility(const Vec2d& _offset, const Vec2d& _scale, const double& _spacing)
 {
     offset = _offset;
     scale = _scale;
     h = _spacing;
-    for(int i=0; i<2; ++i)
+    for(int i=0; i<scale.size(); ++i)
     {
         dimension[i] = std::floor(scale[i]/h);
     }
@@ -43,7 +38,7 @@ Grid2dUtility::Grid2dUtility(const Vec2d& _offset, const Vec2i& _dimension, cons
     offset = _offset;
     dimension = _dimension;
     h = _spacing;
-    for(int i=0; i<2; ++i)
+    for(int i=0; i<scale.size(); ++i)
     {
         scale[i] = dimension[i]*h;
     }
@@ -101,227 +96,7 @@ void Grid2dUtility::init(const Vec2d& _offset, const Vec2i& _dimension, const do
     }
 }
 
-
 Grid2dUtility::~Grid2dUtility(){}
-
-bool Grid2dUtility::isInside(int id) const
-{
-    if(id>=0 && id<size())
-        return true;
-    else
-        return false;
-}
-
-
-bool Grid2dUtility::isInside(const Vec2d& v) const
-{
-    Vec2i gridCoord = worldToGrid(v);
-    return isInside(gridCoord);
-}
-
-bool Grid2dUtility::isInside(int i, int j) const
-{
-    if( (i>=0 && i<dimension[0]) && (j>=0 && j<dimension[1]) )
-        return true;
-    else
-        return false;
-}
-
-bool Grid2dUtility::isInside(const Vec2i& v) const
-{
-    if( (v[0]>=0 && v[0]<dimension[0]) && (v[1]>=0 && v[1]<dimension[1]) )
-        return true;
-    else
-        return false;
-}
-
-Vec2d Grid2dUtility::gridToWorld(const int i) const
-{
-    Vec2i gCoord = gridCoord(i);
-    Vec2d wCoord = gridToWorld(gCoord);
-    return wCoord;
-}
-
-Vec2d Grid2dUtility::gridToWorld(const Vec2i& v) const
-{
-    Vec2d result;
-    for(int i=0; i<2; ++i)
-        result[i] = offset[i] + h*v[i];
-    return result;
-}
-Vec2i Grid2dUtility::worldToGrid(const Vec2d& v) const
-{
-    Vec2i result;
-    for(int i=0; i<2; ++i)
-        result[i] = std::floor((v[i]-offset[i])/h);
-    return result;
-}
-int Grid2dUtility::cellId(const Vec2d& v) const
-{
-    Vec2i gridCoord = worldToGrid(v);
-    return cellId(gridCoord);
-}
-
-int Grid2dUtility::cellId(const Vec2i& v) const
-{
-    return v[0] + v[1]*dimension[0];
-}
-
-int Grid2dUtility::cellId(int i, int j) const
-{
-    return i + j*dimension[0];
-}
-
-int Grid2dUtility::neighborPixelId(int pixelId, int neighborId) const
-{
-    Vec2i neighborCoord = gridCoord(pixelId);
-
-    switch( neighborId )
-    {
-        case 0 :
-            neighborCoord += Vec2i(0,-1);
-            break;
-        case 1 :
-            neighborCoord += Vec2i(1,0);
-            break;
-        case 2 :
-            neighborCoord += Vec2i(0,1);
-            break;
-        case 3 :
-            neighborCoord += Vec2i(-1,0);
-            break;
-        default :
-            break;
-    }
-
-    if ( isInside(neighborCoord) )
-        return cellId( neighborCoord );
-    else
-        return -1;
-}
-
-void Grid2dUtility::get9Neighbors(std::vector<int>& neighbors, const Vec2d& p, const double radius)
-{
-    Vec2i gridCoord = worldToGrid(p);
-    int iradius = std::floor(radius/h);
-    get9Neighbors(neighbors, gridCoord, iradius);
-}
-
-void Grid2dUtility::get9Neighbors(std::vector<Vec2i>& neighbors,const Vec2d& p, const double radius)
-{
-    Vec2i gridCoord = worldToGrid(p);
-    int iradius = std::floor(radius/h);
-    get9Neighbors(neighbors, gridCoord, iradius );
-}
-
-void Grid2dUtility::get9Neighbors(std::vector<Vec2i>& neighbors, const Vec2i& p, const int radius)
-{
-    neighbors.clear();
-    if(!isInside(p))
-        return;
-
-        for(int j = std::max(p[1]-radius,0); j<= std::min(p[1]+radius,dimension[1]-1); ++j )
-        {
-            for(int i = std::max(p[0]-radius,0); i<= std::min(p[0]+radius,dimension[0]-1); ++i )
-            {
-                neighbors.push_back(Vec2i(i,j));
-            }
-        }
-}
-
-void Grid2dUtility::get9Neighbors(std::vector<int>& neighbors, const Vec2i& p, const int radius)
-{
-    neighbors.clear();
-    if(!isInside(p))
-        return;
-
-        for(int j = std::max(p[1]-radius,0); j<= std::min(p[1]+radius,dimension[1]-1); ++j )
-        {
-            for(int i = std::max(p[0]-radius,0); i<= std::min(p[0]+radius,dimension[0]-1); ++i )
-            {
-                neighbors.push_back(cellId(i,j));
-            }
-        }
-}
-
-
-void Grid2dUtility::get5Neighbors(std::vector<int>& neighbors, const Vec2d& p) const
-{
-    Vec2i gridCoord = worldToGrid(p);
-    get5Neighbors(neighbors, gridCoord);
-}
-
-void Grid2dUtility::get5Neighbors(std::vector<Vec2i>& neighbors,const Vec2d& p) const
-{
-    Vec2i gridCoord = worldToGrid(p);
-    get5Neighbors(neighbors, gridCoord);
-}
-
-void Grid2dUtility::get5Neighbors(std::vector<Vec2i>& neighbors, const Vec2i& p) const
-{
-    neighbors.clear();
-    if(!isInside(p))
-        return;
-
-    Vec2i neighbor;
-
-    neighbor = p;
-    if(isInside(neighbor))
-        neighbors.push_back(neighbor);
-
-    neighbor = p + Vec2i(1,0);
-    if(isInside(neighbor))
-        neighbors.push_back(neighbor);
-
-    neighbor = p + Vec2i(-1,0);
-    if(isInside(neighbor))
-        neighbors.push_back(neighbor);
-
-    neighbor = p + Vec2i(0,1);
-    if(isInside(neighbor))
-        neighbors.push_back(neighbor);
-
-    neighbor = p + Vec2i(0,-1);
-    if(isInside(neighbor))
-        neighbors.push_back(neighbor);
-}
-
-void Grid2dUtility::get5Neighbors(std::vector<int>& neighbors, const Vec2i& p) const
-{
-    neighbors.clear();
-    if(!isInside(p))
-        return;
-
-    Vec2i neighbor;
-
-    neighbor = p;
-    if(isInside(neighbor))
-        neighbors.push_back(cellId(neighbor));
-
-    neighbor = p + Vec2i(1,0);
-    if(isInside(neighbor))
-        neighbors.push_back(cellId(neighbor));
-
-    neighbor = p + Vec2i(-1,0);
-    if(isInside(neighbor))
-        neighbors.push_back(cellId(neighbor));
-
-    neighbor = p + Vec2i(0,1);
-    if(isInside(neighbor))
-        neighbors.push_back(cellId(neighbor));
-
-    neighbor = p + Vec2i(0,-1);
-    if(isInside(neighbor))
-        neighbors.push_back(cellId(neighbor));
-}
-
-Vec2i Grid2dUtility::gridCoord(int i) const
-{
-    Vec2i coord;
-    coord[1] = i/dimension[0];
-    coord[0] = (i - coord[1]*dimension[0]);
-    return coord;
-}
 
 void Grid2dUtility::info()
 {
@@ -330,24 +105,6 @@ void Grid2dUtility::info()
     std::cout << "Offset : " << offset[0] << ", " << offset[1] << std::endl;
     std::cout << "Scale : " << scale[0] << ", " << scale[1] << std::endl;
     std::cout << "Max : " << offset[0]+scale[0] << ", " << offset[1]+scale[1] << std::endl;
-}
-
-double Grid2dUtility::length(int cellId1, int cellId2) const
-{
-    Vec2d wCoord1 = gridToWorld(cellId1);
-    Vec2d wCoord2 = gridToWorld(cellId2);
-    return (wCoord1-wCoord2).norm();
-}
-
-std::array<Vec2d, 4> Grid2dUtility::corners(int pixelId) const
-{
-    Vec2d offset = gridToWorld(pixelId);
-    std::array<Vec2d, 4> corners;
-    corners[0] = offset;
-    corners[1] = offset+Vec2d(h,0);
-    corners[2] = offset+Vec2d(h,h);
-    corners[3] = offset+Vec2d(0,h);
-    return corners;
 }
 
 }//namespace mosaic

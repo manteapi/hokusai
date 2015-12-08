@@ -34,7 +34,6 @@
 
 namespace hokusai
 {
-
     class Boundary
     {
         public :
@@ -66,10 +65,78 @@ namespace hokusai
         ~Boundary(){}
     };
 
+    class MovingBoundary
+    {
+    public :
+        MovingBoundary()
+        {
+            m_id.clear();
+            m_translation = Vec2d(0.0,0.0);
+            m_increment = Vec2d(0.0,0.0);
+            m_delta = Vec2d(0.0,0.0);
+            m_oscillatory = true;
+            m_tmpTranslation = Vec2d(0.0,0.0);
+        }
+
+        MovingBoundary(std::vector<int>& id, Vec2d& translation, bool& oscillatory, Vec2d& delta)
+        {
+            m_id = id;
+            m_translation = translation;
+            m_increment = Vec2d(0.0,0.0);
+            m_delta = delta;
+            m_oscillatory = oscillatory;
+            m_tmpTranslation = m_translation;
+        }
+
+        MovingBoundary(const MovingBoundary& movingBoundary)
+        {
+            m_id = movingBoundary.m_id;
+            m_translation = movingBoundary.m_translation;
+            m_increment = movingBoundary.m_increment;
+            m_delta = movingBoundary.m_delta;
+            m_oscillatory = movingBoundary.m_oscillatory;
+            m_tmpTranslation = movingBoundary.m_tmpTranslation;
+        }
+
+        void applyMotion(std::vector<Boundary>& boundaries)
+        {
+            if(m_oscillatory && m_increment[0] >= m_delta[0])
+            {
+                m_increment[0] = 0.0;
+                m_tmpTranslation[0] = -m_tmpTranslation[0];
+            }
+            if(m_oscillatory && m_increment[1] >= m_delta[1])
+            {
+                m_increment[1] = 0.0;
+                m_tmpTranslation[1] = -m_tmpTranslation[1];
+            }
+
+            for(const int & id : m_id)
+            {
+                applyMotion(boundaries[id].x);
+            }
+
+            m_increment[0] += std::abs(m_translation[0]);
+            m_increment[1] += std::abs(m_translation[1]);
+        }
+
+        void applyMotion(Vec2d& position)
+        {
+            position[0] += m_tmpTranslation[0];
+            position[1] += m_tmpTranslation[1];
+        }
+
+        std::vector< int > m_id;
+        Vec2d m_translation;
+        Vec2d m_delta;
+        Vec2d m_increment;
+        Vec2d m_tmpTranslation;
+        bool m_oscillatory;
+    };
+
     class Particle
     {
         public :
-        bool isSurface;
         double rho, rho_adv, rho_corr, p, p_l, previousP, aii;
         Vec2d x, v, v_adv, f_adv, f_p, dii_fluid, dii_boundary, sum_dij, n;
         Vec2d c;
@@ -79,7 +146,6 @@ namespace hokusai
         public :
         Particle()
         {
-            isSurface=true;
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
             x = v = v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec2d(0.0,0.0);
             c = Vec2d(0.0,0.0);
@@ -93,7 +159,6 @@ namespace hokusai
             v = _v;
             c = _c;
 
-            isSurface=true;
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
             v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec2d(0.0,0.0);
             fluidNeighbor.clear();
@@ -121,8 +186,6 @@ namespace hokusai
             n = _p.n;
 
             c = _p.c;
-
-            isSurface=_p.isSurface;
 
             fluidNeighbor=_p.fluidNeighbor;
             boundaryNeighbor=_p.boundaryNeighbor;

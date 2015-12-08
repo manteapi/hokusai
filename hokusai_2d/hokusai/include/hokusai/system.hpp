@@ -31,6 +31,8 @@
 #include "gridUtility.hpp"
 #include "utils.hpp"
 #include "particle.hpp"
+#include "particleSource.hpp"
+#include "particleSink.hpp"
 
 namespace hokusai
 {
@@ -77,10 +79,13 @@ public :
 
     vector<Particle> particles;
     vector<Boundary> boundaries;
+    vector<MovingBoundary> m_moving_boundaries;
 
     Grid2dUtility gridInfo;
     vector< vector<int> > boundaryGrid;
     vector< vector<int> > fluidGrid;
+    std::vector<ParticleSink> p_sinks;
+    std::vector<ParticleSource> p_sources;
 
 public :
     //Simulation Loop
@@ -94,14 +99,13 @@ public :
     ///Compute neighbor for a position x in a given radius from a given grid.
     void getNearestNeighbor(vector< int >& neighbor, const vector< vector<int> >& grid, const Vec2d &x);
 
+    ///Clean fluid/boundary grid, resize and fill them
     void prepareGrid();
-    void computeSurfaceParticle();
+
     void predictAdvection();
     void predictRho(int i);
     void initializePressure(int i);
     void computeNormal(int i);
-    bool isSurfaceParticle(int i, double treshold);
-    vector<Particle> getSurfaceParticle();
     void computeRho(int i);
     void computeAdvectionForces(int i);
     void predictVelocity(int i);
@@ -109,8 +113,31 @@ public :
     void computeAii(int i);
     void pressureSolve();
     void computeSumDijPj(int i);
-    
-    void computeViscosityForces(int i, int j)
+
+    void addParticleSink(const ParticleSink& s);
+    void addParticleSource(const ParticleSource& s);
+    void neighborNumberSurfaceDetection(std::vector<int>& surface, int threshold);
+    void massCenterDistanceSurfaceDetection(std::vector<int>& surface, double distanceThreshold, int neighborNumberThreshold);
+    void colorFieldSurfaceDetection(std::vector<int>& surface, double normalThreshold, int neighborNumberThreshold);
+
+    void set_benchmark_sink(double timeStep);
+    void set_benchmark_source(double timeStep);
+    void set_benchmark_dambreak(double timeStep);
+    void set_benchmark_wave(double timeStep);
+    void set_benchmark_splash(double timeStep);
+
+    inline Vec2d computeVelocity(const Vec2d& position, const std::vector<int>& neighbors)
+    {
+        Vec2d velocity(0.0,0.0);
+        for(const int& i : neighbors)
+        {
+            Particle& pi=particles[i];
+            velocity += pi.v*(mass/pi.rho)*p_kernel.monaghanValue(position-pi.x);
+        }
+        return velocity;
+    }
+
+    inline void computeViscosityForces(int i, int j)
     {
         Particle& pi=particles[i];
         Particle& pj=particles[j];
@@ -121,64 +148,61 @@ public :
         {
             double kij = 2.0*restDensity/(pi.rho+pj.rho);
             double epsilon=0.01;
-            Vec2d gradient(0.0);
+            Vec2d gradient(0.0,0.0);
             p_kernel.monaghanGradient(r, gradient);
             double Pij = -kij*(2.0*alpha*h*cs/(pi.rho+pj.rho)) * ( dotVijRij / (r.squaredNorm() + epsilon*h*h) );
             pi.f_adv += -kij*mass*mass*Pij*gradient;
         }
     }
 
-    void computeBoundaryFrictionForces(int i, int j)
-    {
-        Particle& pi=particles[i];
-            Boundary& bj=boundaries[j];
-            Vec2d vij = pi.v;//-pj.v;
-            Vec2d xij= pi.x - bj.x;
-            double dotVijRij = vij.dot(xij);
-            if(dotVijRij<0)
-            {
-                Vec2d gradient(0.0);
-                double epsilon=0.01;
-                double nu = (sigma*h*cs)/(2.0*pi.rho);
-                double Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.squaredNorm() + epsilon*h*h) );
-                p_kernel.monaghanGradient(xij, gradient);
-                pi.f_adv += -mass*bj.psi*Pij*gradient;
-            }
-    }
-
-    void computeSurfaceTensionForces(int i, int j)
+    inline void computeSurfaceTensionForces(int i, int j)
     {
         if(i!=j)
         {
             Particle& pi=particles[i];
             Particle& pj=particles[j];
-            if(pi.isSurface==true || pj.isSurface==true)
-            {
-                Vec2d r = pi.x - pj.x;
-                double kij = 2.0*restDensity/(pi.rho+pj.rho);
-                double l = r.norm();
-                Vec2d cohesionForce = -(fcohesion*mass*mass*a_kernel.cohesionValue(l)/l) * r;
-                Vec2d nij = pi.n-pj.n;
-                Vec2d curvatureForce = -fcohesion*mass*nij;
-                pi.f_adv += kij*(cohesionForce+curvatureForce);
-            }
+            Vec2d r = pi.x - pj.x;
+            double kij = 2.0*restDensity/(pi.rho+pj.rho);
+            double l = r.norm();
+            Vec2d cohesionForce = -(fcohesion*mass*mass*a_kernel.cohesionValue(l)/l) * r;
+            Vec2d nij = pi.n-pj.n;
+            Vec2d curvatureForce = -fcohesion*mass*nij;
+            pi.f_adv += kij*(cohesionForce+curvatureForce);
+        }
+    }
+
+    inline void computeBoundaryFrictionForces(int i, int j)
+    {
+        Particle& pi=particles[i];
+        Boundary& bj=boundaries[j];
+        Vec2d vij = pi.v;//-pj.v;
+        Vec2d xij= pi.x - bj.x;
+        double dotVijRij = vij.dot(xij);
+        if(dotVijRij<0)
+        {
+            Vec2d gradient(0.0,0.0);
+            double epsilon=0.01;
+            double nu = (sigma*h*cs)/(2.0*pi.rho);
+            double Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.squaredNorm() + epsilon*h*h) );
+            p_kernel.monaghanGradient(xij, gradient);
+            pi.f_adv += -mass*bj.psi*Pij*gradient;
         }
     }
     
-    void computeBoundaryAdhesionForces(int i, int j)
+    inline void computeBoundaryAdhesionForces(int i, int j)
     {
         Particle& pi=particles[i];
-            Boundary& bj=boundaries[j];
-            Vec2d xij= pi.x - bj.x;
-            double l = xij.norm();
-            pi.f_adv += -(badhesion*mass*boundaries[j].psi*a_kernel.adhesionValue(l)/l)*xij;
+        Boundary& bj=boundaries[j];
+        Vec2d xij= pi.x - bj.x;
+        double l = xij.norm();
+        pi.f_adv += -(badhesion*mass*boundaries[j].psi*a_kernel.adhesionValue(l)/l)*xij;
     }
 
-    Vec2d computeDij(int i, int j)
+    inline Vec2d computeDij(int i, int j)
     {
         Particle& pi=particles[i];
         Particle& pj=particles[j];
-        Vec2d gradient(0.0);
+        Vec2d gradient(0.0,0.0);
         p_kernel.monaghanGradient(pi.x-pj.x, gradient);
         Vec2d d=-(dt*dt*mass)/pow(pj.rho,2)*gradient;
         return d;
@@ -187,9 +211,9 @@ public :
     void computePressure(int i);
     void computePressureForce(int i);
 
-    void computeFluidPressureForce(int i, int j)
+    inline void computeFluidPressureForce(int i, int j)
     {
-        Vec2d gradient(0.0);
+        Vec2d gradient(0.0,0.0);
         Particle& pi=particles[i];
         Particle& pj=particles[j];
         p_kernel.monaghanGradient(pi.x-pj.x, gradient);
@@ -199,20 +223,25 @@ public :
         }
     }
 
-    void computeBoundaryPressureForce(int i, int j)
+    inline void computeBoundaryPressureForce(int i, int j)
     {
-        Vec2d gradient(0.0);
+        Vec2d gradient(0.0,0.0);
         Particle& pi=particles[i];
         Boundary& bj=boundaries[j];
-            p_kernel.monaghanGradient(pi.x-bj.x, gradient);
-            pi.f_p += -mass*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
+        p_kernel.monaghanGradient(pi.x-bj.x, gradient);
+        pi.f_p += -mass*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
     }
+
+    void updateGridInfo();
+    void updateGridInfo(Vec2d& minBB, Vec2d& maxBB);
+    void computeBoundingBox(Vec2d &minBB, Vec2d &maxBB);
 
     void computeError();
     void integration();
     void simulate();
     void applySources();
     void applySinks();
+    void applyMovingBoundaries();
 
     void addBoundaryParticle(const Vec2d& x, const Vec2d& v);
     void addFluidParticle(const Vec2d& x, const Vec2d& v);
@@ -289,7 +318,8 @@ public :
     double & getBoundaryFriction() {return sigma;}
     void setBoundaryFriction(double _sigma){sigma = _sigma;}
 
-    void addBoundaryBox(Vec2d offset, Vec2d scale);
+    void addMovingBoundaryBox(Vec2d& offset, Vec2d& scale, Vec2d &translation, bool& oscillatory, Vec2d& delta);
+    std::vector<int> addBoundaryBox(Vec2d &offset, Vec2d &scale);
     void addParticleBox(Vec2d offset, Vec2d scale);
 };
 

@@ -6,26 +6,8 @@
 namespace hokusai
 {
 
-int sign(double a)
-{
-    if( a < 0){return -1;}
-    else {return 1;}
-}
-
-Vec2d vertexInterpolation(const Vec2d& p1, const Vec2d& p2, double value1, double value2, double isovalue)
-{
-    Vec2d interp;
-    double weight;
-    double epsilon = 1e-4;
-    if( abs(isovalue-value1) < epsilon ){ interp = p1; return interp;}
-    if( abs(isovalue-value2) < epsilon ){ interp = p2; return interp;}
-    weight = (isovalue-value1)/(value2-value1);
-    interp = p1 + weight * ( p2 - p1 );
-    return interp;
-}
-
 void marchingSquare(std::vector<Edge>& edges, const std::array<double,4>& cellValue, const std::array<int,4>& cellSign,
-                    const std::array<Vec2d,4>& cellVertex, const double isovalue)
+                    const std::array<Vec2d,4>& cellVertex, const double& isovalue)
 {
     //Case 1 : all same sign = no edges
     if( (cellSign[0] == cellSign[1]) && (cellSign[1] == cellSign[2]) && (cellSign[2]==cellSign[3]) ){/*nothing to do*/ return;}
@@ -121,8 +103,12 @@ void marchingSquare(std::vector<Edge>& edges, const std::array<double,4>& cellVa
 }
 
 
-void polygonize(std::vector<Edge>& edges, std::vector<double>& gridValue, const Grid2dUtility& gridInfo, const double isovalue)
+void polygonize(std::vector<Edge>& edges, std::vector<double>& gridValue, const Grid2dUtility& gridInfo, const double& isovalue)
 {
+    if((int)gridValue.size() != gridInfo.size())
+    {
+	std::cerr << "Error : the size of scalar field and the size of the grid are differents." << std::endl;
+    }
     edges.clear();
     for(int i=0; i<gridInfo.width()-1; ++i)
     {

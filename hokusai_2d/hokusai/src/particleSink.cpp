@@ -29,10 +29,30 @@ namespace hokusai
 {
 
 ParticleSink::ParticleSink()
-{}
+{
+    m_minBB = Vec2d(0.0,0.0);
+    m_maxBB = Vec2d(0.0,0.0);
+}
+
+ParticleSink::ParticleSink(const Vec2d& minBB, const Vec2d& maxBB)
+{
+    m_minBB = minBB;
+    m_maxBB = maxBB;
+}
+
+ParticleSink::ParticleSink(const ParticleSink& sink)
+{
+    m_minBB = sink.m_minBB;
+    m_maxBB = sink.m_maxBB;
+}
 
 ParticleSink::~ParticleSink()
 {}
+
+bool ParticleSink::contain(const Vec2d& x)
+{
+    return ( (x[0]>=m_minBB[0] && x[0]<=m_maxBB[0]) && (x[1]>=m_minBB[1] && x[1]<=m_maxBB[1]) );
+}
 
 }
 #endif
