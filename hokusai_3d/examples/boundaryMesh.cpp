@@ -23,7 +23,7 @@ int main()
 
     sph.gridInfo.info();
 
-    Vec offsetSphere(1,1,0);
+    Vec3r offsetSphere(1,1,0);
     double radius = 0.5;
     sph.addParticleSphere(offsetSphere, radius);
 

@@ -23,16 +23,14 @@
 #ifndef HOKUSAI_PARTICLE_H
 #define HOKUSAI_PARTICLE_H
 
-#include <aljabr/Vec.hpp>
 #include <vector>
+#include "common.hpp"
 
 /*! \brief Brief description.
  *         Brief description continued.
  *
  *  Detailed description starts here.
  */
-typedef aljabr::Vec3<float> Vec3f;
-typedef aljabr::Vec3<double> Vec3r;
 
 namespace hokusai
 {
@@ -40,7 +38,7 @@ namespace hokusai
     class Boundary
     {
         public :
-        double psi; //density number
+        HReal psi; //density number
         Vec3r x,v; ///position and velocity
 
         public :
@@ -51,7 +49,7 @@ namespace hokusai
             v=Vec3r(0.0);
         }
 
-        Boundary(const Vec3r& _x, const Vec3r _v = Vec3r(0,0,0), const double _psi=0.0)
+        Boundary(const Vec3r& _x, const Vec3r _v = Vec3r(0,0,0), const HReal _psi=0.0)
         {
             x=_x;
             v=_v;
@@ -72,9 +70,9 @@ namespace hokusai
     {
         public :
         bool isSurface;
-        double rho, rho_adv, rho_corr, p, p_l, previousP, aii;
+        HReal rho, rho_adv, rho_corr, p, p_l, previousP, aii;
         Vec3r x, v, v_adv, f_adv, f_p, dii_fluid, dii_boundary, sum_dij, n;
-        Vec3f c;
+        Vec3r c;
         std::vector<int> fluidNeighbor;
         std::vector<int> boundaryNeighbor;
 
@@ -84,12 +82,12 @@ namespace hokusai
             isSurface=true;
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
             x = v = v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec3r(0.0);
-            c = Vec3f(0.0);
+            c = Vec3r(0.0);
             fluidNeighbor.clear();
             boundaryNeighbor.clear();
         }
 
-        Particle(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0), const Vec3f _c = Vec3f(0,0,1))
+        Particle(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0), const Vec3r _c = Vec3r(0,0,1))
         {
             x = _x;
             v = _v;

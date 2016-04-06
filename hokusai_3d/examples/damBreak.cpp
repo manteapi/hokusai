@@ -17,14 +17,14 @@ int main()
     int resolution = 140000; ///particle number per m3
     System sph(resolution);
 
-    Vec fluidBox(1.0,1.0,1.0);
-    Vec fluidOffset(0,0,0);
+    Vec3r  fluidBox(1.0,1.0,1.0);
+    Vec3r  fluidOffset(0,0,0);
     sph.addParticleBox(fluidOffset, fluidBox);
 
-    Vec securityOffset(1.05*sph.getSmoothingRadius());
-    Vec boundBox(2.5,2.5,1.0);
+    Vec3r  securityOffset(1.05*sph.getSmoothingRadius());
+    Vec3r  boundBox(2.5,2.5,1.0);
     boundBox += securityOffset;
-    Vec boundOffset = fluidOffset;
+    Vec3r  boundOffset = fluidOffset;
     boundOffset -= securityOffset;
     sph.addBoundaryBox(boundOffset, boundBox);
 

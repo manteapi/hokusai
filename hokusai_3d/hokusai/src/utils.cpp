@@ -31,7 +31,7 @@ AkinciKernel::AkinciKernel()
     m_v2 = 0;
 }
 
-AkinciKernel::AkinciKernel( double _h)
+AkinciKernel::AkinciKernel( HReal _h)
 {
     h = _h;
     m_v1 = 32.0/(M_PI*pow(h,9.0));
@@ -56,7 +56,7 @@ MonaghanKernel::MonaghanKernel()
     m_g = 0;
 }
 
-MonaghanKernel::MonaghanKernel( double _h )
+MonaghanKernel::MonaghanKernel( HReal _h )
 {
     h = _h;
     m_v = 1.0/(4.0*M_PI*h*h*h);
@@ -81,7 +81,7 @@ BoundaryKernel::BoundaryKernel()
 
 BoundaryKernel::~BoundaryKernel(){}
 
-BoundaryKernel::BoundaryKernel( double _h, double _cs )
+BoundaryKernel::BoundaryKernel( HReal _h, HReal _cs )
 {
     h = _h;
     cs = _cs;
@@ -120,7 +120,7 @@ void insertionSort( vector< pair<int,int> >& data )
 
 Box::Box(){}
 
-Box::Box(Vec& _min, Vec& _max)
+Box::Box(Vec3r& _min, Vec3r& _max)
 {
     min = _min;
     max = _max;
@@ -176,21 +176,21 @@ Box::~Box(){}
     glEnd();
 }
 
-SolidSphere::SolidSphere(double radius, unsigned int rings, unsigned int sectors)
+SolidSphere::SolidSphere(HReal radius, unsigned int rings, unsigned int sectors)
 {
-    double const R = 1./(double)(rings-1);
-    double const S = 1./(double)(sectors-1);
+    HReal const R = 1./(HReal)(rings-1);
+    HReal const S = 1./(HReal)(sectors-1);
 
     vertices.resize(rings * sectors * 3);
     normals.resize(rings * sectors * 3);
     texcoords.resize(rings * sectors * 2);
-    std::vector<GLfloat>::iterator v = vertices.begin();
-    std::vector<GLfloat>::iterator n = normals.begin();
-    std::vector<GLfloat>::iterator t = texcoords.begin();
+    std::vector<GLHReal>::iterator v = vertices.begin();
+    std::vector<GLHReal>::iterator n = normals.begin();
+    std::vector<GLHReal>::iterator t = texcoords.begin();
     for(unsigned int r = 0; r < rings; r++) for(unsigned int s = 0; s < sectors; s++) {
-        double const y = sin( -M_PI_2 + M_PI * r * R );
-        double const x = cos(2*M_PI * s * S) * sin( M_PI * r * R );
-        double const z = sin(2*M_PI * s * S) * sin( M_PI * r * R );
+        HReal const y = sin( -M_PI_2 + M_PI * r * R );
+        HReal const x = cos(2*M_PI * s * S) * sin( M_PI * r * R );
+        HReal const z = sin(2*M_PI * s * S) * sin( M_PI * r * R );
 
         *t++ = s*S;
         *t++ = r*R;
@@ -216,7 +216,7 @@ SolidSphere::SolidSphere(double radius, unsigned int rings, unsigned int sectors
 
 SolidSphere::~SolidSphere(){}
 
-void SolidSphere::draw(GLfloat x, GLfloat y, GLfloat z)
+void SolidSphere::draw(GLHReal x, GLHReal y, GLHReal z)
 {
     glMatrixMode(GL_MODELVIEW);
 
@@ -237,7 +237,7 @@ void SolidSphere::draw(GLfloat x, GLfloat y, GLfloat z)
 }
 */
 
-void write(const char * filename, vector<double> data)
+void write(const char * filename, vector<HReal> data)
 {
     ofstream outputFile;
     outputFile.open(filename);
@@ -261,10 +261,10 @@ void write(const char * filename, vector<Vec3r > data)
     outputFile.close();
 }
 
-static void buildRotationMatrix( float xrad, float yrad, float R[3][3] ) {
-    float Rx[3][3] = { {1,0,0},{0,cos(xrad),-sin(xrad)},{0,sin(xrad),cos(xrad)} };
-    float Ry[3][3] = { {cos(yrad),0,sin(yrad)}, {0,1,0}, {-sin(yrad),0,cos(yrad)} };
-    float Rtmp[3][3];
+static void buildRotationMatrix( HReal xrad, HReal yrad, HReal R[3][3] ) {
+    HReal Rx[3][3] = { {1,0,0},{0,cos(xrad),-sin(xrad)},{0,sin(xrad),cos(xrad)} };
+    HReal Ry[3][3] = { {cos(yrad),0,sin(yrad)}, {0,1,0}, {-sin(yrad),0,cos(yrad)} };
+    HReal Rtmp[3][3];
     for( int i=0; i<3; i++ ) {
         for( int j=0; j<3; j++ ) {
             R[i][j] = Rtmp[i][j] = Rx[i][j];
@@ -279,8 +279,8 @@ static void buildRotationMatrix( float xrad, float yrad, float R[3][3] ) {
     }
 }
 
-static void transform( float p[3], float R[3][3] ) {
-    float p0[3] = { p[0], p[1], p[2] };
+static void transform( HReal p[3], HReal R[3][3] ) {
+    HReal p0[3] = { p[0], p[1], p[2] };
     for( int i=0; i<3; i++ ) {
         p[i] = 0.0;
         for( int k=0; k<3; k++ ) {
@@ -291,13 +291,13 @@ static void transform( float p[3], float R[3][3] ) {
 
 
 
-void write_frame(vector<Particle>& particles, int step, float offset)
+void write_frame(vector<Particle>& particles, int step, HReal offset)
 {
     int width = 1024;
     int height = 700;
-    float winrate = height/(float)width;
+    HReal winrate = height/(HReal)width;
 
-    static float *image = new float[width*height*4];
+    static HReal *image = new HReal[width*height*4];
     static unsigned char *buffer = new unsigned char[width*height*4];
     for( int i=0; i<width; i++ ) {
         for( int j=0; j<height; j++ ) {
@@ -308,11 +308,11 @@ void write_frame(vector<Particle>& particles, int step, float offset)
         }
     }
 
-    float DENSITY = 0.5;
+    HReal DENSITY = 0.5;
     int N = 32;
-    float blueColor[] = { 0.3, 0.5, 0.8, exp(-DENSITY*N/23.0f) };
+    HReal blueColor[] = { 0.3, 0.5, 0.8, exp(-DENSITY*N/23.0f) };
 
-    static float R[3][3];
+    static HReal R[3][3];
     bool firstTime = true;
     if( firstTime ) {
         //buildRotationMatrix( -0.2, 0.2, R );
@@ -321,19 +321,19 @@ void write_frame(vector<Particle>& particles, int step, float offset)
     }
 
     // Simple Point-based Rendering
-    //float eye = 2.0;
-    //float offset = 0.3;
-    float eye = 2.0;
+    //HReal eye = 2.0;
+    //HReal offset = 0.3;
+    HReal eye = 2.0;
 
     for( size_t n=0; n<particles.size(); n++ )
     {
         //if( particles[n]->type == FLUID ) %{
-        //float p[3] = { particles[n]->p[0]-0.5, particles[n]->p[1]-0.5, particles[n]->p[2]-0.5 };
-        float p[3] = { (float)(particles[n].x[0]-0.5), (float)(particles[n].x[1]-0.5), (float)(particles[n].x[2]-0.5) };
+        //HReal p[3] = { particles[n]->p[0]-0.5, particles[n]->p[1]-0.5, particles[n]->p[2]-0.5 };
+        HReal p[3] = { (HReal)(particles[n].x[0]-0.5), (HReal)(particles[n].x[1]-0.5), (HReal)(particles[n].x[2]-0.5) };
         transform(p,R);
-        float z = offset + 0.5 + p[2];
-        float x = eye/(eye+z)*(p[0]-0.4);
-        float y = eye/(eye+z)*(p[1]+0.25);
+        HReal z = offset + 0.5 + p[2];
+        HReal x = eye/(eye+z)*(p[0]-0.4);
+        HReal y = eye/(eye+z)*(p[1]+0.25);
         if( x > -0.5 && x < 0.5 && y > -winrate/2.0 && y < winrate/2.0 ) {
             int i = width*(x+0.5);
             int j = width*(y+winrate/2.0);

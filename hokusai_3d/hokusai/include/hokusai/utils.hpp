@@ -25,10 +25,10 @@
 
 //#include <GL/gl.h>
 #include <vector>
-#include <aljabr/Vec.hpp>
 #include <magnet/math/morton_number.hpp>
 #include "write_bmp.hpp"
 #include "particle.hpp"
+#include "common.hpp"
 #include <fstream>
 #include <sstream>
 
@@ -36,42 +36,38 @@ namespace hokusai
 {
 using namespace std;
 
-typedef aljabr::Vec3<double> Vec;
-
 class AkinciKernel
 {
 public :
     AkinciKernel();
-    AkinciKernel(double _h);
+    AkinciKernel(HReal _h);
     AkinciKernel(const AkinciKernel& k);
     ~AkinciKernel();
-    double cohesionValue( const double r);
-    double adhesionValue(const double r);
-    double h,m_v1,m_v2,adhesion;
+    HReal cohesionValue( const HReal r);
+    HReal adhesionValue(const HReal r);
+    HReal h,m_v1,m_v2,adhesion;
 };
 
 //Monaghan 3D kernel
 class MonaghanKernel
 {
-    typedef Vec3r Vec;
-
 public :
 
     MonaghanKernel();
-    MonaghanKernel( double _h );
+    MonaghanKernel( HReal _h );
     MonaghanKernel( const MonaghanKernel& k );
     ~MonaghanKernel();
 
 public :
 
-    double h;
-    double m_v;
-    double m_g;
+    HReal h;
+    HReal m_v;
+    HReal m_g;
 
 public :
 
-    double monaghanValue( const Vec& r );
-    void monaghanGradient( const Vec& r, Vec& gradient );
+    HReal monaghanValue( const Vec3r& r );
+    void monaghanGradient( const Vec3r& r, Vec3r& gradient );
 };
 
 class BoundaryKernel
@@ -79,18 +75,18 @@ class BoundaryKernel
 public :
 
     BoundaryKernel();
-    BoundaryKernel( double h, double cs );
+    BoundaryKernel( HReal h, HReal cs );
     BoundaryKernel( const BoundaryKernel& k);
     ~BoundaryKernel();
 
 public :
 
-    double h;
-    double cs;
+    HReal h;
+    HReal cs;
 
 public :
 
-    double gamma( double distance );
+    HReal gamma( HReal distance );
 };
 
 inline int mortonNumber( array<int,3>& index )
@@ -107,13 +103,12 @@ void insertionSort( vector< pair<int,int> >& data );
 
 class Box
 {
-    typedef Vec3r Vec;
 public :
-    Vec min;
-    Vec max;
+    Vec3r min;
+    Vec3r max;
 public :
     Box();
-    Box( Vec& _min, Vec& _max);
+    Box( Vec3r& _min, Vec3r& _max);
     ~Box();
 public :
     //void draw();
@@ -123,24 +118,24 @@ public :
 class SolidSphere
 {
     protected :
-        std::vector<GLfloat> vertices;
-        std::vector<GLfloat> normals;
-        std::vector<GLfloat> texcoords;
+        std::vector<GLHReal> vertices;
+        std::vector<GLHReal> normals;
+        std::vector<GLHReal> texcoords;
         std::vector<GLuint> indices;
 
     public :
         ~SolidSphere();
-        SolidSphere(double radius, unsigned int rings, unsigned int sectors);
+        SolidSphere(HReal radius, unsigned int rings, unsigned int sectors);
     public :
-        //void draw(GLfloat x, GLfloat y, GLfloat z);
+        //void draw(GLHReal x, GLHReal y, GLHReal z);
 };
 */
 
 //------------------------------INLINE DEFINITION-----------------------------------
-inline double MonaghanKernel::monaghanValue( const Vec & r )
+inline HReal MonaghanKernel::monaghanValue( const Vec3r & r )
 {
-    double value = 0.0;
-    double q = r.length()/h;
+    HReal value = 0.0;
+    HReal q = r.length()/h;
     if( q >= 0 && q < 1 )
     {
         value = m_v*( (2-q)*(2-q)*(2-q) - 4.0f*(1-q)*(1-q)*(1-q));
@@ -156,28 +151,28 @@ inline double MonaghanKernel::monaghanValue( const Vec & r )
     return value;
 }
 
-inline void MonaghanKernel::monaghanGradient( const Vec& r, Vec& gradient )
+inline void MonaghanKernel::monaghanGradient( const Vec3r& r, Vec3r& gradient )
 {
-    double dist = r.length();
-    double q = dist/h;
+    HReal dist = r.length();
+    HReal q = dist/h;
     gradient.setAllValue(0.0);
     if( q >= 0 && q < 1 )
     {
-        double scalar = -3.0f*(2-q)*(2-q);
+        HReal scalar = -3.0f*(2-q)*(2-q);
         scalar += 12.0f*(1-q)*(1-q);
         gradient = (m_g*scalar/(dist*h))*r;
     }
     else if ( q >=1 && q < 2 )
     {
-        double scalar = -3.0f*(2-q)*(2-q);
+        HReal scalar = -3.0f*(2-q)*(2-q);
         gradient = (m_g*scalar/(dist*h))*r;
     }
 }
 
-inline double BoundaryKernel::gamma( double distance )
+inline HReal BoundaryKernel::gamma( HReal distance )
 {
-    double q = distance / h;
-    double coeff = 0.0;
+    HReal q = distance / h;
+    HReal coeff = 0.0;
     if( q > 0 && q <= 0.666666667f ) //2.0/3.0
     {
         coeff = 0.666666667f;
@@ -195,9 +190,9 @@ inline double BoundaryKernel::gamma( double distance )
 }
 
 
-inline double AkinciKernel::cohesionValue( const double r )
+inline HReal AkinciKernel::cohesionValue( const HReal r )
 {
-    double value=0;
+    HReal value=0;
     if( (2.0*r>h) && (r<=h) )
     {
         //value=m_v1*pow(h-r,3.0)*pow(r,3.0);
@@ -213,9 +208,9 @@ inline double AkinciKernel::cohesionValue( const double r )
     return value;
 }
 
-inline double AkinciKernel::adhesionValue( const double r)
+inline HReal AkinciKernel::adhesionValue( const HReal r)
 {
-    double value=0;
+    HReal value=0;
     if( (2.0*r)>h && (r<=h) )
         value=adhesion*pow(-4.0*r*r/h + 6.0*r -2.0*h,1.0/4.0);
     else
@@ -227,8 +222,8 @@ inline double AkinciKernel::adhesionValue( const double r)
 
 //IO functions
 void write(const char * filename, vector<Vec3r > data);
-void write(const char * filename, vector<double> data);
-void write_frame(vector<Particle>& particles, int step, float offset=4.0);
+void write(const char * filename, vector<HReal> data);
+void write_frame(vector<Particle>& particles, int step, HReal offset=4.0);
 
 //---------------------------------------------------------------------
 }

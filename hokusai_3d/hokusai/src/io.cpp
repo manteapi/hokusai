@@ -42,8 +42,8 @@ void tess(const vector<Vec3r > &verts, const vector<int> &thisface,
         // gives the shorter diagonal
         const Vec3r &p0 = verts[thisface[0]], &p1 = verts[thisface[1]];
         const Vec3r &p2 = verts[thisface[2]], &p3 = verts[thisface[3]];
-        double d02 = (p0-p2).lengthSquared();
-        double d13 = (p1-p3).lengthSquared();
+        HReal d02 = (p0-p2).lengthSquared();
+        HReal d13 = (p1-p3).lengthSquared();
         int i = (d02 < d13) ? 0 : 1;
         tris.push_back(Vec3i(thisface[i],
                                   thisface[(i+1)%4],
@@ -74,13 +74,13 @@ bool read_obj(FILE *f, vector< Vec3r >& vertices, vector< Vec3r >& normals, vect
         char buf[1024];
         GET_LINE();
         if (LINE_IS("v ") || LINE_IS("v\t")) {
-            float x, y, z;
+            HReal x, y, z;
             if (sscanf(buf+1, "%f %f %f", &x, &y, &z) != 3) {
                 return false;
             }
             vertices.push_back(Vec3r(x,y,z));
         } else if (LINE_IS("vn ") || LINE_IS("vn\t")) {
-            float x, y, z;
+            HReal x, y, z;
             if (sscanf(buf+2, "%f %f %f", &x, &y, &z) != 3) {
                 return false;
             }

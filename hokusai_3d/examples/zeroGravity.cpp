@@ -18,15 +18,15 @@ int main()
     int resolution = 1000; ///particle number per m3
     System sph(resolution);
 
-    Vec fluidBox(1.5,1.5,1.5);
-    Vec fluidOffset(0,0,0);
+    Vec3r  fluidBox(1.5,1.5,1.5);
+    Vec3r  fluidOffset(0,0,0);
     sph.addParticleBox(fluidOffset, fluidBox);
 
-    Vec boundBox(8.0,8.0,8.0);
-    Vec boundOffset = Vec(-4,-4,-4);
+    Vec3r  boundBox(8.0,8.0,8.0);
+    Vec3r  boundOffset = Vec3r(-4,-4,-4);
     sph.addBoundaryBox(boundOffset, boundBox);
 
-    Vec gravity(0,0,0);
+    Vec3r  gravity(0,0,0);
     sph.setGravity(gravity);
 
     sph.init();

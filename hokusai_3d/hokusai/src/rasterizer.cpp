@@ -170,7 +170,7 @@ std::vector<Vec3i> rasterizeTriangle(const Vec3i& a, const Vec3i& b, const Vec3i
 
     Vec3i dAB, dAC;
     std::array<Vec3i,2> left;
-    double maxDistAB, maxDistAC;
+    HReal maxDistAB, maxDistAC;
     dAB = Vec3i::abs(b-a);
     maxDistAB = Vec3i::max(dAB);
     dAC = Vec3i::abs(c-a);
@@ -181,7 +181,7 @@ std::vector<Vec3i> rasterizeTriangle(const Vec3i& a, const Vec3i& b, const Vec3i
     int maxSize = std::max( maxDistAB, maxDistAC );
     if(maxSize == maxDistAB)
     {
-        double maxAxis = maxDistAB;
+        HReal maxAxis = maxDistAB;
         if(dAB[0] == maxAxis)
             axis = 0;
         else if(dAB[1] == maxAxis)
@@ -191,7 +191,7 @@ std::vector<Vec3i> rasterizeTriangle(const Vec3i& a, const Vec3i& b, const Vec3i
     }
     else
     {
-        double maxAxis = maxDistAC;
+        HReal maxAxis = maxDistAC;
         if(dAC[0] == maxAxis)
             axis = 0;
         else if(dAC[1] == maxAxis)

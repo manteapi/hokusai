@@ -37,7 +37,7 @@ TriMesh::TriMesh()
     normals.clear();
 }
 
-TriMesh::TriMesh(const std::vector< Vec3f >& _vertices, const std::vector< Vec3f >& _normals, const std::vector< Vec3i >& _triangles)
+TriMesh::TriMesh(const std::vector< Vec3r >& _vertices, const std::vector< Vec3r >& _normals, const std::vector< Vec3i >& _triangles)
 {
     vertices = _vertices;
     normals = _normals;
@@ -74,86 +74,86 @@ void TriMesh::info()
     std::cout << "Vertices count : " << vertices.size() << std::endl;
 }
 
-void TriMesh::addCubeMesh(const Vec3f& defaultPosition, const double& scale)
+void TriMesh::addCubeMesh(const Vec3r& defaultPosition, const HReal& scale)
 {
     int vertexId;
 
     //Front face
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(0,0,scale) );
-    vertices.push_back( defaultPosition + Vec3f(scale,0,scale) );
-    vertices.push_back( defaultPosition + Vec3f(0,scale,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,0,scale) );
+    vertices.push_back( defaultPosition + Vec3r(scale,0,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,scale,scale) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(scale,0,scale) );
-    vertices.push_back( defaultPosition + Vec3f(0,scale,scale) );
-    vertices.push_back( defaultPosition + Vec3f(scale,scale,scale) );
+    vertices.push_back( defaultPosition + Vec3r(scale,0,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,scale,scale) );
+    vertices.push_back( defaultPosition + Vec3r(scale,scale,scale) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     //Right face
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(scale,scale,scale) );
-    vertices.push_back( defaultPosition + Vec3f(scale,0,scale) );
-    vertices.push_back( defaultPosition + Vec3f(scale,scale,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,scale,scale) );
+    vertices.push_back( defaultPosition + Vec3r(scale,0,scale) );
+    vertices.push_back( defaultPosition + Vec3r(scale,scale,0) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(scale,0,scale) );
-    vertices.push_back( defaultPosition + Vec3f(scale,scale,0) );
-    vertices.push_back( defaultPosition + Vec3f(scale,0,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,0,scale) );
+    vertices.push_back( defaultPosition + Vec3r(scale,scale,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,0,0) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     //Back face
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(scale,0,0) );
-    vertices.push_back( defaultPosition + Vec3f(0,0,0) );
-    vertices.push_back( defaultPosition + Vec3f(scale,scale,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,0,0) );
+    vertices.push_back( defaultPosition + Vec3r(0,0,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,scale,0) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(0,0,0) );
-    vertices.push_back( defaultPosition + Vec3f(scale,scale,0) );
-    vertices.push_back( defaultPosition + Vec3f(0,scale,0) );
+    vertices.push_back( defaultPosition + Vec3r(0,0,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,scale,0) );
+    vertices.push_back( defaultPosition + Vec3r(0,scale,0) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     //Left face
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(0,scale,0) );
-    vertices.push_back( defaultPosition + Vec3f(0,0,0) );
-    vertices.push_back( defaultPosition + Vec3f(0,scale,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,scale,0) );
+    vertices.push_back( defaultPosition + Vec3r(0,0,0) );
+    vertices.push_back( defaultPosition + Vec3r(0,scale,scale) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(0,0,0) );
-    vertices.push_back( defaultPosition + Vec3f(0,scale,scale) );
-    vertices.push_back( defaultPosition + Vec3f(0,0,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,0,0) );
+    vertices.push_back( defaultPosition + Vec3r(0,scale,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,0,scale) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     //Bottom face
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(0,0,scale) );
-    vertices.push_back( defaultPosition + Vec3f(0,0,0) );
-    vertices.push_back( defaultPosition + Vec3f(scale,0,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,0,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,0,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,0,scale) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(0,0,0) );
-    vertices.push_back( defaultPosition + Vec3f(scale,0,scale) );
-    vertices.push_back( defaultPosition + Vec3f(scale,0,0) );
+    vertices.push_back( defaultPosition + Vec3r(0,0,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,0,scale) );
+    vertices.push_back( defaultPosition + Vec3r(scale,0,0) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     //Top face
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(0,scale,scale) );
-    vertices.push_back( defaultPosition + Vec3f(scale,scale,scale) );
-    vertices.push_back( defaultPosition + Vec3f(0,scale,0) );
+    vertices.push_back( defaultPosition + Vec3r(0,scale,scale) );
+    vertices.push_back( defaultPosition + Vec3r(scale,scale,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,scale,0) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 
     vertexId = vertices.size();
-    vertices.push_back( defaultPosition + Vec3f(scale,scale,scale) );
-    vertices.push_back( defaultPosition + Vec3f(0,scale,0) );
-    vertices.push_back( defaultPosition + Vec3f(scale,scale,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,scale,scale) );
+    vertices.push_back( defaultPosition + Vec3r(0,scale,0) );
+    vertices.push_back( defaultPosition + Vec3r(scale,scale,0) );
     triangles.push_back( Vec3i(vertexId, vertexId+1, vertexId+2) );
 }
 

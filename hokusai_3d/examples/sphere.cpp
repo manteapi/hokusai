@@ -18,11 +18,11 @@ int main()
     int resolution = 100; ///particle number per m3
     System sph(resolution);
 
-    Vec offsetDomain(0,0,0);
-    Vec scaleDomain(6,6,6);
+    Vec3r  offsetDomain(0,0,0);
+    Vec3r  scaleDomain(6,6,6);
     sph.addBoundaryBox(offsetDomain, scaleDomain);
 
-    Vec offsetSphere(3,3,3);
+    Vec3r  offsetSphere(3,3,3);
     double radius = 2.5;
     sph.addParticleSphere(offsetSphere, radius);
 

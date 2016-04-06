@@ -1,6 +1,8 @@
 #ifndef HOKUSAI_HSL2RGB_HPP
 #define HOKUSAI_HSL2RGB_HPP
 
+#include "common.hpp"
+
 namespace hokusai
 {
 inline unsigned char GetRValue(unsigned int color)

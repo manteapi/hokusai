@@ -65,7 +65,7 @@ System::System()
     rho_avg_l = 0.0;
     maxEta = 1.0;
 
-    gravity = Vec(0,-9.81,0);
+    gravity = Vec3r(0,-9.81,0);
 
     a_kernel = AkinciKernel();
     p_kernel = MonaghanKernel();
@@ -100,7 +100,7 @@ System::System(int resolution)
     rho_avg_l = 0.0;
     maxEta = 1.0;
 
-    gravity = Vec(0,-9.81,0);
+    gravity = Vec3r(0,-9.81,0);
 
     a_kernel = AkinciKernel();
     p_kernel = MonaghanKernel();
@@ -138,8 +138,8 @@ void System::computeNormal(int i)
     //Compute normal
     Particle& pi=particles[i];
     vector< int > & neighbors = particles[i].fluidNeighbor;
-    Vec n(0.0);
-    Vec gradient(0.0);
+    Vec3r n(0.0);
+    Vec3r gradient(0.0);
     for(int& j : neighbors)
     {
         if(i!=j)
@@ -152,9 +152,9 @@ void System::computeNormal(int i)
     pi.n = h*n;
 }
 
-bool System::isSurfaceParticle(int i, double treshold)
+bool System::isSurfaceParticle(int i, HReal treshold)
 {
-    double n_length = particles[i].n.lengthSquared();
+    HReal n_length = particles[i].n.lengthSquared();
     if( n_length > treshold )
     {
         return true;
@@ -179,7 +179,7 @@ vector<Particle> System::getSurfaceParticle()
     for(int i=0; i<particleNumber; ++i)
         computeNormal(i);
 
-    double treshold = 0.05;
+    HReal treshold = 0.05;
     vector<Particle> surfaceParticles;
     for(int i=0; i<particleNumber; ++i)
     {
@@ -217,8 +217,8 @@ void System::predictRho(int i)
     Particle& pi=particles[i];
     vector<int>& fneighbors=pi.fluidNeighbor;
     vector<int>& bneighbors=pi.boundaryNeighbor;
-    double fdrho=0.0, bdrho=0.0;
-    Vec gradient(0.0);
+    HReal fdrho=0.0, bdrho=0.0;
+    Vec3r gradient(0.0);
 
     for(int& j : fneighbors)
     {
@@ -226,17 +226,17 @@ void System::predictRho(int i)
         {
             Particle& pj=particles[j];
             p_kernel.monaghanGradient(pi.x-pj.x, gradient);
-            Vec vij_adv=pi.v_adv-pj.v_adv;
-            fdrho+=mass*Vec::dotProduct(vij_adv, gradient);
+            Vec3r vij_adv=pi.v_adv-pj.v_adv;
+            fdrho+=mass*Vec3r::dotProduct(vij_adv, gradient);
         }
     }
 
     for(int& j: bneighbors)
     {
         Boundary& bj=boundaries[j];
-        Vec vb(0.1), v(0.0); v = pi.v_adv - vb; //vb(t+dt)
+        Vec3r vb(0.1), v(0.0); v = pi.v_adv - vb; //vb(t+dt)
         p_kernel.monaghanGradient(pi.x-bj.x, gradient);
-        bdrho+=bj.psi*Vec::dotProduct(v,gradient);
+        bdrho+=bj.psi*Vec3r::dotProduct(v,gradient);
     }
 
     pi.rho_adv = pi.rho + dt*( fdrho + bdrho );
@@ -252,7 +252,7 @@ void System::computeSumDijPj(int i)
         if(i!=j)
         {
             Particle& pj=particles[j];
-            Vec gradient(0.0);
+            Vec3r gradient(0.0);
             p_kernel.monaghanGradient(pi.x-pj.x, gradient);
             pi.sum_dij+=(-mass/pow(pj.rho,2))*pj.p_l*gradient;
         }
@@ -264,31 +264,31 @@ void System::computePressure(int i)
 {
     Particle& pi=particles[i];
     vector<int>& fneighbors=pi.fluidNeighbor, bneighbors=pi.boundaryNeighbor;
-    double fsum=0.0, bsum=0.0, omega=0.5;
+    HReal fsum=0.0, bsum=0.0, omega=0.5;
 
     for(int& j : fneighbors)
     {
         if(i!=j)
         {
             Particle& pj=particles[j];
-            Vec gradient_ij(0.0), dji=computeDij(j, i);
+            Vec3r gradient_ij(0.0), dji=computeDij(j, i);
             p_kernel.monaghanGradient(pi.x-pj.x, gradient_ij);
-            Vec aux = pi.sum_dij - (pj.dii_fluid+pj.dii_boundary)*pj.p_l - (pj.sum_dij - dji*pi.p_l);
-            fsum+=mass*Vec::dotProduct(aux, gradient_ij);
+            Vec3r aux = pi.sum_dij - (pj.dii_fluid+pj.dii_boundary)*pj.p_l - (pj.sum_dij - dji*pi.p_l);
+            fsum+=mass*Vec3r::dotProduct(aux, gradient_ij);
         }
     }
 
     for(int& j : bneighbors)
     {
         Boundary& bj=boundaries[j];
-        Vec gradient(0.0), r(0.0); r=pi.x-bj.x;
+        Vec3r gradient(0.0), r(0.0); r=pi.x-bj.x;
         p_kernel.monaghanGradient(r, gradient);
-        bsum+=bj.psi*Vec::dotProduct(pi.sum_dij,gradient);
+        bsum+=bj.psi*Vec3r::dotProduct(pi.sum_dij,gradient);
     }
 
-    double previousPl = pi.p_l;
+    HReal previousPl = pi.p_l;
     pi.rho_corr = pi.rho_adv + fsum + bsum;
-    if(std::abs(pi.aii)>std::numeric_limits<double>::epsilon())
+    if(std::abs(pi.aii)>std::numeric_limits<HReal>::epsilon())
         pi.p_l = (1-omega)*previousPl + (omega/pi.aii)*(restDensity - pi.rho_corr);
     else
         pi.p_l = 0.0;
@@ -300,7 +300,7 @@ void System::computePressure(int i)
 void System::computePressureForce(int i)
 {
     Particle& pi=particles[i];
-    Vec gradient(0.0);
+    Vec3r gradient(0.0);
     pi.f_p.setAllValue(0.0);
     vector<int>& fneighbors=pi.fluidNeighbor;
     vector<int>& bneighbors=pi.boundaryNeighbor;
@@ -340,7 +340,7 @@ void System::computeDii_Boundary(int i)
     for(int& j : pi.boundaryNeighbor)
     {
         Boundary& bj=boundaries[j];
-        Vec gradient(0.0);
+        Vec3r gradient(0.0);
         p_kernel.monaghanGradient(pi.x-bj.x, gradient);
         pi.dii_boundary+=(-dt*dt*bj.psi/pow(pi.rho,2))*gradient;
     }
@@ -356,7 +356,7 @@ void System::computeDii_Fluid(int i)
         if(i!=j)
         {
             Particle& pj=particles[j];
-            Vec gradient(0.0);
+            Vec3r gradient(0.0);
             p_kernel.monaghanGradient(pi.x-pj.x, gradient);
             pi.dii_fluid+=(-dt*dt*mass/pow(pi.rho,2))*gradient;
         }
@@ -373,7 +373,7 @@ void System::computeDii(int i)
         if(i!=j)
         {
             Particle& pj=particles[j];
-            Vec gradient(0.0);
+            Vec3r gradient(0.0);
             p_kernel.monaghanGradient(pi.x-pj.x, gradient);
             pi.dii_fluid+=(-dt*dt*mass/pow(pi.rho,2))*gradient;
         }
@@ -381,7 +381,7 @@ void System::computeDii(int i)
     for(int& j : pi.boundaryNeighbor)
     {
         Boundary& bj=boundaries[j];
-        Vec gradient(0.0);
+        Vec3r gradient(0.0);
         p_kernel.monaghanGradient(pi.x-bj.x, gradient);
         pi.dii_boundary+=(-dt*dt*bj.psi/pow(pi.rho,2))*gradient;
     }
@@ -395,22 +395,22 @@ void System::computeAii( int i)
         if(i!=j)
         {
             Particle& pj=particles[j];
-            Vec dji=computeDij(j,i);
-            Vec gradient_ij(0.0);
+            Vec3r dji=computeDij(j,i);
+            Vec3r gradient_ij(0.0);
             p_kernel.monaghanGradient(pi.x-pj.x, gradient_ij);
-            pi.aii+=mass*Vec::dotProduct((pi.dii_fluid+pi.dii_boundary)-dji,gradient_ij);
+            pi.aii+=mass*Vec3r::dotProduct((pi.dii_fluid+pi.dii_boundary)-dji,gradient_ij);
         }
     }
     for(int& j : pi.boundaryNeighbor)
     {
         Boundary& bj=boundaries[j];
-        Vec gradient_ij(0.0);
+        Vec3r gradient_ij(0.0);
         p_kernel.monaghanGradient(pi.x-bj.x, gradient_ij);
-        pi.aii+=bj.psi*Vec::dotProduct(pi.dii_fluid+pi.dii_boundary,gradient_ij);
+        pi.aii+=bj.psi*Vec3r::dotProduct(pi.dii_fluid+pi.dii_boundary,gradient_ij);
     }
 }
 
-void System::getNearestNeighbor(const int i, const float radius)
+void System::getNearestNeighbor(const int i, const HReal radius)
 {
     Particle& p = particles[i];
     p.fluidNeighbor.clear();
@@ -426,7 +426,7 @@ void System::getNearestNeighbor(const int i, const float radius)
         {
             int bParticleId = boundaryGrid[neighborCell[i]][j];
             Boundary& bParticle = boundaries[bParticleId];
-            Vec d = bParticle.x-p.x;
+            Vec3r d = bParticle.x-p.x;
             if( d.lengthSquared()<radius*radius )
                 p.boundaryNeighbor.push_back(bParticleId);
         }
@@ -436,14 +436,14 @@ void System::getNearestNeighbor(const int i, const float radius)
         {
             int fParticleId = fluidGrid[neighborCell[i]][j];
             Particle& fParticle = particles[fParticleId];
-            Vec d = fParticle.x-p.x;
+            Vec3r d = fParticle.x-p.x;
             if( d.lengthSquared()<radius*radius)
                 p.fluidNeighbor.push_back(fParticleId);
         }
     }
 }
 
-void System::getNearestNeighbor(vector< int >& neighbor, const vector< vector<int> >& grid, const Vec &x)
+void System::getNearestNeighbor(vector< int >& neighbor, const vector< vector<int> >& grid, const Vec3r &x)
 {
     std::vector<int> neighborCell;
     gridInfo.get27Neighbors(neighborCell, x, gridInfo.spacing());
@@ -461,7 +461,7 @@ void System::computeBoundaryVolume()
 {
     for(int i=0; i<boundaryNumber; ++i)
     {
-        double densityNumber=0.0;
+        HReal densityNumber=0.0;
         vector<int> neighbors;
         getNearestNeighbor(neighbors, boundaryGrid, boundaries[i].x);
         for(int& j : neighbors)
@@ -494,17 +494,17 @@ void System::computeVolume()
     }
 }
 
-void System::setGravity(const Vec& _gravity)
+void System::setGravity(const Vec3r& _gravity)
 {
     gravity = _gravity;
 }
 
-const Vec& System::getGravity()
+const Vec3r& System::getGravity()
 {
     return gravity;
 }
 
-void System::setParameters( int _wishedNumber, double _volume )
+void System::setParameters( int _wishedNumber, HReal _volume )
 {
     time = 0.0;
     countTime = 0.0;
@@ -517,11 +517,11 @@ void System::setParameters( int _wishedNumber, double _volume )
     restDensity = 1000;
     mass = (restDensity * volume) / _wishedNumber;
     particlePerCell = 33.8; //better
-    h = 0.5*pow( double(3*volume*particlePerCell) / double(4*M_PI*_wishedNumber), 1.0/3.0);
+    h = 0.5*pow( HReal(3*volume*particlePerCell) / HReal(4*M_PI*_wishedNumber), 1.0/3.0);
 
-    double eta = 0.01;
-    double H = 0.1;
-    double vf = sqrt( 2*9.81*H );
+    HReal eta = 0.01;
+    HReal H = 0.1;
+    HReal vf = sqrt( 2*9.81*H );
     cs = vf/(sqrt(eta));
 
     alpha = 0.1;
@@ -586,7 +586,7 @@ void System::init()
     debugFluid();
 }
 
-void System::addBoundaryBox(const Vec& offset, const Vec& scale)
+void System::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
 {
     int epsilon = 0;
     int widthSize = floor(scale[0]/h);
@@ -598,8 +598,8 @@ void System::addBoundaryBox(const Vec& offset, const Vec& scale)
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            Vec position(i*h, offset[1], j*h);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
+            Vec3r position(i*h, offset[1], j*h);
+            boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
             boundaryNumber++;
         }
     }
@@ -609,8 +609,8 @@ void System::addBoundaryBox(const Vec& offset, const Vec& scale)
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            Vec position(i*h, offset[1]+scale[1], j*h);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
+            Vec3r position(i*h, offset[1]+scale[1], j*h);
+            boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
             boundaryNumber++;
         }
     }
@@ -620,8 +620,8 @@ void System::addBoundaryBox(const Vec& offset, const Vec& scale)
     {
         for(int j = -epsilon; j <= heightSize+epsilon; ++j)
         {
-            Vec position(i*h, j*h, offset[2]);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
+            Vec3r position(i*h, j*h, offset[2]);
+            boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
             boundaryNumber++;
         }
     }
@@ -631,8 +631,8 @@ void System::addBoundaryBox(const Vec& offset, const Vec& scale)
     {
         for(int j = -epsilon; j <= heightSize-epsilon; ++j)
         {
-            Vec position(i*h, j*h, offset[2]+scale[2]);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
+            Vec3r position(i*h, j*h, offset[2]+scale[2]);
+            boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
             boundaryNumber++;
         }
     }
@@ -642,8 +642,8 @@ void System::addBoundaryBox(const Vec& offset, const Vec& scale)
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            Vec position(offset[0], i*h, j*h);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
+            Vec3r position(offset[0], i*h, j*h);
+            boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
             boundaryNumber++;
         }
     }
@@ -653,47 +653,47 @@ void System::addBoundaryBox(const Vec& offset, const Vec& scale)
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            Vec position(offset[0]+scale[0], i*h, j*h);
-            boundaries.push_back(Boundary(position,Vec(0.0),0.0));
+            Vec3r position(offset[0]+scale[0], i*h, j*h);
+            boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
             boundaryNumber++;
         }
     }
 
-    gridInfo.update(offset-Vec(2.0*h), scale+Vec(4.0*h), 2.0*h);
+    gridInfo.update(offset-Vec3r(2.0*h), scale+Vec3r(4.0*h), 2.0*h);
 }
 
-void System::addBoundarySphere(const Vec& offset, const double& radius)
+void System::addBoundarySphere(const Vec3r& offset, const HReal& radius)
 {
-    std::vector<Vec> samples = getSphereSampling(offset, radius, h, h);
+    std::vector<Vec3r> samples = getSphereSampling(offset, radius, h, h);
     for(size_t i=0; i<samples.size(); ++i)
     {
-        boundaries.push_back(Boundary(samples[i],Vec(0.0),0.0));
+        boundaries.push_back(Boundary(samples[i],Vec3r(0.0),0.0));
         boundaryNumber++;
     }
 }
 
-void System::addBoundaryHemiSphere(const Vec& offset, const double& radius)
+void System::addBoundaryHemiSphere(const Vec3r& offset, const HReal& radius)
 {
-    std::vector<Vec> samples = getHemiSphereSampling(offset, radius, h, h);
+    std::vector<Vec3r> samples = getHemiSphereSampling(offset, radius, h, h);
     for(size_t i=0; i<samples.size(); ++i)
     {
-        boundaries.push_back(Boundary(samples[i],Vec(0.0),0.0));
+        boundaries.push_back(Boundary(samples[i],Vec3r(0.0),0.0));
         boundaryNumber++;
     }
 }
 
-void System::addBoundaryDisk(const Vec& offset, const double& radius)
+void System::addBoundaryDisk(const Vec3r& offset, const HReal& radius)
 {
-    std::vector<Vec> samples = getDiskSampling(offset, radius, h);
+    std::vector<Vec3r> samples = getDiskSampling(offset, radius, h);
     for(size_t i=0; i<samples.size(); ++i)
     {
-        boundaries.push_back(Boundary(samples[i],Vec(0.0),0.0));
+        boundaries.push_back(Boundary(samples[i],Vec3r(0.0),0.0));
         boundaryNumber++;
     }
 }
 
 
-void System::translateBoundaries(const Vec& t)
+void System::translateBoundaries(const Vec3r& t)
 {
     for(size_t i=0; i<boundaries.size(); ++i)
     {
@@ -701,7 +701,7 @@ void System::translateBoundaries(const Vec& t)
     }
 }
 
-void System::translateParticles(const Vec& t)
+void System::translateParticles(const Vec3r& t)
 {
     for(size_t i=0; i<particles.size(); ++i)
     {
@@ -709,18 +709,18 @@ void System::translateParticles(const Vec& t)
     }
 }
 
-void System::addParticleSphere(const Vec& centre, const double radius)
+void System::addParticleSphere(const Vec3r& centre, const HReal radius)
 {
-    Vec scale(2.0*radius, 2.0*radius, 2.0*radius);
-    Vec offset = centre - Vec(radius, radius, radius);
+    Vec3r scale(2.0*radius, 2.0*radius, 2.0*radius);
+    Vec3r offset = centre - Vec3r(radius, radius, radius);
     GridUtility grid(offset, scale, h);
 
     for(int i=0; i<grid.size(); ++i)
     {
-        Vec _x = grid.gridToWorld(i);
+        Vec3r _x = grid.gridToWorld(i);
         _x+=grid.spacing()/2.0;
-        Vec _v(0,0,0);
-        double l2 = (centre-_x).lengthSquared();
+        Vec3r _v(0,0,0);
+        HReal l2 = (centre-_x).lengthSquared();
         if(l2<=(radius*radius))
         {
             particles.push_back( Particle(_x,_v) );
@@ -734,7 +734,7 @@ void System::addParticleSource(const ParticleSource& s)
     p_sources.push_back(s);
 }
 
-void System::addParticleBox(const Vec& offset, const Vec& scale)
+void System::addParticleBox(const Vec3r& offset, const Vec3r& scale)
 {
     int widthSize = floor(scale[0]/h);
     int heightSize = floor(scale[1]/h);
@@ -746,8 +746,8 @@ void System::addParticleBox(const Vec& offset, const Vec& scale)
         {
             for(int k=0; k<depthSize; ++k)
             {
-                Vec _x = offset + Vec(i*h,j*h,k*h);
-                Vec _v(0,0,0);
+                Vec3r _x = offset + Vec3r(i*h,j*h,k*h);
+                Vec3r _v(0,0,0);
                 particles.push_back( Particle(_x,_v) );
                 particleNumber++;
             }
@@ -755,7 +755,7 @@ void System::addParticleBox(const Vec& offset, const Vec& scale)
     }
 }
 
-void System::addParticleBox(double width, double height, double depth, double spacing)
+void System::addParticleBox(HReal width, HReal height, HReal depth, HReal spacing)
 {
     int widthSize = floor(width/spacing);
     int heightSize = floor(height/spacing);
@@ -767,8 +767,8 @@ void System::addParticleBox(double width, double height, double depth, double sp
         {
             for(int k=0; k<depthSize; ++k)
             {
-                Vec _x(i*spacing,j*spacing,k*spacing);
-                Vec _v(0,0,0);
+                Vec3r _x(i*spacing,j*spacing,k*spacing);
+                Vec3r _v(0,0,0);
                 particles.push_back( Particle(_x,_v) );
                 particleNumber++;
             }
@@ -777,7 +777,7 @@ void System::addParticleBox(double width, double height, double depth, double sp
 }
 
 
-void System::createParticleVolume(Vec& pos, double width, double /*height*/, double depth, double spacing, int particleMax)
+void System::createParticleVolume(Vec3r& pos, HReal width, HReal /*height*/, HReal depth, HReal spacing, int particleMax)
 {
     int widthSize = floor( width/spacing );
     int depthSize = floor( depth/spacing );
@@ -791,8 +791,8 @@ void System::createParticleVolume(Vec& pos, double width, double /*height*/, dou
             {
                 if(count < particleMax)
                 {
-                    Vec _x(pos[0]+i*spacing,pos[1]+j*spacing,pos[2]+k*spacing);
-                    Vec _v(0,0,0);
+                    Vec3r _x(pos[0]+i*spacing,pos[1]+j*spacing,pos[2]+k*spacing);
+                    Vec3r _v(0,0,0);
                     particles.push_back( Particle(_x,_v) );
                     particleNumber++;
                 }
@@ -803,13 +803,13 @@ void System::createParticleVolume(Vec& pos, double width, double /*height*/, dou
     }
 }
 
-void System::addFluidParticle(const Vec& x, const Vec& v)
+void System::addFluidParticle(const Vec3r& x, const Vec3r& v)
 {
     particles.push_back( Particle(x,v) );
     particleNumber++;
 }
 
-void System::addBoundaryParticle(const Vec& x, const Vec& v)
+void System::addBoundaryParticle(const Vec3r& x, const Vec3r& v)
 {
     boundaries.push_back( Boundary(x,v) );
     boundaryNumber++;
@@ -818,9 +818,9 @@ void System::addBoundaryParticle(const Vec& x, const Vec& v)
 void System::addBoundaryMesh(const char* filename)
 {
     TriMesh mesh(filename);
-    std::vector<Vec3f> samples;
+    std::vector<Vec3r> samples;
     AkinciMeshSampling(mesh, h/2.0, samples);
-    Vec3f minBB(std::numeric_limits<double>::max()), maxBB(-std::numeric_limits<double>::max());
+    Vec3r minBB(std::numeric_limits<HReal>::max()), maxBB(-std::numeric_limits<HReal>::max());
     for(size_t i=0; i<samples.size(); ++i)
     {
         for(int j=0; j<3; ++j)
@@ -828,12 +828,12 @@ void System::addBoundaryMesh(const char* filename)
             minBB[j] = std::min(samples[i][j], minBB[j]);
             maxBB[j] = std::max(samples[i][j], maxBB[j]);
         }
-        boundaries.push_back(Boundary(samples[i],Vec(0.0),0.0));
+        boundaries.push_back(Boundary(samples[i],Vec3r(0.0),0.0));
         boundaryNumber++;
     }
-    Vec3f offset = minBB;
-    Vec3f scale = maxBB-minBB;
-    gridInfo.update(offset-Vec(2.0*h), scale+Vec(4.0*h), 2.0*h);
+    Vec3r offset = minBB;
+    Vec3r scale = maxBB-minBB;
+    gridInfo.update(offset-Vec3r(2.0*h), scale+Vec3r(4.0*h), 2.0*h);
 }
 
 bool pairCompare( const std::pair<int,int>& e1, const std::pair<int,int>& e2 )
@@ -863,8 +863,8 @@ void System::mortonSort()
     //Move particles according to z-index
     vector< Particle > oldParticles = particles;
 
-    //double min = particleZindex[0].second;
-    //double max = particleZindex[particleNumber-1].second;
+    //HReal min = particleZindex[0].second;
+    //HReal max = particleZindex[particleNumber-1].second;
 
     for(int i = 0; i < particleNumber; ++i)
     {
@@ -873,7 +873,7 @@ void System::mortonSort()
         {
             particles[i] = oldParticles[paire.first];
         }
-        //double color = (paire.second-min)/(max-min);
+        //HReal color = (paire.second-min)/(max-min);
         //particles[i].c[0] = color;
         //particles[i].c[1] = 0;
         //particles[i].c[2] = 0;
@@ -1085,7 +1085,7 @@ void System::debugFluid()
     gridInfo.info();
 }
 
-void System::write(const char * filename, vector<double> data)
+void System::write(const char * filename, vector<HReal> data)
 {
     ofstream outputFile;
     outputFile.open(filename);
@@ -1113,8 +1113,8 @@ void System::exportState(const char * baseName)
 {
     vector< Vec3r > x = getPosition();
     vector< Vec3r > v = getVelocity();
-    vector< double > d = getDensity();
-    vector< double > m = getMass();
+    vector< HReal > d = getDensity();
+    vector< HReal > m = getMass();
 
     stringstream ss_padding;
     ss_padding.fill('0');

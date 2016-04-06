@@ -5,31 +5,28 @@
 #include <array>
 #include <set>
 #include <utility>
-#include <aljabr/Vec.hpp>
+#include "common.hpp"
 
 namespace hokusai
 {
-    typedef aljabr::Vec3<double> Vec3f;
-    typedef aljabr::Vec3<int> Vec3i;
-
     class TriMesh
     {
         public :
             TriMesh();
-            TriMesh(const std::vector< Vec3f >& _vertices, const std::vector< Vec3f >& _normals, const std::vector< Vec3i>& _triangles);
+            TriMesh(const std::vector< Vec3r >& _vertices, const std::vector< Vec3r >& _normals, const std::vector< Vec3i>& _triangles);
             TriMesh(const TriMesh& _triMesh);
             TriMesh(const char* filename);
             ~TriMesh();
 
-            std::vector< Vec3f > vertices;
-            std::vector< Vec3f > normals;
+            std::vector< Vec3r > vertices;
+            std::vector< Vec3r > normals;
             std::vector< Vec3i> triangles;
 
             std::vector< std::vector<int> > vneighbors;
             std::vector< std::vector<int> > adjacentFaces;
             std::vector< std::vector<int> > acrossFaces;
 
-            void addCubeMesh(const Vec3f& defaultPosition, const double& scale);
+            void addCubeMesh(const Vec3r& defaultPosition, const HReal& scale);
 
             void getVertexNeighbor(const int vertexId, std::vector<int>& vneighbors);
             void getVertexAdjacentFaces(const int vertexId, std::vector<int>& vneighbors);
@@ -46,13 +43,13 @@ namespace hokusai
             {
                 clean();
 
-                vertices.push_back( Vec3f(-1,0,0) );
-                vertices.push_back( Vec3f(1,0,0) );
-                vertices.push_back( Vec3f(1,0,0) );
-                vertices.push_back( Vec3f(1,1,0) );
-                vertices.push_back( Vec3f(-1,1,0) );
-                vertices.push_back( Vec3f(0,-1,0) );
-                vertices.push_back( Vec3f(1,-1,0) );
+                vertices.push_back( Vec3r(-1,0,0) );
+                vertices.push_back( Vec3r(1,0,0) );
+                vertices.push_back( Vec3r(1,0,0) );
+                vertices.push_back( Vec3r(1,1,0) );
+                vertices.push_back( Vec3r(-1,1,0) );
+                vertices.push_back( Vec3r(0,-1,0) );
+                vertices.push_back( Vec3r(1,-1,0) );
 
                 triangles.push_back( Vec3i(0,1,2) );
                 triangles.push_back( Vec3i(1,2,3) );
@@ -153,13 +150,13 @@ namespace hokusai
 
                 bool success = true;
 
-                vertices.push_back( Vec3f(-1,0,0) );
-                vertices.push_back( Vec3f(1,0,0) );
-                vertices.push_back( Vec3f(1,0,0) );
-                vertices.push_back( Vec3f(1,1,0) );
-                vertices.push_back( Vec3f(-1,1,0) );
-                vertices.push_back( Vec3f(0,-1,0) );
-                vertices.push_back( Vec3f(1,-1,0) );
+                vertices.push_back( Vec3r(-1,0,0) );
+                vertices.push_back( Vec3r(1,0,0) );
+                vertices.push_back( Vec3r(1,0,0) );
+                vertices.push_back( Vec3r(1,1,0) );
+                vertices.push_back( Vec3r(-1,1,0) );
+                vertices.push_back( Vec3r(0,-1,0) );
+                vertices.push_back( Vec3r(1,-1,0) );
 
                 triangles.push_back( Vec3i(0,1,2) );
                 triangles.push_back( Vec3i(1,2,3) );
@@ -204,13 +201,13 @@ namespace hokusai
             {
                 bool success = true;
 
-                vertices.push_back( Vec3f(-1,0,0) );
-                vertices.push_back( Vec3f(1,0,0) );
-                vertices.push_back( Vec3f(1,0,0) );
-                vertices.push_back( Vec3f(1,1,0) );
-                vertices.push_back( Vec3f(-1,1,0) );
-                vertices.push_back( Vec3f(0,-1,0) );
-                vertices.push_back( Vec3f(1,-1,0) );
+                vertices.push_back( Vec3r(-1,0,0) );
+                vertices.push_back( Vec3r(1,0,0) );
+                vertices.push_back( Vec3r(1,0,0) );
+                vertices.push_back( Vec3r(1,1,0) );
+                vertices.push_back( Vec3r(-1,1,0) );
+                vertices.push_back( Vec3r(0,-1,0) );
+                vertices.push_back( Vec3r(1,-1,0) );
 
                 triangles.push_back( Vec3i(0,1,2) );
                 triangles.push_back( Vec3i(1,2,3) );

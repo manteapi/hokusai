@@ -1,11 +1,9 @@
-#include <Eigen/Dense>
-#include <Eigen/Core>
+#include <aljabr/Vec2.hpp>
+#include <aljabr/Vec3.hpp>
 
-using namespace Eigen;
-
-typedef Vector2f Vec2f;
-typedef Vector2d Vec2d;
-typedef Vector2i Vec2i;
-typedef Vector3f Vec3f;
-typedef Vector3d Vec3d;
-typedef Vector3i Vec3i;
+typedef aljabr::Vec2<float> Vec2f;
+typedef aljabr::Vec2<double> Vec2d;
+typedef aljabr::Vec2<int> Vec2i;
+typedef aljabr::Vec3<float> Vec3f;
+typedef aljabr::Vec3<double> Vec3d;
+typedef aljabr::Vec3<int> Vec3i;

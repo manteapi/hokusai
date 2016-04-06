@@ -33,11 +33,11 @@ namespace hokusai
 */
 bool LineLineIntersect(
         const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const Vec3r& p4, Vec3r& pa, Vec3r& pb,
-        double & mua, double & mub)
+        HReal & mua, HReal & mub)
 {
     Vec3r p13,p43,p21;
-    double d1343,d4321,d1321,d4343,d2121;
-    double numer,denom;
+    HReal d1343,d4321,d1321,d4343,d2121;
+    HReal numer,denom;
 
     p13[0] = p1[0] - p3[0];
     p13[1] = p1[1] - p3[1];
@@ -45,12 +45,12 @@ bool LineLineIntersect(
     p43[0] = p4[0] - p3[0];
     p43[1] = p4[1] - p3[1];
     p43[2] = p4[2] - p3[2];
-    if (std::abs(p43[0]) < std::numeric_limits<double>::epsilon() && std::abs(p43[1]) < std::numeric_limits<double>::epsilon() && std::abs(p43[2]) < std::numeric_limits<double>::epsilon())
+    if (std::abs(p43[0]) < std::numeric_limits<HReal>::epsilon() && std::abs(p43[1]) < std::numeric_limits<HReal>::epsilon() && std::abs(p43[2]) < std::numeric_limits<HReal>::epsilon())
         return false;
     p21[0] = p2[0] - p1[0];
     p21[1] = p2[1] - p1[1];
     p21[2] = p2[2] - p1[2];
-    if (std::abs(p21[0]) < std::numeric_limits<double>::epsilon() && std::abs(p21[1]) < std::numeric_limits<double>::epsilon() && std::abs(p21[2]) < std::numeric_limits<double>::epsilon())
+    if (std::abs(p21[0]) < std::numeric_limits<HReal>::epsilon() && std::abs(p21[1]) < std::numeric_limits<HReal>::epsilon() && std::abs(p21[2]) < std::numeric_limits<HReal>::epsilon())
         return false;
 
     d1343 = p13[0] * p43[0] + p13[1] * p43[1] + p13[2] * p43[2];
@@ -60,7 +60,7 @@ bool LineLineIntersect(
     d2121 = p21[0] * p21[0] + p21[1] * p21[1] + p21[2] * p21[2];
 
     denom = d2121 * d4343 - d4321 * d4321;
-    if (std::abs(denom) < std::numeric_limits<double>::epsilon())
+    if (std::abs(denom) < std::numeric_limits<HReal>::epsilon())
         return false;
     numer = d1343 * d4321 - d1321 * d4343;
 
@@ -79,22 +79,22 @@ bool LineLineIntersect(
 
 bool LineIntersect(const Vec2r& p1, const Vec2r& p2, const Vec2r& p3, const Vec2r& p4, Vec2r& p)
 {
-    double mua,mub;
-    double denom,numera,numerb;
+    HReal mua,mub;
+    HReal denom,numera,numerb;
 
     denom  = (p4[1]-p3[1]) * (p2[0]-p1[0]) - (p4[0]-p3[0]) * (p2[1]-p1[1]);
     numera = (p4[0]-p3[0]) * (p1[1]-p3[1]) - (p4[1]-p3[1]) * (p1[0]-p3[0]);
     numerb = (p2[0]-p1[0]) * (p1[1]-p3[1]) - (p2[1]-p1[1]) * (p1[0]-p3[0]);
 
     /* Are the line coincident? */
-    if (std::abs(numera) < std::numeric_limits<double>::epsilon() && std::abs(numerb) < std::numeric_limits<double>::epsilon() && std::abs(denom) < std::numeric_limits<double>::epsilon()) {
+    if (std::abs(numera) < std::numeric_limits<HReal>::epsilon() && std::abs(numerb) < std::numeric_limits<HReal>::epsilon() && std::abs(denom) < std::numeric_limits<HReal>::epsilon()) {
         p[0] = (p1[0] + p2[0]) / 2;
         p[1] = (p1[1] + p2[1]) / 2;
         return true;
     }
 
     /* Are the line parallel */
-    if (std::abs(denom) < std::numeric_limits<double>::epsilon()) {
+    if (std::abs(denom) < std::numeric_limits<HReal>::epsilon()) {
         p[0] = 0;
         p[1] = 0;
         std::cerr << "Parallel Line" << std::endl;
@@ -116,25 +116,25 @@ bool LineIntersect(const Vec2r& p1, const Vec2r& p2, const Vec2r& p3, const Vec2
 }
 
 
-bool AkinciEdgeSampling( const Vec3r& p1, const Vec3r& p2, const double& particleDiameter, std::vector< Vec3r >& samples)
+bool AkinciEdgeSampling( const Vec3r& p1, const Vec3r& p2, const HReal& particleDiameter, std::vector< Vec3r >& samples)
 {
     samples.clear();
 
     Vec3r edge = p2-p1;
-    double edgesL = edge.length();
+    HReal edgesL = edge.length();
     int pNumber = std::floor(edgesL/particleDiameter);
-    Vec3r pe = edge/(double)pNumber, p;
+    Vec3r pe = edge/(HReal)pNumber, p;
 
     for(int j=1; j<pNumber; ++j)
     {
-        p = p1 + (double)j*pe;
+        p = p1 + (HReal)j*pe;
         samples.push_back(p);
     }
 
     return true;
 }
 
-bool AkinciFullTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const double& particleDiameter, std::vector< Vec3r >& samples)
+bool AkinciFullTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const HReal& particleDiameter, std::vector< Vec3r >& samples)
 {
     std::vector< Vec3r > tmp;
 
@@ -161,13 +161,13 @@ bool AkinciFullTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& 
     return success;
 }
 
-bool AkinciTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const double& particleDiameter, std::vector< Vec3r >& samples)
+bool AkinciTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const HReal& particleDiameter, std::vector< Vec3r >& samples)
 {
 
     std::array< Vec3r, 3> v = {{p1, p2, p3}};
     std::array< Vec3r, 3 > edgesV = {{v[1]-v[0], v[2]-v[1], v[0]-v[2]}};
     std::array< Vec2i, 3 > edgesI = {{Vec2i(0,1), Vec2i(1,2), Vec2i(2,0)}};
-    std::array< double, 3> edgesL = {{ edgesV[0].length(), edgesV[1].length(), edgesV[2].length() }};
+    std::array< HReal, 3> edgesL = {{ edgesV[0].length(), edgesV[1].length(), edgesV[2].length() }};
     samples.clear();
 
     //Edges
@@ -176,18 +176,18 @@ bool AkinciTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, 
     for(int i=0; i<3; ++i)
     {
         pNumber = std::floor(edgesL[i]/particleDiameter);
-        pe = edgesV[i]/(double)pNumber;
+        pe = edgesV[i]/(HReal)pNumber;
         for(int j=0; j<pNumber; ++j)
         {
-            Vec3r p = v[edgesI[i][0]] + (double)j*pe;
+            Vec3r p = v[edgesI[i][0]] + (HReal)j*pe;
             //samples.push_back(p);
         }
     }
 
     //Triangles
     int sEdge=-1,lEdge=-1;
-    double maxL = -std::numeric_limits<double>::max();
-    double minL = std::numeric_limits<double>::max();
+    HReal maxL = -std::numeric_limits<HReal>::max();
+    HReal minL = std::numeric_limits<HReal>::max();
     for(int i=0; i<3; ++i)
     {
         if(edgesL[i]>maxL)
@@ -214,25 +214,25 @@ bool AkinciTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, 
     for(size_t i=0; i<findVertex.size(); ++i)
         if(findVertex[i]==true)
             thirdVertex = i;
-    Vec3r tmpVec = v[thirdVertex] - v[edgesI[sEdge][0]];
-    double sign = Vec3r::dotProduct(normal, tmpVec);
+    Vec3r tmpVec  = v[thirdVertex] - v[edgesI[sEdge][0]];
+    HReal sign = Vec3r::dotProduct(normal, tmpVec);
     if(sign<0)
         normal = -normal;
 
-    double triangleHeight = std::abs(Vec3r::dotProduct(normal, edgesV[lEdge]));
+    HReal triangleHeight = std::abs(Vec3r::dotProduct(normal, edgesV[lEdge]));
     int sweepSteps = triangleHeight/particleDiameter;
     bool success = false;
 
     Vec3r sweepA, sweepB, i1, i2, o1, o2;
-    double m1, m2;
+    HReal m1, m2;
     int edge1,edge2;
     edge1 = (sEdge+1)%3;
     edge2 = (sEdge+2)%3;
 
     for(int i=1; i<sweepSteps; ++i)
     {
-        sweepA = v[edgesI[sEdge][0]] + (double)i*particleDiameter*normal;
-        sweepB = v[edgesI[sEdge][1]] + (double)i*particleDiameter*normal;
+        sweepA = v[edgesI[sEdge][0]] + (HReal)i*particleDiameter*normal;
+        sweepB = v[edgesI[sEdge][1]] + (HReal)i*particleDiameter*normal;
         success = LineLineIntersect(v[edgesI[edge1][0]], v[edgesI[edge1][1]], sweepA, sweepB, o1, o2, m1, m2);
         i1 = o1;
         if(success == false)
@@ -247,17 +247,17 @@ bool AkinciTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, 
         }
         Vec3r s = i1-i2;
         int step = std::floor(s.length()/particleDiameter);
-        Vec3r ps = s/((double)step);
+        Vec3r ps = s/((HReal)step);
         for(int j=1; j<step; ++j)
         {
-            Vec3r p = i2 + (double)j*ps;
+            Vec3r p = i2 + (HReal)j*ps;
             samples.push_back(p);
         }
     }
     return success;
 }
 
-bool AkinciMeshSampling(const TriMesh& mesh, const double& particleDiameter, std::vector<Vec3f>& samples)
+bool AkinciMeshSampling(const TriMesh& mesh, const HReal& particleDiameter, std::vector<Vec3r>& samples)
 {
     bool success = true, tmpSuccess = false;
 
@@ -266,7 +266,7 @@ bool AkinciMeshSampling(const TriMesh& mesh, const double& particleDiameter, std
         samples.push_back(mesh.vertices[i]);
 
     //Sample edges
-    std::vector< Vec3f > tmpSample;
+    std::vector< Vec3r > tmpSample;
     std::vector< std::pair<int, int> > edges;
     mesh.getEdges(mesh.triangles, edges);
     for(size_t i=0; i<edges.size(); ++i)
@@ -288,7 +288,7 @@ bool AkinciMeshSampling(const TriMesh& mesh, const double& particleDiameter, std
     return success;
 }
 
-std::vector<Vec3r > getPyramidSampling(const Vec3r& _center, double base, double height, double spacing)
+std::vector<Vec3r > getPyramidSampling(const Vec3r& _center, HReal base, HReal height, HReal spacing)
 {
     std::vector< Vec3r > tmp;
     std::vector< Vec3r > result;
@@ -342,46 +342,46 @@ std::vector<Vec3r > getPyramidSampling(const Vec3r& _center, double base, double
     return result;
 }
 
-std::vector< Vec3r > getSphereSampling(const Vec3r& center, double radius, double spacingX, double spacingY)
+std::vector< Vec3r > getSphereSampling(const Vec3r& center, HReal radius, HReal spacingX, HReal spacingY)
 {
-    double theta=0.0;
-    double phi=0.0;
-    double l_theta = 2.0*M_PI*radius;
-    double l_phi = M_PI*radius;
+    HReal theta=0.0;
+    HReal phi=0.0;
+    HReal l_theta = 2.0*M_PI*radius;
+    HReal l_phi = M_PI*radius;
     int thetaStep = std::floor(l_theta/spacingX);
     int phiStep = std::floor(l_phi/spacingY);
     std::vector< Vec3r > result;
 
     for(int i=0; i<thetaStep; ++i)
     {
-        theta += (2.0*M_PI/(double)thetaStep);
+        theta += (2.0*M_PI/(HReal)thetaStep);
         phi=0.0;
         for(int j=0; j<phiStep; ++j)
         {
-            phi += (M_PI/(double)phiStep);
+            phi += (M_PI/(HReal)phiStep);
             result.push_back( center + Vec3r(radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), radius*cos(phi)) );
         }
     }
     return result;
 }
 
-std::vector<Vec3r > getEllipsoidSampling(const Vec3r& center, double axis_1, double axis_2, double axis_3, double spacingX, double spacingY)
+std::vector<Vec3r > getEllipsoidSampling(const Vec3r& center, HReal axis_1, HReal axis_2, HReal axis_3, HReal spacingX, HReal spacingY)
 {
-    double theta=0.0;
-    double phi=0.0;
-    double l_theta = 2.0*M_PI*axis_1;
-    double l_phi = M_PI*axis_2;
+    HReal theta=0.0;
+    HReal phi=0.0;
+    HReal l_theta = 2.0*M_PI*axis_1;
+    HReal l_phi = M_PI*axis_2;
     int thetaStep = std::floor(l_theta/spacingX);
     int phiStep = std::floor(l_phi/spacingY);
     std::vector< Vec3r > result;
 
     for(int i=0; i<thetaStep; ++i)
     {
-        theta += (2.0*M_PI/(double)thetaStep);
+        theta += (2.0*M_PI/(HReal)thetaStep);
         phi=0.0;
         for(int j=0; j<phiStep; ++j)
         {
-            phi += (M_PI/(double)phiStep);
+            phi += (M_PI/(HReal)phiStep);
             result.push_back( center + Vec3r(axis_1*cos(theta)*sin(phi), axis_2*sin(theta)*sin(phi), axis_3*cos(phi)) );
         }
     }
@@ -389,12 +389,12 @@ std::vector<Vec3r > getEllipsoidSampling(const Vec3r& center, double axis_1, dou
 
 }
 
-std::vector<Vec3r > getCapsuleSampling(const Vec3r& center, double radius, double height, double spacingX, double spacingY)
+std::vector<Vec3r > getCapsuleSampling(const Vec3r& center, HReal radius, HReal height, HReal spacingX, HReal spacingY)
 {
-    double theta=0.0;
-    double phi=0.0;
-    double l_theta = 2.0*M_PI*radius;
-    double l_phi = (M_PI/2.0)*radius;
+    HReal theta=0.0;
+    HReal phi=0.0;
+    HReal l_theta = 2.0*M_PI*radius;
+    HReal l_phi = (M_PI/2.0)*radius;
     int thetaStep = std::floor(l_theta/spacingX);
     int phiStep = std::floor(l_phi/spacingY);
     std::vector< Vec3r > result;
@@ -403,22 +403,22 @@ std::vector<Vec3r > getCapsuleSampling(const Vec3r& center, double radius, doubl
 
     for(int i=0; i<thetaStep; ++i)
     {
-        theta += (2.0*M_PI/(double)thetaStep);
+        theta += (2.0*M_PI/(HReal)thetaStep);
         phi=0.0;
         for(int j=0; j<phiStep; ++j)
         {
-            phi += (M_PI/(double)(2.0*phiStep));
+            phi += (M_PI/(HReal)(2.0*phiStep));
             result.push_back( c1 + Vec3r(radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), radius*cos(phi)) );
         }
     }
 
     for(int i=0; i<thetaStep; ++i)
     {
-        theta += (2.0*M_PI/(double)thetaStep);
+        theta += (2.0*M_PI/(HReal)thetaStep);
         phi=M_PI/2.0-(M_PI/(2.0*phiStep));
         for(int j=0; j<phiStep; ++j)
         {
-            phi += (M_PI/(double)(2.0*(phiStep)));
+            phi += (M_PI/(HReal)(2.0*(phiStep)));
             result.push_back( c2 + Vec3r(radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), radius*cos(phi)) );
         }
     }
@@ -430,68 +430,68 @@ std::vector<Vec3r > getCapsuleSampling(const Vec3r& center, double radius, doubl
     return result;
 }
 
-std::vector< Vec3r > getHemiSphereSampling(const Vec3r& center, double radius, double spacingX, double spacingY)
+std::vector< Vec3r > getHemiSphereSampling(const Vec3r& center, HReal radius, HReal spacingX, HReal spacingY)
 {
-    double theta=0.0;
-    double phi=0.0;
-    double l_theta = 2.0*M_PI*radius;
-    double l_phi = (M_PI/2.0)*radius;
+    HReal theta=0.0;
+    HReal phi=0.0;
+    HReal l_theta = 2.0*M_PI*radius;
+    HReal l_phi = (M_PI/2.0)*radius;
     int thetaStep = std::floor(l_theta/spacingX);
     int phiStep = std::floor(l_phi/spacingY);
     std::vector< Vec3r > result;
 
     for(int i=0; i<thetaStep; ++i)
     {
-        theta += (2.0*M_PI/(double)thetaStep);
+        theta += (2.0*M_PI/(HReal)thetaStep);
         phi=0.0;
         for(int j=0; j<phiStep; ++j)
         {
-            phi += (M_PI/(double)(2.0*phiStep));
+            phi += (M_PI/(HReal)(2.0*phiStep));
             result.push_back( center + Vec3r(radius*cos(theta)*sin(phi), radius*sin(theta)*sin(phi), radius*cos(phi)) );
         }
     }
     return result;
 }
 
-std::vector< Vec3r > getTorusSampling(const Vec3r& center, double tubeRadius, double innerRadius, double spacingX, double spacingY)
+std::vector< Vec3r > getTorusSampling(const Vec3r& center, HReal tubeRadius, HReal innerRadius, HReal spacingX, HReal spacingY)
 {
-    double u=0.0;
-    double v=0.0;
-    double l_u = 2.0*M_PI*innerRadius;
-    double l_v = 2.0*M_PI*tubeRadius;
+    HReal u=0.0;
+    HReal v=0.0;
+    HReal l_u = 2.0*M_PI*innerRadius;
+    HReal l_v = 2.0*M_PI*tubeRadius;
     int uStep = std::floor(l_u/spacingX);
     int vStep = std::floor(l_v/spacingY);
     std::vector< Vec3r > result;
 
     for(int i=0; i<uStep; ++i)
     {
-        u += (2.0*M_PI/(double)uStep);
+        u += (2.0*M_PI/(HReal)uStep);
         v =0.0;
         for(int j=0; j<vStep; ++j)
         {
-            v += (2.0*M_PI/(double)vStep);
+            v += (2.0*M_PI/(HReal)vStep);
             result.push_back( center + Vec3r( (innerRadius+tubeRadius*cos(v))*cos(u), (innerRadius+tubeRadius*cos(v))*sin(u), tubeRadius*sin(v)) );
         }
     }
     return result;
 }
 
-std::vector< Vec3r > getConeSampling(const Vec3r& center, double height, double stopHeight, double baseRadius, double spacingX, double spacingY)
+std::vector< Vec3r > getConeSampling(const Vec3r& center, HReal height, HReal stopHeight, HReal baseRadius, HReal spacingX, HReal spacingY)
 {
-    double theta=0.0;
-    double u=0.0;
-    double l_theta = 2.0*M_PI*baseRadius;
+    HReal theta=0.0;
+    HReal u=0.0;
+    HReal l_theta = 2.0*M_PI*baseRadius;
     int thetaStep = std::floor(l_theta/spacingX);
     int uStep = std::floor(stopHeight/spacingY);
     std::vector< Vec3r > result;
 
     for(int i=0; i<thetaStep; ++i)
     {
-        theta += (2.0*M_PI/(double)thetaStep);
+        theta += (2.0*M_PI/(HReal)thetaStep);
         u =0.0;
         for(int j=0; j<uStep; ++j)
         {
-            u += (stopHeight/(double)uStep);
+            u += (stopHeight/(HReal)uStep);
             result.push_back( center + Vec3r( ((height-u)/height)*baseRadius*cos(theta), ((height-u)/height)*baseRadius*sin(theta), u));
         }
     }
@@ -499,44 +499,44 @@ std::vector< Vec3r > getConeSampling(const Vec3r& center, double height, double 
 }
 
 
-std::vector< Vec3r > getCylinderSampling(const Vec3r& center, double height, double baseRadius, double spacingX, double spacingY)
+std::vector< Vec3r > getCylinderSampling(const Vec3r& center, HReal height, HReal baseRadius, HReal spacingX, HReal spacingY)
 {
-    double theta=0.0;
-    double u=0.0;
-    double l_theta = 2.0*M_PI*baseRadius;
+    HReal theta=0.0;
+    HReal u=0.0;
+    HReal l_theta = 2.0*M_PI*baseRadius;
     int thetaStep = std::floor(l_theta/spacingX);
     int uStep = std::floor(height/spacingY);
     std::vector< Vec3r > result;
 
     for(int i=0; i<thetaStep; ++i)
     {
-        theta += (2.0*M_PI/(double)thetaStep);
+        theta += (2.0*M_PI/(HReal)thetaStep);
         u =0.0;
         for(int j=0; j<uStep; ++j)
         {
-            u += (height/(double)uStep);
+            u += (height/(HReal)uStep);
             result.push_back( center + Vec3r( baseRadius*cos(theta), baseRadius*sin(theta), u));
         }
     }
     return result;
 }
 
-std::vector<Vec3r > getDiskSampling(const Vec3r& center, double radius, double spacing)
+std::vector<Vec3r > getDiskSampling(const Vec3r& center, HReal radius, HReal spacing)
 {
-    double theta=0.0;
-    double u=0.0;
-    double l_theta = 2.0*M_PI*radius;
+    HReal theta=0.0;
+    HReal u=0.0;
+    HReal l_theta = 2.0*M_PI*radius;
     int thetaStep = std::floor(l_theta/spacing);
     int uStep = std::floor(radius/spacing);
     std::vector< Vec3r > result;
 
     for(int i=0; i<thetaStep; ++i)
     {
-        theta += (2.0*M_PI/(double)thetaStep);
+        theta += (2.0*M_PI/(HReal)thetaStep);
         u =0.0;
         for(int j=0; j<uStep; ++j)
         {
-            u += (radius/(double)uStep);
+            u += (radius/(HReal)uStep);
             result.push_back( center + Vec3r( u*radius*cos(theta), u*radius*sin(theta), 0));
         }
     }

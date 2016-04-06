@@ -27,8 +27,9 @@
 #include <fstream>
 #include <ctime>
 
-#include <aljabr/Vec.hpp>
+#include <aljabr/AljabrCore>
 #include "utils.hpp"
+#include "common.hpp"
 #include "particle.hpp"
 #include "gridUtility.hpp"
 #include "triMesh.hpp"
@@ -38,7 +39,6 @@
 namespace hokusai
 {
 
-typedef aljabr::Vec3<double> Vec3r;
 class System
 {
 
@@ -54,26 +54,26 @@ public :
     int particleNumber;
     int boundaryNumber;
 
-    double particlePerCell;
-    double volume;
-    double restDensity;
-    double mean_density;
-    double density_fluctuation;
-    double real_volume;
-    double mass;
-    double h; // Smoothing radius
-    double fcohesion; //Fluid cohesion
-    double badhesion; //Boundary adhesion
-    double sigma; //Boundary friction
-    double cs;// Sound speed
-    double alpha; // Viscosity
-    double boundaryH;
-    double dt;
-    double time;
-    double rho_avg_l;
-    double maxEta;
+    HReal particlePerCell;
+    HReal volume;
+    HReal restDensity;
+    HReal mean_density;
+    HReal density_fluctuation;
+    HReal real_volume;
+    HReal mass;
+    HReal h; // Smoothing radius
+    HReal fcohesion; //Fluid cohesion
+    HReal badhesion; //Boundary adhesion
+    HReal sigma; //Boundary friction
+    HReal cs;// Sound speed
+    HReal alpha; // Viscosity
+    HReal boundaryH;
+    HReal dt;
+    HReal time;
+    HReal rho_avg_l;
+    HReal maxEta;
 
-    Vec gravity;
+    Vec3r gravity;
 
     AkinciKernel a_kernel;
     MonaghanKernel p_kernel;
@@ -89,8 +89,8 @@ public :
     vector< ParticleSource > p_sources;
 
 public :
-    void getNearestNeighbor(vector< int >& neighbors, const vector<vector<int> > &grid, const Vec& x);
-    void getNearestNeighbor(const int i, const float radius);
+    void getNearestNeighbor(vector< int >& neighbors, const vector<vector<int> > &grid, const Vec3r& x);
+    void getNearestNeighbor(const int i, const HReal radius);
 
     //Simulation Loop
     void prepareGrid();
@@ -99,7 +99,7 @@ public :
     void predictRho(int i);
     void initializePressure(int i);
     void computeNormal(int i);
-    bool isSurfaceParticle(int i, double treshold);
+    bool isSurfaceParticle(int i, HReal treshold);
     vector<Particle> getSurfaceParticle();
     void computeRho(int i);
     void computeAdvectionForces(int i);
@@ -115,16 +115,16 @@ public :
     {
         Particle& pi=particles[i];
         Particle& pj=particles[j];
-        Vec r = pi.x - pj.x;
-        Vec vij = pi.v - pj.v;
-        double dotVijRij = Vec::dotProduct(vij,r);
+        Vec3r r = pi.x - pj.x;
+        Vec3r vij = pi.v - pj.v;
+        HReal dotVijRij = Vec3r::dotProduct(vij,r);
         if(dotVijRij < 0)
         {
-            double kij = 2.0*restDensity/(pi.rho+pj.rho);
-            double epsilon=0.01;
-            Vec gradient(0.0);
+            HReal kij = 2.0*restDensity/(pi.rho+pj.rho);
+            HReal epsilon=0.01;
+            Vec3r gradient(0.0);
             p_kernel.monaghanGradient(r, gradient);
-            double Pij = -kij*(2.0*alpha*h*cs/(pi.rho+pj.rho)) * ( dotVijRij / (r.lengthSquared() + epsilon*h*h) );
+            HReal Pij = -kij*(2.0*alpha*h*cs/(pi.rho+pj.rho)) * ( dotVijRij / (r.lengthSquared() + epsilon*h*h) );
             pi.f_adv += -kij*mass*mass*Pij*gradient;
         }
     }
@@ -133,15 +133,15 @@ public :
     {
         Particle& pi=particles[i];
             Boundary& bj=boundaries[j];
-            Vec vij = pi.v;//-pj.v;
-            Vec xij= pi.x - bj.x;
-            double dotVijRij = Vec::dotProduct(vij,xij);
+            Vec3r vij = pi.v;//-pj.v;
+            Vec3r xij= pi.x - bj.x;
+            HReal dotVijRij = Vec3r::dotProduct(vij,xij);
             if(dotVijRij<0)
             {
-                Vec gradient(0.0);
-                double epsilon=0.01;
-                double nu = (sigma*h*cs)/(2.0*pi.rho);
-                double Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.lengthSquared() + epsilon*h*h) );
+                Vec3r gradient(0.0);
+                HReal epsilon=0.01;
+                HReal nu = (sigma*h*cs)/(2.0*pi.rho);
+                HReal Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.lengthSquared() + epsilon*h*h) );
                 p_kernel.monaghanGradient(xij, gradient);
                 pi.f_adv += -mass*bj.psi*Pij*gradient;
             }
@@ -155,12 +155,12 @@ public :
             Particle& pj=particles[j];
             if(pi.isSurface==true || pj.isSurface==true)
             {
-                Vec r = pi.x - pj.x;
-                double kij = 2.0*restDensity/(pi.rho+pj.rho);
-                double l = r.length();
-                Vec cohesionForce = -(fcohesion*mass*mass*a_kernel.cohesionValue(l)/l) * r;
-                Vec nij = pi.n-pj.n;
-                Vec curvatureForce = -fcohesion*mass*nij;
+                Vec3r r = pi.x - pj.x;
+                HReal kij = 2.0*restDensity/(pi.rho+pj.rho);
+                HReal l = r.length();
+                Vec3r cohesionForce = -(fcohesion*mass*mass*a_kernel.cohesionValue(l)/l) * r;
+                Vec3r nij = pi.n-pj.n;
+                Vec3r curvatureForce = -fcohesion*mass*nij;
                 pi.f_adv += kij*(cohesionForce+curvatureForce);
             }
         }
@@ -170,18 +170,18 @@ public :
     {
         Particle& pi=particles[i];
             Boundary& bj=boundaries[j];
-            Vec xij= pi.x - bj.x;
-            double l = xij.length();
+            Vec3r xij= pi.x - bj.x;
+            HReal l = xij.length();
             pi.f_adv += -(badhesion*mass*boundaries[j].psi*a_kernel.adhesionValue(l)/l)*xij;
     }
 
-    Vec computeDij(int i, int j)
+    Vec3r computeDij(int i, int j)
     {
         Particle& pi=particles[i];
         Particle& pj=particles[j];
-        Vec gradient(0.0);
+        Vec3r gradient(0.0);
         p_kernel.monaghanGradient(pi.x-pj.x, gradient);
-        Vec d=-(dt*dt*mass)/pow(pj.rho,2)*gradient;
+        Vec3r d=-(dt*dt*mass)/pow(pj.rho,2)*gradient;
         return d;
     }
 
@@ -190,7 +190,7 @@ public :
 
     void computeFluidPressureForce(int i, int j)
     {
-        Vec gradient(0.0);
+        Vec3r gradient(0.0);
         Particle& pi=particles[i];
         Particle& pj=particles[j];
         p_kernel.monaghanGradient(pi.x-pj.x, gradient);
@@ -202,7 +202,7 @@ public :
 
     void computeBoundaryPressureForce(int i, int j)
     {
-        Vec gradient(0.0);
+        Vec3r gradient(0.0);
         Particle& pi=particles[i];
         Boundary& bj=boundaries[j];
             p_kernel.monaghanGradient(pi.x-bj.x, gradient);
@@ -215,30 +215,30 @@ public :
     void applySources();
     void applySinks();
 
-    void addBoundaryParticle(const Vec& x, const Vec& v = Vec(0,0,0));
-    void addFluidParticle(const Vec& x, const Vec& v = Vec(0,0,0));
+    void addBoundaryParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0));
+    void addFluidParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0));
 
     //Initialize a dam break scenario
-    const Vec& getGravity();
-    void setGravity(const Vec& _gravity);
-    void setParameters(int _number, double _volume=1.0);
-    void createParticleVolume(Vec& pos, double width, double height, double depth, double spacing, int particleMax);
+    const Vec3r& getGravity();
+    void setGravity(const Vec3r& _gravity);
+    void setParameters(int _number, HReal _volume=1.0);
+    void createParticleVolume(Vec3r& pos, HReal width, HReal height, HReal depth, HReal spacing, int particleMax);
 
-    void translateParticles(const Vec& t);
-    void translateBoundaries(const Vec& t);
+    void translateParticles(const Vec3r& t);
+    void translateBoundaries(const Vec3r& t);
 
-    void addParticleBox(double width, double height, double depth, double spacing);
-    void addParticleBox(const Vec& offset, const Vec& dimension);
-    void addParticleSphere(const Vec& centre, const double radius);
+    void addParticleBox(HReal width, HReal height, HReal depth, HReal spacing);
+    void addParticleBox(const Vec3r& offset, const Vec3r& dimension);
+    void addParticleSphere(const Vec3r& centre, const HReal radius);
 
     void addParticleSource(const ParticleSource& s);
 
     //Boundary sampling
     void addBoundaryMesh(const char* filename);
-    void addBoundaryBox(const Vec& offset, const Vec& scale);
-    void addBoundarySphere(const Vec& offset, const double& radius);
-    void addBoundaryHemiSphere(const Vec& offset, const double& radius);
-    void addBoundaryDisk(const Vec& offset, const double& radius);
+    void addBoundaryBox(const Vec3r& offset, const Vec3r& scale);
+    void addBoundarySphere(const Vec3r& offset, const HReal& radius);
+    void addBoundaryHemiSphere(const Vec3r& offset, const HReal& radius);
+    void addBoundaryDisk(const Vec3r& offset, const HReal& radius);
 
     void debugFluid();
     void debugIteration(int l);
@@ -259,32 +259,32 @@ public :
     vector< Vec3r > getPosition(){ vector<Vec3r > pos; for(int i=0; i<particleNumber; ++i){pos.push_back(particles[i].x);} return pos;}
     vector< Vec3r > getVelocity(){ vector<Vec3r > vel; for(int i=0; i<particleNumber; ++i){vel.push_back(particles[i].v);} return vel;}
     vector< Vec3r > getNormal(){ vector<Vec3r > normal; for(int i=0; i<particleNumber; ++i){normal.push_back(particles[i].n);} return normal;}
-    vector< double > getDensity(){ vector<double> density; for(int i=0; i<particleNumber; ++i){density.push_back(particles[i].rho);} return density;}
-    vector< double > getMass(){ vector<double> o_mass; for(int i=0; i<particleNumber; ++i){o_mass.push_back(mass);} return o_mass;}
+    vector< HReal > getDensity(){ vector<HReal> density; for(int i=0; i<particleNumber; ++i){density.push_back(particles[i].rho);} return density;}
+    vector< HReal > getMass(){ vector<HReal> o_mass; for(int i=0; i<particleNumber; ++i){o_mass.push_back(mass);} return o_mass;}
 
     void write(const char* filename, vector< Vec3r > data);
-    void write(const char* filename, vector<double> data);
+    void write(const char* filename, vector<HReal> data);
     void exportState(const char* baseName);
-    double getTime(){return time;}
-    double & getSmoothingRadiusValue(){ return h; }
-    const double & getSmoothingRadius() const { return h; }
-    double & getTimeStepValue(){ return dt; }
-    double & getMassValue(){ return mass; }
-    double & getMeanDensityValue(){ return mean_density;}
-    double & getDensityFluctuationValue(){ return density_fluctuation;}
-    double & getRealVolumeValue(){ return real_volume; }
+    HReal getTime(){return time;}
+    HReal & getSmoothingRadiusValue(){ return h; }
+    const HReal & getSmoothingRadius() const { return h; }
+    HReal & getTimeStepValue(){ return dt; }
+    HReal & getMassValue(){ return mass; }
+    HReal & getMeanDensityValue(){ return mean_density;}
+    HReal & getDensityFluctuationValue(){ return density_fluctuation;}
+    HReal & getRealVolumeValue(){ return real_volume; }
     int & getParticleNumber(){ return particleNumber; }
 
-    SReal & getViscosity(){return alpha;}
-    const SReal & getViscosity() const {return alpha;}
-    SReal & getFluidCohesion(){return fcohesion;}
-    const SReal & getFluidCohesion() const {return fcohesion;}
-    SReal & getBoundaryAdhesion(){return badhesion;}
-    const SReal & getBoundaryAdhesion() const {return badhesion;}
-    const SReal & getBoundaryFriction() const {return sigma;}
-    SReal & getBoundaryFriction() {return sigma;}
-    SReal & getTimeStep() {return dt;}
-    const SReal& getTimeStep() const {return dt;}
+    HReal & getViscosity(){return alpha;}
+    const HReal & getViscosity() const {return alpha;}
+    HReal & getFluidCohesion(){return fcohesion;}
+    const HReal & getFluidCohesion() const {return fcohesion;}
+    HReal & getBoundaryAdhesion(){return badhesion;}
+    const HReal & getBoundaryAdhesion() const {return badhesion;}
+    const HReal & getBoundaryFriction() const {return sigma;}
+    HReal & getBoundaryFriction() {return sigma;}
+    HReal & getTimeStep() {return dt;}
+    const HReal& getTimeStep() const {return dt;}
 
     void applyShepardFilter();
 };

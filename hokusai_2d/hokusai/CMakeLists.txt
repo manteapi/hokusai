@@ -46,6 +46,9 @@ set(HOKUSAI_HEADER
     ./include/hokusai/particleSink.hpp
 )
 
+set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to aljabr headers")
+include_directories(${ALJABR_INCLUDE_DIRS})
+
 set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to magnet headers")
 include_directories(${MAGNET_INCLUDE_DIRS})
 

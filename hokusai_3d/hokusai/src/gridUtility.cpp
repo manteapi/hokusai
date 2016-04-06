@@ -30,8 +30,8 @@ namespace hokusai
 
 GridUtility::GridUtility()
 {
-    offset = Vec3f(0,0,0);
-    scale = Vec3f(0,0,0);
+    offset = Vec3r(0,0,0);
+    scale = Vec3r(0,0,0);
     dimension = Vec3i(0,0,0);
     h = 0.0;
 }
@@ -40,9 +40,9 @@ int GridUtility::width() const { return dimension[0]; }
 int GridUtility::height() const { return dimension[1]; }
 int GridUtility::depth() const { return dimension[2]; }
 int GridUtility::size() const { return dimension[0]*dimension[1]*dimension[2]; }
-float GridUtility::spacing() const { return h; }
+HReal GridUtility::spacing() const { return h; }
 
-GridUtility::GridUtility(const Vec3f& _offset, const Vec3f& _scale, const float& _spacing)
+GridUtility::GridUtility(const Vec3r& _offset, const Vec3r& _scale, const HReal& _spacing)
 {
     offset = _offset;
     scale = _scale;
@@ -53,7 +53,7 @@ GridUtility::GridUtility(const Vec3f& _offset, const Vec3f& _scale, const float&
     }
 }
 
-GridUtility::GridUtility(const Vec3f& _offset, const Vec3i& _dimension, const float& _spacing)
+GridUtility::GridUtility(const Vec3r& _offset, const Vec3i& _dimension, const HReal& _spacing)
 {
     offset = _offset;
     dimension = _dimension;
@@ -64,7 +64,7 @@ GridUtility::GridUtility(const Vec3f& _offset, const Vec3i& _dimension, const fl
     }
 }
 
-void GridUtility::update(const Vec3f& _offset, const Vec3i& _dimension, const float& _spacing)
+void GridUtility::update(const Vec3r& _offset, const Vec3i& _dimension, const HReal& _spacing)
 {
     h = _spacing;
     for(int i=0; i<3; ++i)
@@ -79,7 +79,7 @@ void GridUtility::update(const Vec3f& _offset, const Vec3i& _dimension, const fl
     }
 }
 
-void GridUtility::update(const Vec3f& _offset, const Vec3f& _scale, const float& _spacing)
+void GridUtility::update(const Vec3r& _offset, const Vec3r& _scale, const HReal& _spacing)
 {
     h = _spacing;
     for(int i=0; i<3; ++i)
@@ -94,7 +94,7 @@ void GridUtility::update(const Vec3f& _offset, const Vec3f& _scale, const float&
     }
 }
 
-void GridUtility::init(const Vec3f& _offset, const Vec3f &_scale, const float& _spacing)
+void GridUtility::init(const Vec3r& _offset, const Vec3r &_scale, const HReal& _spacing)
 {
     offset = _offset;
     scale = _scale;
@@ -105,7 +105,7 @@ void GridUtility::init(const Vec3f& _offset, const Vec3f &_scale, const float& _
     }
 }
 
-void GridUtility::init(const Vec3f& _offset, const Vec3i& _dimension, const float& _spacing)
+void GridUtility::init(const Vec3r& _offset, const Vec3i& _dimension, const HReal& _spacing)
 {
     offset = _offset;
     dimension = _dimension;
@@ -128,7 +128,7 @@ bool GridUtility::isInside(int id) const
 }
 
 
-bool GridUtility::isInside(const Vec3f& v) const
+bool GridUtility::isInside(const Vec3r& v) const
 {
     Vec3i gridCoord = worldToGrid(v);
     return isInside(gridCoord);
@@ -150,28 +150,28 @@ bool GridUtility::isInside(const Vec3i& v) const
         return false;
 }
 
-Vec3f GridUtility::gridToWorld(const int i) const
+Vec3r GridUtility::gridToWorld(const int i) const
 {
     Vec3i gCoord = gridCoord(i);
-    Vec3f wCoord = gridToWorld(gCoord);
+    Vec3r wCoord = gridToWorld(gCoord);
     return wCoord;
 }
 
-Vec3f GridUtility::gridToWorld(const Vec3i& v) const
+Vec3r GridUtility::gridToWorld(const Vec3i& v) const
 {
-    Vec3f result;
+    Vec3r result;
     for(int i=0; i<3; ++i)
         result[i] = offset[i] + h*v[i];
     return result;
 }
-Vec3i GridUtility::worldToGrid(const Vec3f& v) const
+Vec3i GridUtility::worldToGrid(const Vec3r& v) const
 {
     Vec3i result;
     for(int i=0; i<3; ++i)
         result[i] = std::floor((v[i]-offset[i])/h);
     return result;
 }
-int GridUtility::cellId(const Vec3f& v) const
+int GridUtility::cellId(const Vec3r& v) const
 {
     Vec3i gridCoord = worldToGrid(v);
     return cellId(gridCoord);
@@ -187,25 +187,25 @@ int GridUtility::cellId(int i, int j, int k) const
     return i + j*dimension[0] + k*dimension[0]*dimension[1];
 }
 
-void GridUtility::get27Neighbors(std::vector<int>& neighbors, const int i, const float radius)
+void GridUtility::get27Neighbors(std::vector<int>& neighbors, const int i, const HReal radius)
 {
     Vec3i gCoord= gridCoord(i);
     get27Neighbors(neighbors, gCoord, std::floor(radius/h) );
 }
 
-void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const int i, const float radius)
+void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const int i, const HReal radius)
 {
     Vec3i gCoord = gridCoord(i);
     get27Neighbors(neighbors, gCoord, std::floor(radius/h) );
 }
 
-void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3f& p, const float radius)
+void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3r& p, const HReal radius)
 {
     Vec3i gridCoord = worldToGrid(p);
     get27Neighbors(neighbors, gridCoord, std::floor(radius/h) );
 }
 
-void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p, const float radius)
+void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3r& p, const HReal radius)
 {
     Vec3i gridCoord = worldToGrid(p);
     get27Neighbors(neighbors, gridCoord, std::floor(radius/h) );
@@ -248,13 +248,13 @@ void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3i& p, co
 }
 
 
-void GridUtility::get7Neighbors(std::vector<int>& neighbors, const Vec3f& p) const
+void GridUtility::get7Neighbors(std::vector<int>& neighbors, const Vec3r& p) const
 {
     Vec3i gridCoord = worldToGrid(p);
     get7Neighbors(neighbors, gridCoord);
 }
 
-void GridUtility::get7Neighbors(std::vector<Vec3i>& neighbors,const Vec3f& p) const
+void GridUtility::get7Neighbors(std::vector<Vec3i>& neighbors,const Vec3r& p) const
 {
     Vec3i gridCoord = worldToGrid(p);
     get7Neighbors(neighbors, gridCoord);

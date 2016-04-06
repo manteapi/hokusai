@@ -35,6 +35,7 @@ set(HOKUSAI_SOURCE
 )
 
 set(HOKUSAI_HEADER
+    ./include/hokusai/common.hpp
     ./include/hokusai/particle.hpp
     ./include/hokusai/system.hpp
     ./include/hokusai/utils.hpp

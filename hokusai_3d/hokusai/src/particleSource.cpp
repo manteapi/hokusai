@@ -30,7 +30,7 @@ namespace hokusai
 
 typedef Eigen::Vector3d EigenVec;
 
-ParticleSource::ParticleSource(const SReal& startTime_, const SReal& endTime_, const SReal& delay_, const SReal &spacing_, const Vec3r& position_, const Vec3r& orientation_, const Vec3r& scale_, const Vec3r& velocity_)
+ParticleSource::ParticleSource(const HReal& startTime_, const HReal& endTime_, const HReal& delay_, const HReal &spacing_, const Vec3r& position_, const Vec3r& orientation_, const Vec3r& scale_, const Vec3r& velocity_)
 {
     position = position_;
     orientation = orientation_;
@@ -89,12 +89,12 @@ void ParticleSource::init()
     transformation = Eigen::Translation3d(position[0], position[1], position[2]) * Eigen::AngleAxisd(orientation[0], EigenVec::UnitX()) * Eigen::AngleAxisd(orientation[1],  EigenVec::UnitY()) * Eigen::AngleAxisd(orientation[2], EigenVec::UnitZ());
 
     //Create a stencil of particles for the unit disc in a reference frame and orientate it using the transformation
-    EigenVec radiusVec = Eigen::Scaling(scale[0], scale[1], scale[2])*EigenVec(1.0,1.0,1.0);
-    SReal maxRadius = radiusVec.maxCoeff();
+    EigenVec radiusVec  = Eigen::Scaling(scale[0], scale[1], scale[2])*EigenVec(1.0,1.0,1.0);
+    HReal maxRadius = radiusVec.maxCoeff();
 
-    for(SReal x=-maxRadius; x<=maxRadius; x+=spacing)
+    for(HReal x=-maxRadius; x<=maxRadius; x+=spacing)
     {
-        for(SReal y=-maxRadius; y<=maxRadius; y+=spacing)
+        for(HReal y=-maxRadius; y<=maxRadius; y+=spacing)
         {
             if( (x>=-radiusVec[0] && x<=radiusVec[0]) &&
                     (y>=-radiusVec[1] && x<=radiusVec[1]) )
@@ -114,7 +114,7 @@ void ParticleSource::init()
 ParticleSource::~ParticleSource()
 {}
 
-std::vector<Particle> ParticleSource::apply(const SReal time)
+std::vector<Particle> ParticleSource::apply(const HReal time)
 {
     int isOk = (int)((time-lastTime)/delay);
     if(isOk>0 && time<=endTime && time>=startTime)
