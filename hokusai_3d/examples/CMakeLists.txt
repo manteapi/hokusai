@@ -11,14 +11,11 @@ include_directories(../hokusai/include)
 find_package(Boost COMPONENTS timer system REQUIRED)
 include_directories( ${BOOST_INCLUDE_DIRS} )
 
-set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
+set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to alajabr headers")
 include_directories(${ALJABR_INCLUDE_DIRS})
 
 set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
 include_directories(${MAGNET_INCLUDE_DIRS})
-
-set(EIGEN_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
-include_directories(${EIGEN_INCLUDE_DIRS})
 
 if(HOKUSAI_OPENMP)
     find_package(OpenMP)

@@ -75,13 +75,13 @@ bool read_obj(FILE *f, vector< Vec3r >& vertices, vector< Vec3r >& normals, vect
         GET_LINE();
         if (LINE_IS("v ") || LINE_IS("v\t")) {
             HReal x, y, z;
-            if (sscanf(buf+1, "%f %f %f", &x, &y, &z) != 3) {
+            if (sscanf(buf+1, "%lf %lf %lf", &x, &y, &z) != 3) {
                 return false;
             }
             vertices.push_back(Vec3r(x,y,z));
         } else if (LINE_IS("vn ") || LINE_IS("vn\t")) {
             HReal x, y, z;
-            if (sscanf(buf+2, "%f %f %f", &x, &y, &z) != 3) {
+            if (sscanf(buf+2, "%lf %lf %lf", &x, &y, &z) != 3) {
                 return false;
             }
             normals.push_back(Vec3r(x,y,z));

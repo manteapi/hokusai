@@ -2,7 +2,6 @@
 #define HOKUSAI_PARTICLE_SOURCE_HPP
 
 #include <aljabr/AljabrCore>
-#include <Eigen/Geometry>
 #include "particle.hpp"
 
 namespace hokusai
@@ -17,8 +16,6 @@ public :
     ~ParticleSource();
 
     void init();
-
-    typedef Eigen::Affine3d Affine;
 
     Vec3r position;
     Vec3r orientation;

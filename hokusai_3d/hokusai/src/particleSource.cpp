@@ -28,8 +28,6 @@
 namespace hokusai
 {
 
-typedef Eigen::Vector3d EigenVec;
-
 ParticleSource::ParticleSource(const HReal& startTime_, const HReal& endTime_, const HReal& delay_, const HReal &spacing_, const Vec3r& position_, const Vec3r& orientation_, const Vec3r& scale_, const Vec3r& velocity_)
 {
     position = position_;
@@ -85,25 +83,28 @@ ParticleSource::ParticleSource()
 void ParticleSource::init()
 {
     //Create a transformation based on the given position, radius and orientation.
-    Affine transformation;
-    transformation = Eigen::Translation3d(position[0], position[1], position[2]) * Eigen::AngleAxisd(orientation[0], EigenVec::UnitX()) * Eigen::AngleAxisd(orientation[1],  EigenVec::UnitY()) * Eigen::AngleAxisd(orientation[2], EigenVec::UnitZ());
+    Mat4r m, t, rx, ry, rz;
+    t.translation(position);
+    rx.rotation(Vec3r(1.0,0.0,0.0), orientation[0]);
+    ry.rotation(Vec3r(0.0,1.0,0.0), orientation[1]);
+    rz.rotation(Vec3r(0.0,0.0,1.0), orientation[2]);
+    m = t * rx * ry * rz;
 
     //Create a stencil of particles for the unit disc in a reference frame and orientate it using the transformation
-    EigenVec radiusVec  = Eigen::Scaling(scale[0], scale[1], scale[2])*EigenVec(1.0,1.0,1.0);
-    HReal maxRadius = radiusVec.maxCoeff();
+    HReal maxRadius = Vec3r::max(scale);
 
     for(HReal x=-maxRadius; x<=maxRadius; x+=spacing)
     {
         for(HReal y=-maxRadius; y<=maxRadius; y+=spacing)
         {
-            if( (x>=-radiusVec[0] && x<=radiusVec[0]) &&
-                    (y>=-radiusVec[1] && x<=radiusVec[1]) )
+            if( (x>=-scale[0] && x<=scale[0]) &&
+                    (y>=-scale[1] && x<=scale[1]) )
             {
-                EigenVec tmp_x = transformation*EigenVec(x, y, 0.0);
-                EigenVec tmp_v = Eigen::AngleAxisd(orientation[0], EigenVec::UnitX()) * Eigen::AngleAxisd(orientation[1],  EigenVec::UnitY()) * Eigen::AngleAxisd(orientation[2], EigenVec::UnitZ())*EigenVec(velocity[0], velocity[1], velocity[2]);
+                Vec3r tmp_x = m*Vec3r(x, y, 0.0);
+                Vec3r tmp_v = rx * ry * rz * velocity;
                 Particle tmp_p;
-                tmp_p.x = Vec3r(tmp_x[0], tmp_x[1], tmp_x[2]);
-                tmp_p.v = Vec3r(tmp_v[0], tmp_v[1], tmp_v[2]);
+                tmp_p.x = tmp_x;
+                tmp_p.v = tmp_v;
                 p_stencil.push_back(tmp_p);
             }
         }

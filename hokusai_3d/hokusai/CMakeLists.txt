@@ -57,9 +57,6 @@ include_directories(${ALJABR_INCLUDE_DIRS})
 set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
 include_directories(${MAGNET_INCLUDE_DIRS})
 
-set(EIGEN_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
-include_directories(${EIGEN_INCLUDE_DIRS})
-
 include_directories( include )
 
 find_package(Doxygen)
