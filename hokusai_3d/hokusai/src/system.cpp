@@ -192,7 +192,7 @@ vector<Particle> System::getSurfaceParticle()
 void System::computeAdvectionForces(int i)
 {
     Particle& pi=particles[i];
-    pi.f_adv.setAllValue(0.0);
+    pi.f_adv.fill(0.0);
     for(int& j : pi.fluidNeighbor)
     {
         computeViscosityForces(i, j);
@@ -246,7 +246,7 @@ void System::computeSumDijPj(int i)
 {
     Particle& pi=particles[i];
     vector<int>& fneighbors=pi.fluidNeighbor;
-    pi.sum_dij.setAllValue(0.0);
+    pi.sum_dij.fill(0.0);
     for(int& j : fneighbors)
     {
         if(i!=j)
@@ -301,7 +301,7 @@ void System::computePressureForce(int i)
 {
     Particle& pi=particles[i];
     Vec3r gradient(0.0);
-    pi.f_p.setAllValue(0.0);
+    pi.f_p.fill(0.0);
     vector<int>& fneighbors=pi.fluidNeighbor;
     vector<int>& bneighbors=pi.boundaryNeighbor;
 
@@ -336,7 +336,7 @@ void System::computeError()
 void System::computeDii_Boundary(int i)
 {
     Particle& pi=particles[i];
-    pi.dii_boundary.setAllValue(0.0);
+    pi.dii_boundary.fill(0.0);
     for(int& j : pi.boundaryNeighbor)
     {
         Boundary& bj=boundaries[j];
@@ -349,8 +349,8 @@ void System::computeDii_Boundary(int i)
 void System::computeDii_Fluid(int i)
 {
     Particle& pi=particles[i];
-    pi.dii_fluid.setAllValue(0.0);
-    pi.dii_boundary.setAllValue(0.0);
+    pi.dii_fluid.fill(0.0);
+    pi.dii_boundary.fill(0.0);
     for(int& j : pi.fluidNeighbor)
     {
         if(i!=j)
@@ -366,8 +366,8 @@ void System::computeDii_Fluid(int i)
 void System::computeDii(int i)
 {
     Particle& pi=particles[i];
-    pi.dii_fluid.setAllValue(0.0);
-    pi.dii_boundary.setAllValue(0.0);
+    pi.dii_fluid.fill(0.0);
+    pi.dii_boundary.fill(0.0);
     for(int& j : pi.fluidNeighbor)
     {
         if(i!=j)

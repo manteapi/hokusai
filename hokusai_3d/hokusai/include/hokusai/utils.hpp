@@ -155,7 +155,7 @@ inline void MonaghanKernel::monaghanGradient( const Vec3r& r, Vec3r& gradient )
 {
     HReal dist = r.length();
     HReal q = dist/h;
-    gradient.setAllValue(0.0);
+    gradient.fill(0.0);
     if( q >= 0 && q < 1 )
     {
         HReal scalar = -3.0f*(2-q)*(2-q);

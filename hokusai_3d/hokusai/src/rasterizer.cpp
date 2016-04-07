@@ -26,7 +26,7 @@ namespace hokusai
 {
 std::vector<Vec3i> rasterizeLine(const Vec3i& p1, const Vec3i& p2)
 {
-    int distance = Vec3i::max(Vec3i::abs(p1-p2)+1);
+    int distance = Vec3i::max(Vec3i::abs(p1-p2)+Vec3i(1));
     std::vector<Vec3i> result(distance);
 
     Vec3i dP = p2-p1;
