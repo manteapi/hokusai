@@ -285,8 +285,6 @@ public :
     HReal & getBoundaryFriction() {return sigma;}
     HReal & getTimeStep() {return dt;}
     const HReal& getTimeStep() const {return dt;}
-
-    void applyShepardFilter();
 };
 
 bool pairCompare( const std::pair<int,int>& e1, const std::pair<int,int>& e2 );

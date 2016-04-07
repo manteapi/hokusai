@@ -24,6 +24,7 @@
 
 namespace hokusai
 {
+
 AkinciKernel::AkinciKernel()
 {
     h = 0;
@@ -49,6 +50,34 @@ AkinciKernel::AkinciKernel( const AkinciKernel& k)
 
 AkinciKernel::~AkinciKernel(){}
 
+HReal AkinciKernel::cohesionValue( const HReal r )
+{
+    HReal value=0;
+    if( (2.0*r>h) && (r<=h) )
+    {
+        //value=m_v1*pow(h-r,3.0)*pow(r,3.0);
+        value=m_v1*(h-r)*(h-r)*(h-r)*r*r*r;
+    }
+    else if( (r>0.0) && (2.0*r<=h) )
+    {
+        //value=m_v1*(2.0*pow(h-r,3.0)*pow(r,3.0)-m_v2);
+        value=m_v1*(2.0*(h-r)*(h-r)*(h-r)*r*r*r-m_v2);
+    }
+    else
+        value=0.0;
+    return value;
+}
+
+HReal AkinciKernel::adhesionValue( const HReal r)
+{
+    HReal value=0;
+    if( (2.0*r)>h && (r<=h) )
+        value=adhesion*pow(-4.0*r*r/h + 6.0*r -2.0*h,1.0/4.0);
+    else
+        value=0.0;
+    return value;
+}
+
 MonaghanKernel::MonaghanKernel()
 {
     h = 0;
@@ -72,6 +101,42 @@ MonaghanKernel::MonaghanKernel( const MonaghanKernel& k)
 
 MonaghanKernel::~MonaghanKernel(){}
 
+HReal MonaghanKernel::monaghanValue( const Vec3r & r )
+{
+    HReal value = 0.0;
+    HReal q = r.length()/h;
+    if( q >= 0 && q < 1 )
+    {
+        value = m_v*( (2-q)*(2-q)*(2-q) - 4.0f*(1-q)*(1-q)*(1-q));
+    }
+    else if ( q >=1 && q < 2 )
+    {
+        value = m_v*( (2-q)*(2-q)*(2-q) );
+    }
+    else
+    {
+        value = 0.0f;
+    }
+    return value;
+}
+
+void MonaghanKernel::monaghanGradient( const Vec3r& r, Vec3r& gradient )
+{
+    HReal dist = r.length();
+    HReal q = dist/h;
+    gradient.fill(0.0);
+    if( q >= 0 && q < 1 )
+    {
+        HReal scalar = -3.0f*(2-q)*(2-q);
+        scalar += 12.0f*(1-q)*(1-q);
+        gradient = (m_g*scalar/(dist*h))*r;
+    }
+    else if ( q >=1 && q < 2 )
+    {
+        HReal scalar = -3.0f*(2-q)*(2-q);
+        gradient = (m_g*scalar/(dist*h))*r;
+    }
+}
 
 BoundaryKernel::BoundaryKernel()
 {
@@ -87,8 +152,26 @@ BoundaryKernel::BoundaryKernel( HReal _h, HReal _cs )
     cs = _cs;
 }
 
+HReal BoundaryKernel::gamma( HReal distance )
+{
+    HReal q = distance / h;
+    HReal coeff = 0.0;
+    if( q > 0 && q <= 0.666666667f ) //2.0/3.0
+    {
+        coeff = 0.666666667f;
+    }
+    else if( q > 0.666666667f && q < 1 )
+    {
+        coeff = q*(2 - 1.5*q);
+    }
+    else if( q >= 1 && q < 2 )
+    {
+        coeff = 0.5*(2-q)*(2-q);
+    }
+    coeff *= (0.02*cs*cs/distance);
+    return coeff;
+}
 
-/*
 int mortonNumber( array<int,3>& index )
 {
     size_t x = index[0];
@@ -98,144 +181,6 @@ int mortonNumber( array<int,3>& index )
     size_t morton_num = m.getMortonNum();
     return morton_num;
 }
-*/
-
-void insertionSort( vector< pair<int,int> >& data )
-{
-    size_t length = data.size();
-    int j = 0;
-    pair<int, int> tmp;
-    for( size_t i = 0; i < length; ++i )
-    {
-        j = i;
-        while( (j > 0) && (data[j-1].second > data[j].second) )
-        {
-            tmp = data[j];
-            data[j] = data[j-1];
-            data[j-1] = tmp;
-            j--;
-        }
-    }
-}
-
-Box::Box(){}
-
-Box::Box(Vec3r& _min, Vec3r& _max)
-{
-    min = _min;
-    max = _max;
-}
-
-Box::~Box(){}
-
-/*void Box::draw()
-{
-    glLineWidth(3.0);
-    glColor4f(0.0,0.0,0.0,1.0);
-    glBegin(GL_LINES);
-    
-    //Square 1
-    glVertex3f( min[0], min[1], min[2] );
-    glVertex3f( max[0], min[1], min[2] );
-    
-    glVertex3f( max[0], min[1], min[2] );
-    glVertex3f( max[0], max[1], min[2] );
-
-    glVertex3f( max[0], max[1], min[2] );
-    glVertex3f( min[0], max[1], min[2] );
-
-    glVertex3f( min[0], max[1], min[2] );
-    glVertex3f( min[0], min[1], min[2] );
-
-    //Square 2
-    glVertex3f( min[0], min[1], max[2] );
-    glVertex3f( max[0], min[1], max[2] );
-    
-    glVertex3f( max[0], min[1], max[2] );
-    glVertex3f( max[0], max[1], max[2] );
-
-    glVertex3f( max[0], max[1], max[2] );
-    glVertex3f( min[0], max[1], max[2] );
-
-    glVertex3f( min[0], max[1], max[2] );
-    glVertex3f( min[0], min[1], max[2] );
-
-    //Square 3
-    glVertex3f( min[0], min[1], min[2] );
-    glVertex3f( min[0], min[1], max[2] );
-    
-    glVertex3f( max[0], min[1], min[2] );
-    glVertex3f( max[0], min[1], max[2] );
-
-    glVertex3f( min[0], max[1], min[2] );
-    glVertex3f( min[0], max[1], max[2] );
-    
-    glVertex3f( max[0], max[1], min[2] );
-    glVertex3f( max[0], max[1], max[2] );
-
-    glEnd();
-}
-
-SolidSphere::SolidSphere(HReal radius, unsigned int rings, unsigned int sectors)
-{
-    HReal const R = 1./(HReal)(rings-1);
-    HReal const S = 1./(HReal)(sectors-1);
-
-    vertices.resize(rings * sectors * 3);
-    normals.resize(rings * sectors * 3);
-    texcoords.resize(rings * sectors * 2);
-    std::vector<GLHReal>::iterator v = vertices.begin();
-    std::vector<GLHReal>::iterator n = normals.begin();
-    std::vector<GLHReal>::iterator t = texcoords.begin();
-    for(unsigned int r = 0; r < rings; r++) for(unsigned int s = 0; s < sectors; s++) {
-        HReal const y = sin( -M_PI_2 + M_PI * r * R );
-        HReal const x = cos(2*M_PI * s * S) * sin( M_PI * r * R );
-        HReal const z = sin(2*M_PI * s * S) * sin( M_PI * r * R );
-
-        *t++ = s*S;
-        *t++ = r*R;
-
-        *v++ = x * radius;
-        *v++ = y * radius;
-        *v++ = z * radius;
-
-        *n++ = x;
-        *n++ = y;
-        *n++ = z;
-    }
-
-    indices.resize(rings * sectors * 4);
-    std::vector<GLuint>::iterator i = indices.begin();
-    for(unsigned int r = 0; r < rings-1; r++) for(unsigned int s = 0; s < sectors-1; s++) {
-        *i++ = r * sectors + s;
-        *i++ = r * sectors + (s+1);
-        *i++ = (r+1) * sectors + (s+1);
-        *i++ = (r+1) * sectors + s;
-    }
-}
-
-SolidSphere::~SolidSphere(){}
-
-void SolidSphere::draw(GLHReal x, GLHReal y, GLHReal z)
-{
-    glMatrixMode(GL_MODELVIEW);
-
-    glPushMatrix();
-    
-    glTranslatef(x,y,z);
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_NORMAL_ARRAY);
-    //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    glVertexPointer(3, GL_FLOAT, 0, &vertices[0]);
-    glNormalPointer(GL_FLOAT, 0, &normals[0]);
-    //glTexCoordPointer(2, GL_FLOAT, 0, &texcoords[0]);
-    glDrawElements(GL_QUADS, indices.size(), GL_UNSIGNED_INT, &indices[0]);
-    
-    glPopMatrix();
-}
-*/
 
 void write(const char * filename, vector<HReal> data)
 {
@@ -288,8 +233,6 @@ static void transform( HReal p[3], HReal R[3][3] ) {
         }
     }
 }
-
-
 
 void write_frame(vector<Particle>& particles, int step, HReal offset)
 {
@@ -359,4 +302,5 @@ void write_frame(vector<Particle>& particles, int step, HReal offset)
     sprintf( name, "frame_%d.bmp", step );
     write_bmp( name, buffer, width, height, true );
 }
-}
+
+}//namespace hokusai

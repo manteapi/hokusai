@@ -300,7 +300,6 @@ void System::computePressure(int i)
 void System::computePressureForce(int i)
 {
     Particle& pi=particles[i];
-    Vec3r gradient(0.0);
     pi.f_p.fill(0.0);
     vector<int>& fneighbors=pi.fluidNeighbor;
     vector<int>& bneighbors=pi.boundaryNeighbor;
