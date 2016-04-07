@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd hokusai_3D/test
+cd hokusai_3d/test
 mkdir build
 cd build
 cmake ..
