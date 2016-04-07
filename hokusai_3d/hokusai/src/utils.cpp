@@ -21,6 +21,7 @@
 */
 
 #include "../include/hokusai/utils.hpp"
+#include <bitset>
 
 namespace hokusai
 {
@@ -174,12 +175,14 @@ HReal BoundaryKernel::gamma( HReal distance )
 
 int mortonNumber( array<int,3>& index )
 {
-    size_t x = index[0];
-    size_t y = index[1];
-    size_t z = index[0];
-    magnet::math::MortonNumber<3> m(x,y,z);
-    size_t morton_num = m.getMortonNum();
-    return morton_num;
+    std::bitset<64> bitsMorton;
+    std::array< std::bitset<64>, 3> bitsIndex;
+    for(size_t i=0; i<bitsIndex.size(); ++i) bitsIndex[i] = std::bitset<64>(index[i]);
+    for(size_t i=0; i<bitsMorton.size()/3; ++i)
+        for(size_t j=0; j<bitsIndex.size(); ++j)
+            bitsMorton[3*i+j] = bitsIndex[j][i];
+    int result = bitsMorton.to_ullong();
+    return result;
 }
 
 void write(const char * filename, vector<HReal> data)

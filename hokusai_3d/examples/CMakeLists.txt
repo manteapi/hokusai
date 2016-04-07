@@ -14,9 +14,6 @@ include_directories( ${BOOST_INCLUDE_DIRS} )
 set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to alajabr headers")
 include_directories(${ALJABR_INCLUDE_DIRS})
 
-set(MAGNET_INCLUDE_DIRS "" CACHE PATH "path to mosaic headers")
-include_directories(${MAGNET_INCLUDE_DIRS})
-
 if(HOKUSAI_OPENMP)
     find_package(OpenMP)
     if(OPENMP_FOUND)

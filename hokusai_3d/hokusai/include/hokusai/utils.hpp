@@ -24,7 +24,6 @@
 #define HOKUSAI_UTILS_HPP
 
 #include <vector>
-#include <magnet/math/morton_number.hpp>
 #include "write_bmp.hpp"
 #include "particle.hpp"
 #include "common.hpp"
