@@ -52,7 +52,7 @@ int main()
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            write_frame(sph.particles, count, 10.0);
+            write_frame(sph.m_particles, count, 10.0);
             sph.exportState("./");
             ++count;
         }

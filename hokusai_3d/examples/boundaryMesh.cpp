@@ -18,10 +18,10 @@ int main()
     int resolution = 2000; ///particle number per m3
     System sph(resolution);
 
-    std::string filename = "./../mesh/sphere.obj";
+    std::string filename = "./../../mesh/sphere.obj";
     sph.addBoundaryMesh(filename.c_str());
 
-    sph.gridInfo.info();
+    sph.m_gridInfo.info();
 
     Vec3r offsetSphere(1,1,0);
     double radius = 0.5;
@@ -42,7 +42,7 @@ int main()
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
             sph.exportState("./output/");
-            write_frame(sph.particles, count);
+            write_frame(sph.m_particles, count);
             ++count;
         }
 
