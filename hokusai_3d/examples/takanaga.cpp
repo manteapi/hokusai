@@ -1,3 +1,4 @@
+#include <hokusai/solver/solver.hpp>
 #include <hokusai/system.hpp>
 #include <hokusai/utils.hpp>
 
@@ -40,7 +41,7 @@ int main()
     while(sph.getTime()<=time)
     {
         //Simulate
-        sph.simulate();
+        sph.computeSimulationStep();
 
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )

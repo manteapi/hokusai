@@ -43,6 +43,7 @@ namespace hokusai
 
 System::System()
 {
+    m_solver = nullptr;
     m_countExport = 0;
     m_countTime = 0;
     m_particleNumber = 0;
@@ -115,7 +116,7 @@ System::System(int resolution)
 
 System::~System(){}
 
-void System::computeRho(int i)
+void System::computeDensity(int i)
 {
     Particle& pi=m_particles[i];
     vector<int>& fneighbors=pi.fluidNeighbor;
@@ -171,7 +172,7 @@ vector<Particle> System::getSurfaceParticle()
 #pragma omp parallel for
 #endif
     for(int i=0; i<m_particleNumber; ++i)
-        computeRho(i);
+        computeDensity(i);
 
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
@@ -212,7 +213,7 @@ void System::predictVelocity(int i)
     pi.v_adv = pi.v + (m_dt/m_mass)*pi.f_adv;
 }
 
-void System::predictRho(int i)
+void System::predictDensity(int i)
 {
     Particle& pi=m_particles[i];
     vector<int>& fneighbors=pi.fluidNeighbor;
@@ -258,6 +259,80 @@ void System::computeSumDijPj(int i)
         }
     }
     pi.sum_dij *= pow(m_dt,2);
+}
+
+void System::computeViscosityForces(int i, int j)
+{
+    Particle& pi=m_particles[i];
+    Particle& pj=m_particles[j];
+    Vec3r r = pi.x - pj.x;
+    Vec3r vij = pi.v - pj.v;
+    HReal dotVijRij = Vec3r::dotProduct(vij,r);
+    if(dotVijRij < 0)
+    {
+        HReal kij = 2.0*m_restDensity/(pi.rho+pj.rho);
+        HReal epsilon=0.01;
+        Vec3r gradient(0.0);
+        m_pKernel.monaghanGradient(r, gradient);
+        HReal Pij = -kij*(2.0*m_alpha*m_h*m_cs/(pi.rho+pj.rho)) * ( dotVijRij / (r.lengthSquared() + epsilon*m_h*m_h) );
+        pi.f_adv += -kij*m_mass*m_mass*Pij*gradient;
+    }
+}
+
+void System::computeBoundaryFrictionForces(int i, int j)
+{
+    Particle& pi=m_particles[i];
+        Boundary& bj=m_boundaries[j];
+        Vec3r vij = pi.v;//-pj.v;
+        Vec3r xij= pi.x - bj.x;
+        HReal dotVijRij = Vec3r::dotProduct(vij,xij);
+        if(dotVijRij<0)
+        {
+            Vec3r gradient(0.0);
+            HReal epsilon=0.01;
+            HReal nu = (m_sigma*m_h*m_cs)/(2.0*pi.rho);
+            HReal Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.lengthSquared() + epsilon*m_h*m_h) );
+            m_pKernel.monaghanGradient(xij, gradient);
+            pi.f_adv += -m_mass*bj.psi*Pij*gradient;
+        }
+}
+
+void System::computeSurfaceTensionForces(int i, int j)
+{
+    if(i!=j)
+    {
+        Particle& pi=m_particles[i];
+        Particle& pj=m_particles[j];
+        if(pi.isSurface==true || pj.isSurface==true)
+        {
+            Vec3r r = pi.x - pj.x;
+            HReal kij = 2.0*m_restDensity/(pi.rho+pj.rho);
+            HReal l = r.length();
+            Vec3r cohesionForce = -(m_fcohesion*m_mass*m_mass*m_aKernel.cohesionValue(l)/l) * r;
+            Vec3r nij = pi.n-pj.n;
+            Vec3r curvatureForce = -m_fcohesion*m_mass*nij;
+            pi.f_adv += kij*(cohesionForce+curvatureForce);
+        }
+    }
+}
+
+void System::computeBoundaryAdhesionForces(int i, int j)
+{
+    Particle& pi=m_particles[i];
+        Boundary& bj=m_boundaries[j];
+        Vec3r xij= pi.x - bj.x;
+        HReal l = xij.length();
+        pi.f_adv += -(m_badhesion*m_mass*m_boundaries[j].psi*m_aKernel.adhesionValue(l)/l)*xij;
+}
+
+Vec3r System::computeDij(int i, int j)
+{
+    Particle& pi=m_particles[i];
+    Particle& pj=m_particles[j];
+    Vec3r gradient(0.0);
+    m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
+    Vec3r d=-(m_dt*m_dt*m_mass)/pow(pj.rho,2)*gradient;
+    return d;
 }
 
 void System::computePressure(int i)
@@ -315,6 +390,27 @@ void System::computePressureForce(int i)
     {
         computeBoundaryPressureForce(i, j);
     }
+}
+
+void System::computeFluidPressureForce(int i, int j)
+{
+    Vec3r gradient(0.0);
+    Particle& pi=m_particles[i];
+    Particle& pj=m_particles[j];
+    m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
+    if( i!=j )
+    {
+        pi.f_p += -m_mass*m_mass*( pi.p/pow(pi.rho,2) + pj.p/pow(pj.rho,2) ) * gradient;
+    }
+}
+
+void System::computeBoundaryPressureForce(int i, int j)
+{
+    Vec3r gradient(0.0);
+    Particle& pi=m_particles[i];
+    Boundary& bj=m_boundaries[j];
+        m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
+        pi.f_p += -m_mass*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
 }
 
 void System::initializePressure(int i)
@@ -550,13 +646,6 @@ void System::init()
 
     m_fluidGrid.resize(m_gridInfo.size());
 
-//    for(size_t i=0; i<particles.size(); ++i)
-//    {
-//        int id = gridInfo.cellId(particles[i].x);
-//        if(gridInfo.isInside(id))
-//            fluidGrid[id].push_back(i);
-//    }
-
     //Init simulation values
     computeBoundaryVolume();
     prepareGrid();
@@ -565,22 +654,6 @@ void System::init()
     {
         m_particles[i].isSurface = true;
     }
-
-//    for(int i=0; i<particleNumber; ++i)
-//    {
-//        computeRho(i);
-//        particles[i].rho = restDensity;
-//    }
-
-//    for(int i=0; i<particleNumber; ++i)
-//    {
-//        computeDii(i);
-//    }
-
-//    for(int i=0; i<particleNumber; ++i)
-//    {
-//        computeAii(i);
-//    }
 
     debugFluid();
 }
@@ -947,7 +1020,7 @@ void System::predictAdvection()
 #pragma omp parallel for
 #endif
     for(int i=0; i<m_particleNumber; ++i)
-        computeRho(i);
+        computeDensity(i);
 
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
@@ -972,7 +1045,7 @@ void System::predictAdvection()
 #endif
     for(int i=0; i<m_particleNumber; ++i)
     {
-        predictRho(i);
+        predictDensity(i);
         initializePressure(i);
         computeAii(i);
     }
@@ -1028,12 +1101,14 @@ void System::integration()
     }
 }
 
-void System::simulate()
+void System::computeSimulationStep()
 {
+
     prepareGrid();
     predictAdvection();
     pressureSolve();
     integration();
+
     applySources();
     applySinks();
     computeStats();
@@ -1133,4 +1208,4 @@ void System::exportState(const char * baseName)
     write(  massFilename.str().c_str(), m );
 }
 
-}
+}//namespace hokusai

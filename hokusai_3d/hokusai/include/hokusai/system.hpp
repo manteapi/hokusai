@@ -70,6 +70,7 @@ public :
     HReal m_boundaryH;
     HReal m_dt;
     HReal m_time;
+
     HReal m_rho_avg_l;
     HReal m_maxEta;
 
@@ -96,122 +97,34 @@ public :
     void prepareGrid();
     void computeSurfaceParticle();
     void predictAdvection();
-    void predictRho(int i);
+    void predictDensity(int i);
     void initializePressure(int i);
     void computeNormal(int i);
     bool isSurfaceParticle(int i, HReal treshold);
     vector<Particle> getSurfaceParticle();
-    void computeRho(int i);
-    void computeAdvectionForces(int i);
+    void computeDensity(int i);
     void predictVelocity(int i);
     void computeDii(int i);
     void computeDii_Fluid(int i);
     void computeDii_Boundary(int i);
     void computeAii(int i);
     void pressureSolve();
-    void computeSumDijPj(int i);
-    
-    void computeViscosityForces(int i, int j)
-    {
-        Particle& pi=m_particles[i];
-        Particle& pj=m_particles[j];
-        Vec3r r = pi.x - pj.x;
-        Vec3r vij = pi.v - pj.v;
-        HReal dotVijRij = Vec3r::dotProduct(vij,r);
-        if(dotVijRij < 0)
-        {
-            HReal kij = 2.0*m_restDensity/(pi.rho+pj.rho);
-            HReal epsilon=0.01;
-            Vec3r gradient(0.0);
-            m_pKernel.monaghanGradient(r, gradient);
-            HReal Pij = -kij*(2.0*m_alpha*m_h*m_cs/(pi.rho+pj.rho)) * ( dotVijRij / (r.lengthSquared() + epsilon*m_h*m_h) );
-            pi.f_adv += -kij*m_mass*m_mass*Pij*gradient;
-        }
-    }
-
-    void computeBoundaryFrictionForces(int i, int j)
-    {
-        Particle& pi=m_particles[i];
-            Boundary& bj=m_boundaries[j];
-            Vec3r vij = pi.v;//-pj.v;
-            Vec3r xij= pi.x - bj.x;
-            HReal dotVijRij = Vec3r::dotProduct(vij,xij);
-            if(dotVijRij<0)
-            {
-                Vec3r gradient(0.0);
-                HReal epsilon=0.01;
-                HReal nu = (m_sigma*m_h*m_cs)/(2.0*pi.rho);
-                HReal Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.lengthSquared() + epsilon*m_h*m_h) );
-                m_pKernel.monaghanGradient(xij, gradient);
-                pi.f_adv += -m_mass*bj.psi*Pij*gradient;
-            }
-    }
-
-    void computeSurfaceTensionForces(int i, int j)
-    {
-        if(i!=j)
-        {
-            Particle& pi=m_particles[i];
-            Particle& pj=m_particles[j];
-            if(pi.isSurface==true || pj.isSurface==true)
-            {
-                Vec3r r = pi.x - pj.x;
-                HReal kij = 2.0*m_restDensity/(pi.rho+pj.rho);
-                HReal l = r.length();
-                Vec3r cohesionForce = -(m_fcohesion*m_mass*m_mass*m_aKernel.cohesionValue(l)/l) * r;
-                Vec3r nij = pi.n-pj.n;
-                Vec3r curvatureForce = -m_fcohesion*m_mass*nij;
-                pi.f_adv += kij*(cohesionForce+curvatureForce);
-            }
-        }
-    }
-    
-    void computeBoundaryAdhesionForces(int i, int j)
-    {
-        Particle& pi=m_particles[i];
-            Boundary& bj=m_boundaries[j];
-            Vec3r xij= pi.x - bj.x;
-            HReal l = xij.length();
-            pi.f_adv += -(m_badhesion*m_mass*m_boundaries[j].psi*m_aKernel.adhesionValue(l)/l)*xij;
-    }
-
-    Vec3r computeDij(int i, int j)
-    {
-        Particle& pi=m_particles[i];
-        Particle& pj=m_particles[j];
-        Vec3r gradient(0.0);
-        m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
-        Vec3r d=-(m_dt*m_dt*m_mass)/pow(pj.rho,2)*gradient;
-        return d;
-    }
-
+    void computeSumDijPj(int i);    
+    Vec3r computeDij(int i, int j);
     void computePressure(int i);
+
+    void computeAdvectionForces(int i);
+    void computeViscosityForces(int i, int j);
+    void computeBoundaryFrictionForces(int i, int j);
+    void computeSurfaceTensionForces(int i, int j);
+    void computeBoundaryAdhesionForces(int i, int j);
     void computePressureForce(int i);
-
-    void computeFluidPressureForce(int i, int j)
-    {
-        Vec3r gradient(0.0);
-        Particle& pi=m_particles[i];
-        Particle& pj=m_particles[j];
-        m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
-        if( i!=j )
-        {
-            pi.f_p += -m_mass*m_mass*( pi.p/pow(pi.rho,2) + pj.p/pow(pj.rho,2) ) * gradient;
-        }
-    }
-
-    void computeBoundaryPressureForce(int i, int j)
-    {
-        Vec3r gradient(0.0);
-        Particle& pi=m_particles[i];
-        Boundary& bj=m_boundaries[j];
-            m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
-            pi.f_p += -m_mass*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
-    }
+    void computeFluidPressureForce(int i, int j);
+    void computeBoundaryPressureForce(int i, int j);
 
     void computeError();
     void integration();
-    void simulate();
+    void computeSimulationStep();
     void applySources();
     void applySinks();
 

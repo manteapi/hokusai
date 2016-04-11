@@ -20,8 +20,9 @@ if(HOKUSAI_OPENMP)
 endif()
 
 set(HOKUSAI_SOURCE
-    ./src/particle.cpp
+    ./src/solver/solver.cpp
     ./src/system.cpp
+    ./src/particle.cpp
     ./src/utils.cpp
     ./src/HSL2RGB.cpp
     ./src/write_bmp.cpp
@@ -35,9 +36,10 @@ set(HOKUSAI_SOURCE
 )
 
 set(HOKUSAI_HEADER
+    ./include/hokusai/solver/solver.hpp
+    ./include/hokusai/system.hpp
     ./include/hokusai/common.hpp
     ./include/hokusai/particle.hpp
-    ./include/hokusai/system.hpp
     ./include/hokusai/utils.hpp
     ./include/hokusai/HSL2RGB.hpp
     ./include/hokusai/write_bmp.hpp

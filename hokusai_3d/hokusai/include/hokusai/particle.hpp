@@ -129,6 +129,6 @@ namespace hokusai
         }
 
         ~Particle(){}
-    };
+    };   
 }
 #endif

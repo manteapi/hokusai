@@ -1,3 +1,4 @@
+#include <hokusai/solver/solver.hpp>
 #include <hokusai/system.hpp>
 #include <hokusai/utils.hpp>
 #include <hokusai/particleSource.hpp>
@@ -56,7 +57,7 @@ int main()
     while(sph.getTime()<=time)
     {
         //Simulate
-        sph.simulate();
+        sph.computeSimulationStep();
 
 
         //Output
