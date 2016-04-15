@@ -1,6 +1,6 @@
-#include <hokusai/solver/solver.hpp>
-#include <hokusai/system.hpp>
-#include <hokusai/utils.hpp>
+#include <hokusai/solver/iisphSolver.inl>
+#include <hokusai/system.inl>
+#include <hokusai/utils.inl>
 
 #define timer   timer_class
 #include <boost/progress.hpp>
@@ -17,7 +17,7 @@ int main()
 {
 
     int resolution = 2000; ///particle number per m3
-    System sph(resolution);
+    System<IISPHSolver> sph(resolution);
 
     std::string filename = "./../../mesh/sphere.obj";
     sph.addBoundaryMesh(filename.c_str());
@@ -43,7 +43,7 @@ int main()
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
             sph.exportState("./output/");
-            write_frame(sph.m_particles, count);
+            write_frame<Particle>(sph.m_particles, count);
             ++count;
         }
 

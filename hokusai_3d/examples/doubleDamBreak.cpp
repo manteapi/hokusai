@@ -1,6 +1,6 @@
-#include <hokusai/solver/solver.hpp>
-#include <hokusai/system.hpp>
-#include <hokusai/utils.hpp>
+#include <hokusai/solver/iisphSolver.inl>
+#include <hokusai/system.inl>
+#include <hokusai/utils.inl>
 
 #define timer   timer_class
 #include <boost/progress.hpp>
@@ -16,7 +16,7 @@ using namespace hokusai;
 int main()
 {
     int resolution = 2.5e6; ///particle number per m3
-    System sph(resolution);
+    System<IISPHSolver> sph(resolution);
 
     Vec3r  fluidBox1(0.5,1.0,0.5);
     Vec3r  fluidOffset1(0,0,0);
@@ -57,7 +57,7 @@ int main()
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            write_frame(sph.m_particles, count, 10.0);
+            write_frame<Particle>(sph.m_particles, count, 10.0);
             sph.exportState("./");
             ++count;
         }

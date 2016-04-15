@@ -20,9 +20,12 @@ if(HOKUSAI_OPENMP)
 endif()
 
 set(HOKUSAI_SOURCE
-    ./src/solver/solver.cpp
+    ./src/solver/iisphSolver.cpp
     ./src/system.cpp
+    ./src/particleContainer.cpp
+    ./src/boundaryContainer.cpp
     ./src/particle.cpp
+    ./src/boundary.cpp
     ./src/utils.cpp
     ./src/HSL2RGB.cpp
     ./src/write_bmp.cpp
@@ -36,11 +39,19 @@ set(HOKUSAI_SOURCE
 )
 
 set(HOKUSAI_HEADER
-    ./include/hokusai/solver/solver.hpp
+    ./include/hokusai/solver/iisphSolver.hpp
+    ./include/hokusai/solver/iisphSolver.inl
     ./include/hokusai/system.hpp
+    ./include/hokusai/system.inl
     ./include/hokusai/common.hpp
     ./include/hokusai/particle.hpp
+    ./include/hokusai/boundary.hpp
+    ./include/hokusai/particleContainer.hpp
+    ./include/hokusai/particleContainer.inl
+    ./include/hokusai/boundaryContainer.hpp
+    ./include/hokusai/boundaryContainer.inl
     ./include/hokusai/utils.hpp
+    ./include/hokusai/utils.inl
     ./include/hokusai/HSL2RGB.hpp
     ./include/hokusai/write_bmp.hpp
     ./include/hokusai/gridUtility.hpp
@@ -50,7 +61,9 @@ set(HOKUSAI_HEADER
     ./include/hokusai/strutil.hpp
     ./include/hokusai/sampler.hpp
     ./include/hokusai/particleSource.hpp
+    ./include/hokusai/particleSource.inl
     ./include/hokusai/particleSink.hpp
+    ./include/hokusai/particleSink.inl
 )
 
 set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to aljabr headers")

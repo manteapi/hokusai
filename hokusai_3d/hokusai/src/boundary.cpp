@@ -20,9 +20,4 @@
 * Contact : pierre-luc.manteaux@inria.fr
 */
 
-#ifndef HOKUSAI_PARTICLE_SINK_CPP
-#define HOKUSAI_PARTICLE_SINK_CPP
-
-#include "./../include/hokusai/particleSink.inl"
-
-#endif
+#include "../include/hokusai/boundary.hpp"

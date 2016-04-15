@@ -20,7 +20,7 @@
 * Contact : pierre-luc.manteaux@inria.fr
 */
 
-#include "../include/hokusai/utils.hpp"
+#include "../include/hokusai/utils.inl"
 #include <bitset>
 
 namespace hokusai
@@ -173,7 +173,7 @@ HReal BoundaryKernel::gamma( HReal distance )
     return coeff;
 }
 
-int mortonNumber( array<int,3>& index )
+int mortonNumber( std::array<int,3>& index )
 {
     std::bitset<64> bitsMorton;
     std::array< std::bitset<64>, 3> bitsIndex;
@@ -185,9 +185,9 @@ int mortonNumber( array<int,3>& index )
     return result;
 }
 
-void write(const char * filename, vector<HReal> data)
+void write(const char * filename, std::vector<HReal> data)
 {
-    ofstream outputFile;
+    std::ofstream outputFile;
     outputFile.open(filename);
     outputFile.precision(16);
     for(unsigned int i=0; i <data.size(); ++i)
@@ -197,9 +197,9 @@ void write(const char * filename, vector<HReal> data)
     outputFile.close();
 }
 
-void write(const char * filename, vector<Vec3r > data)
+void write(const char * filename, std::vector<Vec3r > data)
 {
-    ofstream outputFile;
+    std::ofstream outputFile;
     outputFile.open(filename);
     outputFile.precision(16);
     for(unsigned int i=0; i <data.size(); ++i)
@@ -209,7 +209,7 @@ void write(const char * filename, vector<Vec3r > data)
     outputFile.close();
 }
 
-static void buildRotationMatrix( HReal xrad, HReal yrad, HReal R[3][3] ) {
+void buildRotationMatrix( HReal xrad, HReal yrad, HReal R[3][3] ) {
     HReal Rx[3][3] = { {1,0,0},{0,cos(xrad),-sin(xrad)},{0,sin(xrad),cos(xrad)} };
     HReal Ry[3][3] = { {cos(yrad),0,sin(yrad)}, {0,1,0}, {-sin(yrad),0,cos(yrad)} };
     HReal Rtmp[3][3];
@@ -227,7 +227,7 @@ static void buildRotationMatrix( HReal xrad, HReal yrad, HReal R[3][3] ) {
     }
 }
 
-static void transform( HReal p[3], HReal R[3][3] ) {
+void transform( HReal p[3], HReal R[3][3] ) {
     HReal p0[3] = { p[0], p[1], p[2] };
     for( int i=0; i<3; i++ ) {
         p[i] = 0.0;
@@ -235,75 +235,6 @@ static void transform( HReal p[3], HReal R[3][3] ) {
             p[i] += R[i][k]*p0[k];
         }
     }
-}
-
-void write_frame(vector<Particle>& particles, int step, HReal offset)
-{
-    int width = 1024;
-    int height = 700;
-    HReal winrate = height/(HReal)width;
-
-    static HReal *image = new HReal[width*height*4];
-    static unsigned char *buffer = new unsigned char[width*height*4];
-    for( int i=0; i<width; i++ ) {
-        for( int j=0; j<height; j++ ) {
-            for( int c=0; c<3; c++ ) {
-                image[4*(i+j*width)+c] = 0.0; //black
-            }
-            image[4*(i+j*width)+3] = 1.0; //opacity
-        }
-    }
-
-    HReal DENSITY = 0.5;
-    int N = 32;
-    HReal blueColor[] = { 0.3, 0.5, 0.8, exp(-DENSITY*N/23.0f) };
-
-    static HReal R[3][3];
-    bool firstTime = true;
-    if( firstTime ) {
-        //buildRotationMatrix( -0.2, 0.2, R );
-        buildRotationMatrix( 0, 0, R );
-        firstTime = false;
-    }
-
-    // Simple Point-based Rendering
-    //HReal eye = 2.0;
-    //HReal offset = 0.3;
-    HReal eye = 2.0;
-
-    for( size_t n=0; n<particles.size(); n++ )
-    {
-        //if( particles[n]->type == FLUID ) %{
-        //HReal p[3] = { particles[n]->p[0]-0.5, particles[n]->p[1]-0.5, particles[n]->p[2]-0.5 };
-        HReal p[3] = { (HReal)(particles[n].x[0]-0.5), (HReal)(particles[n].x[1]-0.5), (HReal)(particles[n].x[2]-0.5) };
-        transform(p,R);
-        HReal z = offset + 0.5 + p[2];
-        HReal x = eye/(eye+z)*(p[0]-0.4);
-        HReal y = eye/(eye+z)*(p[1]+0.25);
-        if( x > -0.5 && x < 0.5 && y > -winrate/2.0 && y < winrate/2.0 ) {
-            int i = width*(x+0.5);
-            int j = width*(y+winrate/2.0);
-            int w = 1;
-            for( int ni=i-w; ni<i+1; ni++ ) {
-                for( int nj=j-w; nj<j+1; nj++ ) {
-                    if( ni>0 && ni<width && nj>0 && nj<height ) {
-                        for( int c=0; c<3; c++ ) {
-                            image[4*(ni+nj*width)+c] = blueColor[3]*blueColor[c] + (1.0-blueColor[3])*image[4*(ni+nj*width)+c];
-                        }
-                    }
-                }
-            }
-        }
-        //}
-    }
-
-    for( int n=0; n<4*width*height; n++ ) {
-        buffer[n] = 255.0*fmin(1.0,image[n]);
-    }
-
-    char name[256];
-    sprintf( name, "frame_%d.bmp", step );
-    write_bmp( name, buffer, width, height, true );
 }
 
 }//namespace hokusai

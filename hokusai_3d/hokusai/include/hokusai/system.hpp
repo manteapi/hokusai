@@ -28,20 +28,23 @@
 #include <ctime>
 
 #include <aljabr/AljabrCore>
+#include "particleContainer.inl"
+#include "boundaryContainer.inl"
 #include "utils.hpp"
 #include "common.hpp"
 #include "particle.hpp"
+#include "boundary.hpp"
 #include "gridUtility.hpp"
 #include "triMesh.hpp"
 #include "sampler.hpp"
-#include "particleSource.hpp"
+#include "particleSource.inl"
 
 namespace hokusai
 {
 
+template<typename Solver>
 class System
 {
-
 public:
 
     System();
@@ -80,17 +83,19 @@ public :
     MonaghanKernel m_pKernel;
     BoundaryKernel m_bKernel;
 
-    vector<Particle> m_particles;
-    vector<Boundary> m_boundaries;
+    ParticleContainer<Particle> m_particles;
+    BoundaryContainer<Boundary> m_boundaries;
+    //std::vector<Particle> m_particles;
+    //std::vector<Boundary> m_boundaries;
 
     GridUtility m_gridInfo;
-    vector< vector<int> > m_boundaryGrid;
-    vector< vector<int> > m_fluidGrid;
+    std::vector< std::vector<int> > m_boundaryGrid;
+    std::vector< std::vector<int> > m_fluidGrid;
 
-    vector< ParticleSource > m_pSources;
+    std::vector< ParticleSource<Particle> > m_pSources;
 
 public :
-    void getNearestNeighbor(vector< int >& neighbors, const vector<vector<int> > &grid, const Vec3r& x);
+    void getNearestNeighbor(std::vector< int >& neighbors, const std::vector< std::vector<int> > &grid, const Vec3r& x);
     void getNearestNeighbor(const int i, const HReal radius);
 
     //Simulation Loop
@@ -101,7 +106,7 @@ public :
     void initializePressure(int i);
     void computeNormal(int i);
     bool isSurfaceParticle(int i, HReal treshold);
-    vector<Particle> getSurfaceParticle();
+    std::vector<Particle> getSurfaceParticle();
     void computeDensity(int i);
     void predictVelocity(int i);
     void computeDii(int i);
@@ -144,7 +149,7 @@ public :
     void addParticleBox(const Vec3r& offset, const Vec3r& dimension);
     void addParticleSphere(const Vec3r& centre, const HReal radius);
 
-    void addParticleSource(const ParticleSource& s);
+    void addParticleSource(const ParticleSource<Particle>& s);
 
     //Boundary sampling
     void addBoundaryMesh(const char* filename);
@@ -169,14 +174,14 @@ public :
     void computeSurface();
 
     //Getter
-    vector< Vec3r > getPosition(){ vector<Vec3r > pos; for(int i=0; i<m_particleNumber; ++i){pos.push_back(m_particles[i].x);} return pos;}
-    vector< Vec3r > getVelocity(){ vector<Vec3r > vel; for(int i=0; i<m_particleNumber; ++i){vel.push_back(m_particles[i].v);} return vel;}
-    vector< Vec3r > getNormal(){ vector<Vec3r > normal; for(int i=0; i<m_particleNumber; ++i){normal.push_back(m_particles[i].n);} return normal;}
-    vector< HReal > getDensity(){ vector<HReal> density; for(int i=0; i<m_particleNumber; ++i){density.push_back(m_particles[i].rho);} return density;}
-    vector< HReal > getMass(){ vector<HReal> o_mass; for(int i=0; i<m_particleNumber; ++i){o_mass.push_back(m_mass);} return o_mass;}
+    std::vector< Vec3r > getPosition(){ std::vector<Vec3r > pos; for(int i=0; i<m_particleNumber; ++i){pos.push_back(m_particles[i].x);} return pos;}
+    std::vector< Vec3r > getVelocity(){ std::vector<Vec3r > vel; for(int i=0; i<m_particleNumber; ++i){vel.push_back(m_particles[i].v);} return vel;}
+    std::vector< Vec3r > getNormal(){ std::vector<Vec3r > normal; for(int i=0; i<m_particleNumber; ++i){normal.push_back(m_particles[i].n);} return normal;}
+    std::vector< HReal > getDensity(){ std::vector<HReal> density; for(int i=0; i<m_particleNumber; ++i){density.push_back(m_particles[i].rho);} return density;}
+    std::vector< HReal > getMass(){ std::vector<HReal> o_mass; for(int i=0; i<m_particleNumber; ++i){o_mass.push_back(m_mass);} return o_mass;}
 
-    void write(const char* filename, vector< Vec3r > data);
-    void write(const char* filename, vector<HReal> data);
+    void write(const char* filename, std::vector< Vec3r > data);
+    void write(const char* filename, std::vector<HReal> data);
     void exportState(const char* baseName);
     HReal getTime(){return m_time;}
     HReal & getSmoothingRadiusValue(){ return m_h; }

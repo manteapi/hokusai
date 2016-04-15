@@ -2,11 +2,12 @@
 #define HOKUSAI_PARTICLE_SOURCE_HPP
 
 #include <aljabr/AljabrCore>
-#include "particle.hpp"
+#include "utils.hpp"
 
 namespace hokusai
 {
 
+template<typename ParticleT>
 class ParticleSource
 {
 public :
@@ -29,9 +30,8 @@ public :
     HReal delay;
     HReal lastTime;
 
-    std::vector<Particle> p_stencil;
-
-    std::vector<Particle> apply(const HReal time);
+    std::vector<ParticleT> p_stencil;
+    std::vector<ParticleT> apply(const HReal time);
 };
 
 }

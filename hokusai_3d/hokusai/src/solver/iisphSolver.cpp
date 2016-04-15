@@ -20,7 +20,7 @@
 * Contact : pierre-luc.manteaux@inria.fr
 */
 
-#include "../include/hokusai/solver/solver.hpp"
+#include "../include/hokusai/solver/iisphSolver.inl"
 
 #ifdef HOKUSAI_USING_OPENMP
     #include <omp.h>

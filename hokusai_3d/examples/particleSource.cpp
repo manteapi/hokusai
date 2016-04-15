@@ -1,6 +1,6 @@
-#include <hokusai/solver/solver.hpp>
-#include <hokusai/system.hpp>
-#include <hokusai/utils.hpp>
+#include <hokusai/solver/iisphSolver.inl>
+#include <hokusai/system.inl>
+#include <hokusai/utils.inl>
 #include <hokusai/particleSource.hpp>
 
 #define timer   timer_class
@@ -19,7 +19,7 @@ typedef double HReal;
 int main()
 {
     int resolution = 20000; ///particle number per m3
-    System sph(resolution);
+    System<IISPHSolver> sph(resolution);
 
     Vec3r  securityOffset(1.05*sph.getSmoothingRadius());
     Vec3r  boundBox(2.0,2.5,1.0);
@@ -40,12 +40,12 @@ int main()
 
     position = Vec3r(0.25,1.0,0.5);
     orientation = Vec3r(0,M_PI/2.0,0);
-    ParticleSource source1(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    ParticleSource<Particle> source1(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
     sph.addParticleSource(source1);
 
     position = Vec3r(1.75,1.0,0.5);
     orientation = Vec3r(0,-M_PI/2.0,0);
-    ParticleSource source2(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    ParticleSource<Particle> source2(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
     sph.addParticleSource(source2);
 
     sph.init();
@@ -63,7 +63,7 @@ int main()
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            write_frame(sph.m_particles, count);
+            write_frame<Particle>(sph.m_particles, count);
             sph.exportState("./");
             ++count;
         }

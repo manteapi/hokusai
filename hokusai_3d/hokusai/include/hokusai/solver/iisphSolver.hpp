@@ -20,9 +20,31 @@
 * Contact : pierre-luc.manteaux@inria.fr
 */
 
-#ifndef HOKUSAI_PARTICLE_SINK_CPP
-#define HOKUSAI_PARTICLE_SINK_CPP
+#ifndef HOKUSAI_IISPH_SOLVER_HPP
+#define HOKUSAI_IISPH_SOLVER_HPP
 
-#include "./../include/hokusai/particleSink.inl"
+#include "./../particle.hpp"
+#include "./../boundary.hpp"
+#include "./../particleContainer.hpp"
+#include "./../boundaryContainer.hpp"
 
-#endif
+#include <memory>
+
+namespace hokusai
+{
+
+class IISPHSolver
+{
+    typedef Particle ParticleT;
+    typedef Boundary BoundaryT;
+public:
+    IISPHSolver();
+    ~IISPHSolver();
+    std::shared_ptr< ParticleContainer<ParticleT> > m_particles;
+    std::shared_ptr< BoundaryContainer<BoundaryT> > m_boundaries;
+};
+
+}
+
+
+#endif // HOKUSAI_IISPH_SOLVER_HPP

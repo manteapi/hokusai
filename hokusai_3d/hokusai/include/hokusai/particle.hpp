@@ -26,45 +26,8 @@
 #include <vector>
 #include "common.hpp"
 
-/*! \brief Brief description.
- *         Brief description continued.
- *
- *  Detailed description starts here.
- */
-
 namespace hokusai
 {
-
-    class Boundary
-    {
-        public :
-        HReal psi; //density number
-        Vec3r x,v; ///position and velocity
-
-        public :
-        Boundary()
-        {
-            psi=0.0;
-            x=Vec3r(0.0);
-            v=Vec3r(0.0);
-        }
-
-        Boundary(const Vec3r& _x, const Vec3r _v = Vec3r(0,0,0), const HReal _psi=0.0)
-        {
-            x=_x;
-            v=_v;
-            psi=_psi;
-        }
-
-        Boundary(const Boundary& b)
-        {
-            x=b.x;
-            v=b.v;
-            psi=b.psi;
-        }
-
-        ~Boundary(){}
-    };
 
     class Particle
     {

@@ -20,9 +20,45 @@
 * Contact : pierre-luc.manteaux@inria.fr
 */
 
-#ifndef HOKUSAI_PARTICLE_SINK_CPP
-#define HOKUSAI_PARTICLE_SINK_CPP
+#ifndef HOKUSAI_BOUNDARY_HPP
+#define HOKUSAI_BOUNDARY_HPP
 
-#include "./../include/hokusai/particleSink.inl"
+#include <vector>
+#include "common.hpp"
 
-#endif
+namespace hokusai
+{
+
+    class Boundary
+    {
+        public :
+        HReal psi; //density number
+        Vec3r x,v; ///position and velocity
+
+        public :
+        Boundary()
+        {
+            psi=0.0;
+            x=Vec3r(0.0);
+            v=Vec3r(0.0);
+        }
+
+        Boundary(const Vec3r& _x, const Vec3r _v = Vec3r(0,0,0), const HReal _psi=0.0)
+        {
+            x=_x;
+            v=_v;
+            psi=_psi;
+        }
+
+        Boundary(const Boundary& b)
+        {
+            x=b.x;
+            v=b.v;
+            psi=b.psi;
+        }
+
+        ~Boundary(){}
+    };    
+}// namespace hokusai
+
+#endif //BOUNDARY_HPP
