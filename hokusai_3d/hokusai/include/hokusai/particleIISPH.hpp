@@ -20,8 +20,8 @@
 * Contact : pierre-luc.manteaux@inria.fr
 */
 
-#ifndef HOKUSAI_PARTICLE_H
-#define HOKUSAI_PARTICLE_H
+#ifndef HOKUSAI_PARTICLE_IISPH_HPP
+#define HOKUSAI_PARTICLE_IISPH_HPP
 
 #include <vector>
 #include "common.hpp"
@@ -29,7 +29,7 @@
 namespace hokusai
 {
 
-    class Particle
+    class ParticleIISPH
     {
         public :
         bool isSurface;
@@ -40,7 +40,7 @@ namespace hokusai
         std::vector<int> boundaryNeighbor;
 
         public :
-        Particle()
+        ParticleIISPH()
         {
             isSurface=true;
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
@@ -50,7 +50,7 @@ namespace hokusai
             boundaryNeighbor.clear();
         }
 
-        Particle(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0), const Vec3r _c = Vec3r(0,0,1))
+        ParticleIISPH(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0), const Vec3r _c = Vec3r(0,0,1))
         {
             x = _x;
             v = _v;
@@ -63,7 +63,7 @@ namespace hokusai
             boundaryNeighbor.clear();
         }
 
-        Particle(const Particle& _p)
+        ParticleIISPH(const ParticleIISPH& _p)
         {
             rho=_p.rho;
             rho_adv=_p.rho_adv;
@@ -91,7 +91,7 @@ namespace hokusai
             boundaryNeighbor=_p.boundaryNeighbor;
         }
 
-        ~Particle(){}
+        ~ParticleIISPH(){}
     };   
 }
 #endif

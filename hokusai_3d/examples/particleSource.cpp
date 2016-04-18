@@ -40,12 +40,12 @@ int main()
 
     position = Vec3r(0.25,1.0,0.5);
     orientation = Vec3r(0,M_PI/2.0,0);
-    ParticleSource<Particle> source1(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    ParticleSource< System<IISPHSolver>::Particle > source1(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
     sph.addParticleSource(source1);
 
     position = Vec3r(1.75,1.0,0.5);
     orientation = Vec3r(0,-M_PI/2.0,0);
-    ParticleSource<Particle> source2(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    ParticleSource< System<IISPHSolver>::Particle > source2(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
     sph.addParticleSource(source2);
 
     sph.init();
@@ -59,11 +59,10 @@ int main()
         //Simulate
         sph.computeSimulationStep();
 
-
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            write_frame<Particle>(sph.m_particles, count);
+            write_frame< System<IISPHSolver>::Particle >(sph.getParticles(), count);
             sph.exportState("./");
             ++count;
         }

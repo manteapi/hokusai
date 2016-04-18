@@ -24,8 +24,8 @@ set(HOKUSAI_SOURCE
     ./src/system.cpp
     ./src/particleContainer.cpp
     ./src/boundaryContainer.cpp
-    ./src/particle.cpp
-    ./src/boundary.cpp
+    ./src/particleIISPH.cpp
+    ./src/boundaryIISPH.cpp
     ./src/utils.cpp
     ./src/HSL2RGB.cpp
     ./src/write_bmp.cpp
@@ -44,8 +44,8 @@ set(HOKUSAI_HEADER
     ./include/hokusai/system.hpp
     ./include/hokusai/system.inl
     ./include/hokusai/common.hpp
-    ./include/hokusai/particle.hpp
-    ./include/hokusai/boundary.hpp
+    ./include/hokusai/particleIISPH.hpp
+    ./include/hokusai/boundaryIISPH.hpp
     ./include/hokusai/particleContainer.hpp
     ./include/hokusai/particleContainer.inl
     ./include/hokusai/boundaryContainer.hpp

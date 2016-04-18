@@ -26,8 +26,8 @@
 #include "utils.hpp"
 #include <vector>
 #include "write_bmp.hpp"
-#include "particle.hpp"
-#include "boundary.hpp"
+#include "particleIISPH.hpp"
+#include "boundaryIISPH.hpp"
 #include "common.hpp"
 #include <fstream>
 #include <sstream>

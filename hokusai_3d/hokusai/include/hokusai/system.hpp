@@ -26,19 +26,19 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
+#include <memory>
 
 #include <aljabr/AljabrCore>
 #include "particleContainer.inl"
 #include "boundaryContainer.inl"
 #include "utils.hpp"
 #include "common.hpp"
-#include "particle.hpp"
-#include "boundary.hpp"
+#include "particleIISPH.hpp"
+#include "boundaryIISPH.hpp"
 #include "gridUtility.hpp"
 #include "triMesh.hpp"
 #include "sampler.hpp"
 #include "particleSource.inl"
-
 namespace hokusai
 {
 
@@ -46,6 +46,9 @@ template<typename Solver>
 class System
 {
 public:
+
+    typedef typename Solver::Particle Particle;
+    typedef typename Solver::Boundary Boundary;
 
     System();
     System(int resolution);
@@ -83,11 +86,8 @@ public :
     MonaghanKernel m_pKernel;
     BoundaryKernel m_bKernel;
 
-    ParticleContainer<Particle> m_particles;
-    BoundaryContainer<Boundary> m_boundaries;
-    //std::vector<Particle> m_particles;
-    //std::vector<Boundary> m_boundaries;
-
+    ParticleContainerPtr<Particle> m_particles;
+    BoundaryContainerPtr<Boundary> m_boundaries;
     GridUtility m_gridInfo;
     std::vector< std::vector<int> > m_boundaryGrid;
     std::vector< std::vector<int> > m_fluidGrid;
@@ -95,6 +95,7 @@ public :
     std::vector< ParticleSource<Particle> > m_pSources;
 
 public :
+    ParticleContainer<Particle>& getParticles();
     void getNearestNeighbor(std::vector< int >& neighbors, const std::vector< std::vector<int> > &grid, const Vec3r& x);
     void getNearestNeighbor(const int i, const HReal radius);
 

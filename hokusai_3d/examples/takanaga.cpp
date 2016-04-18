@@ -46,7 +46,7 @@ int main()
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            //write_frame<Particle>(sph.m_particles, count);
+            //write_frame< System<IISPHSolver>::Particle >(sph.getParticles(), count);
             sph.exportState("./output");
             ++count;
         }

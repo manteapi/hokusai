@@ -42,7 +42,9 @@ namespace hokusai
 //-----------------------------------------------------
 
 template<typename Solver>
-System<Solver>::System()
+System<Solver>::System() :
+    m_particles( ParticleContainerPtr<Particle>() ),
+    m_boundaries( BoundaryContainerPtr<Boundary>() )
 {
     m_countExport = 0;
     m_countTime = 0;
@@ -73,14 +75,16 @@ System<Solver>::System()
     m_bKernel = BoundaryKernel();
 
     m_gridInfo = GridUtility();
-    m_particles = ParticleContainer<Particle>();
+    //m_particles = ParticleContainer<Particle>();
     //m_particles = vector<Particle>();
-    m_boundaries = BoundaryContainer<Boundary>();
+    //m_boundaries = BoundaryContainer<Boundary>();
     //m_boundaries = std::vector<Boundary>();
 }
 
 template<typename Solver>
-System<Solver>::System(int resolution)
+System<Solver>::System(int resolution) :
+    m_particles( ParticleContainerPtr<Particle>() ),
+    m_boundaries( BoundaryContainerPtr<Boundary>() )
 {
     m_countExport = 0;
     m_countTime = 0;
@@ -111,9 +115,9 @@ System<Solver>::System(int resolution)
     m_bKernel = BoundaryKernel();
 
     m_gridInfo = GridUtility();
-    m_particles = ParticleContainer<Particle>();
+    //m_particles = ParticleContainer<Particle>();
     //m_particles = std::vector<Particle>();
-    m_boundaries = BoundaryContainer<Boundary>();
+    //m_boundaries = BoundaryContainer<Boundary>();
     //m_boundaries = std::vector<Boundary>();
 
     setParameters(resolution, 1.0);
@@ -176,7 +180,7 @@ bool System<Solver>::isSurfaceParticle(int i, HReal treshold)
 }
 
 template<typename Solver>
-std::vector<Particle> System<Solver>::getSurfaceParticle()
+std::vector<typename Solver::Particle> System<Solver>::getSurfaceParticle()
 {
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
@@ -566,6 +570,12 @@ void System<Solver>::getNearestNeighbor(const int i, const HReal radius)
                 p.fluidNeighbor.push_back(fParticleId);
         }
     }
+}
+
+template<typename Solver>
+ParticleContainer<typename Solver::Particle>& System<Solver>::getParticles()
+{
+    return *(m_particles.get());
 }
 
 template<typename Solver>
@@ -987,7 +997,9 @@ void System<Solver>::mortonSort()
     std::sort( particleZindex.begin(), particleZindex.end(), pairCompare );
 
     //Move particles according to z-index
-    ParticleContainer<Particle> oldParticles = m_particles;
+    ParticleContainerPtr<Particle> oldParticles(m_particles);
+
+    //ParticleContainer<Particle> oldParticles = m_particles;
     //vector< Particle > oldParticles = m_particles;
 
     //HReal min = particleZindex[0].second;

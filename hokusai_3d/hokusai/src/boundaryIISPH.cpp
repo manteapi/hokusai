@@ -20,4 +20,4 @@
 * Contact : pierre-luc.manteaux@inria.fr
 */
 
-#include "../include/hokusai/particle.hpp"
+#include "../include/hokusai/boundaryIISPH.hpp"

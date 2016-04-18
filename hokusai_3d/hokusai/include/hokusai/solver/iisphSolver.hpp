@@ -23,8 +23,8 @@
 #ifndef HOKUSAI_IISPH_SOLVER_HPP
 #define HOKUSAI_IISPH_SOLVER_HPP
 
-#include "./../particle.hpp"
-#include "./../boundary.hpp"
+#include "./../particleIISPH.hpp"
+#include "./../boundaryIISPH.hpp"
 #include "./../particleContainer.hpp"
 #include "./../boundaryContainer.hpp"
 
@@ -35,13 +35,14 @@ namespace hokusai
 
 class IISPHSolver
 {
-    typedef Particle ParticleT;
-    typedef Boundary BoundaryT;
 public:
+    typedef ParticleIISPH Particle;
+    typedef BoundaryIISPH Boundary;
+
     IISPHSolver();
     ~IISPHSolver();
-    std::shared_ptr< ParticleContainer<ParticleT> > m_particles;
-    std::shared_ptr< BoundaryContainer<BoundaryT> > m_boundaries;
+    std::shared_ptr< ParticleContainer<Particle> > m_particles;
+    std::shared_ptr< BoundaryContainer<Boundary> > m_boundaries;
 };
 
 }
