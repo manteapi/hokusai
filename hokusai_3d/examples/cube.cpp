@@ -1,7 +1,6 @@
-#include <hokusai/solver/iisphSolver.inl>
-#include <hokusai/system.inl>
-#include <hokusai/utils.inl>
-#include <hokusai/grid.hpp>
+#include <hokusai/solver/solver.hpp>
+#include <hokusai/system.hpp>
+#include <hokusai/utils.hpp>
 
 #define timer   timer_class
 #include <boost/progress.hpp>
@@ -45,7 +44,7 @@ int main()
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            write_frame< ParticleIISPH >(sph.getParticles(), count);
+            write_frame(sph.m_particles, count);
             ++count;
         }
 

@@ -20,17 +20,4 @@
 * Contact : pierre-luc.manteaux@inria.fr
 */
 
-#ifndef HOKUSAI_IISPH_SOLVER_INL
-#define HOKUSAI_IISPH_SOLVER_INL
-
-#include <memory>
-
-#include "iisphSolver.hpp"
-
-namespace hokusai
-{
-
-}
-
-
-#endif // HOKUSAI_IISPH_SOLVER_INL
+#include "../include/hokusai/particle.hpp"

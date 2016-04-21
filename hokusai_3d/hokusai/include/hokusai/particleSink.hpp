@@ -4,7 +4,6 @@
 namespace hokusai
 {
 
-template<class ParticleT>
 class ParticleSink
 {
 public :

@@ -20,16 +20,53 @@
 * Contact : pierre-luc.manteaux@inria.fr
 */
 
-#ifndef HOKUSAI_PARTICLE_IISPH_HPP
-#define HOKUSAI_PARTICLE_IISPH_HPP
+#ifndef HOKUSAI_PARTICLE_H
+#define HOKUSAI_PARTICLE_H
 
 #include <vector>
 #include "common.hpp"
 
+/*! \brief Brief description.
+ *         Brief description continued.
+ *
+ *  Detailed description starts here.
+ */
+
 namespace hokusai
 {
 
-    class ParticleIISPH
+    class Boundary
+    {
+        public :
+        HReal psi; //density number
+        Vec3r x,v; ///position and velocity
+
+        public :
+        Boundary()
+        {
+            psi=0.0;
+            x=Vec3r(0.0);
+            v=Vec3r(0.0);
+        }
+
+        Boundary(const Vec3r& _x, const Vec3r _v = Vec3r(0,0,0), const HReal _psi=0.0)
+        {
+            x=_x;
+            v=_v;
+            psi=_psi;
+        }
+
+        Boundary(const Boundary& b)
+        {
+            x=b.x;
+            v=b.v;
+            psi=b.psi;
+        }
+
+        ~Boundary(){}
+    };
+
+    class Particle
     {
         public :
         bool isSurface;
@@ -40,7 +77,7 @@ namespace hokusai
         std::vector<int> boundaryNeighbor;
 
         public :
-        ParticleIISPH()
+        Particle()
         {
             isSurface=true;
             rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
@@ -50,7 +87,7 @@ namespace hokusai
             boundaryNeighbor.clear();
         }
 
-        ParticleIISPH(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0), const Vec3r _c = Vec3r(0,0,1))
+        Particle(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0), const Vec3r _c = Vec3r(0,0,1))
         {
             x = _x;
             v = _v;
@@ -63,7 +100,7 @@ namespace hokusai
             boundaryNeighbor.clear();
         }
 
-        ParticleIISPH(const ParticleIISPH& _p)
+        Particle(const Particle& _p)
         {
             rho=_p.rho;
             rho_adv=_p.rho_adv;
@@ -91,7 +128,7 @@ namespace hokusai
             boundaryNeighbor=_p.boundaryNeighbor;
         }
 
-        ~ParticleIISPH(){}
+        ~Particle(){}
     };   
 }
 #endif

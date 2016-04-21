@@ -25,13 +25,16 @@
 
 #include <vector>
 #include "write_bmp.hpp"
-#include "particleContainer.inl"
+#include "particle.hpp"
 #include "common.hpp"
 #include <fstream>
 #include <sstream>
 
 namespace hokusai
 {
+
+using namespace std;
+
 class AkinciKernel
 {
 public :
@@ -85,19 +88,14 @@ public :
     HReal gamma( HReal distance );
 };
 
-int mortonNumber( std::array<int,3>& index );
+int mortonNumber( array<int,3>& index );
 
 //--------------------------------------------------------------------
 
-void transform( HReal p[3], HReal R[3][3] );
-void buildRotationMatrix( HReal xrad, HReal yrad, HReal R[3][3] );
-
 //IO functions
-void write(const char * filename, std::vector<Vec3r > data);
-void write(const char * filename, std::vector<HReal> data);
-
-template<typename ParticleT>
-void write_frame(ParticleContainer<ParticleT>& particles, int step, HReal offset=4.0);
+void write(const char * filename, vector<Vec3r > data);
+void write(const char * filename, vector<HReal> data);
+void write_frame(vector<Particle>& particles, int step, HReal offset=4.0);
 
 //---------------------------------------------------------------------
 }

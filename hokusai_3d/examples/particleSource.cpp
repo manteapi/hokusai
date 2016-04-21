@@ -1,8 +1,7 @@
-#include <hokusai/solver/iisphSolver.inl>
-#include <hokusai/system.inl>
-#include <hokusai/utils.inl>
+#include <hokusai/solver/solver.hpp>
+#include <hokusai/system.hpp>
+#include <hokusai/utils.hpp>
 #include <hokusai/particleSource.hpp>
-#include <hokusai/grid.hpp>
 
 #define timer   timer_class
 #include <boost/progress.hpp>
@@ -41,12 +40,12 @@ int main()
 
     position = Vec3r(0.25,1.0,0.5);
     orientation = Vec3r(0,M_PI/2.0,0);
-    ParticleSource< ParticleIISPH > source1(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    ParticleSource source1(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
     sph.addParticleSource(source1);
 
     position = Vec3r(1.75,1.0,0.5);
     orientation = Vec3r(0,-M_PI/2.0,0);
-    ParticleSource< ParticleIISPH > source2(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    ParticleSource source2(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
     sph.addParticleSource(source2);
 
     sph.init();
@@ -60,10 +59,11 @@ int main()
         //Simulate
         sph.computeSimulationStep();
 
+
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            write_frame< ParticleIISPH >(sph.getParticles(), count);
+            write_frame(sph.m_particles, count);
             sph.exportState("./");
             ++count;
         }
