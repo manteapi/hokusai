@@ -1,4 +1,3 @@
-#include <hokusai/solver/solver.hpp>
 #include <hokusai/system.hpp>
 #include <hokusai/utils.hpp>
 #include <hokusai/particleSource.hpp>
