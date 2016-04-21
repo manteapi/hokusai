@@ -32,6 +32,7 @@
 #include "particleContainer.inl"
 #include "boundaryContainer.inl"
 #include "utils.hpp"
+#include "grid.hpp"
 #include "common.hpp"
 #include "particleIISPH.hpp"
 #include "boundaryIISPH.hpp"
@@ -39,18 +40,14 @@
 #include "triMesh.hpp"
 #include "sampler.hpp"
 #include "particleSource.inl"
+#include "spatialIndex.inl"
+
 namespace hokusai
 {
 
-template<typename Solver>
 class System
 {
 public:
-
-    typedef typename Solver::Particle Particle;
-    typedef typename Solver::Boundary Boundary;
-
-    System();
     System(int resolution);
     ~System();
 
@@ -60,7 +57,6 @@ public :
     int m_particleNumber;
     int m_boundaryNumber;
 
-    HReal m_particlePerCell;
     HReal m_volume;
     HReal m_restDensity;
     HReal m_meanDensity;
@@ -86,16 +82,19 @@ public :
     MonaghanKernel m_pKernel;
     BoundaryKernel m_bKernel;
 
-    ParticleContainerPtr<Particle> m_particles;
-    BoundaryContainerPtr<Boundary> m_boundaries;
+
+    std::shared_ptr< SpatialIndex<Grid> > m_pNeighbors, m_bNeighbors;
+    ParticleContainerPtr<ParticleIISPH> m_particles;
+    BoundaryContainerPtr<BoundaryIISPH> m_boundaries;
+
     GridUtility m_gridInfo;
     std::vector< std::vector<int> > m_boundaryGrid;
     std::vector< std::vector<int> > m_fluidGrid;
 
-    std::vector< ParticleSource<Particle> > m_pSources;
+    std::vector< ParticleSource<ParticleIISPH> > m_pSources;
 
 public :
-    ParticleContainer<Particle>& getParticles();
+    ParticleContainer<ParticleIISPH>& getParticles();
     void getNearestNeighbor(std::vector< int >& neighbors, const std::vector< std::vector<int> > &grid, const Vec3r& x);
     void getNearestNeighbor(const int i, const HReal radius);
 
@@ -107,12 +106,12 @@ public :
     void initializePressure(int i);
     void computeNormal(int i);
     bool isSurfaceParticle(int i, HReal treshold);
-    std::vector<Particle> getSurfaceParticle();
+    std::vector<ParticleIISPH> getSurfaceParticle();
     void computeDensity(int i);
     void predictVelocity(int i);
     void computeDii(int i);
     void computeDii_Fluid(int i);
-    void computeDii_Boundary(int i);
+    void computeDii_BoundaryIISPH(int i);
     void computeAii(int i);
     void pressureSolve();
     void computeSumDijPj(int i);    
@@ -150,7 +149,7 @@ public :
     void addParticleBox(const Vec3r& offset, const Vec3r& dimension);
     void addParticleSphere(const Vec3r& centre, const HReal radius);
 
-    void addParticleSource(const ParticleSource<Particle>& s);
+    void addParticleSource(const ParticleSource<ParticleIISPH>& s);
 
     //Boundary sampling
     void addBoundaryMesh(const char* filename);

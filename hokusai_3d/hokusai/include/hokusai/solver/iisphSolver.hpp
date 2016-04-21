@@ -23,6 +23,9 @@
 #ifndef HOKUSAI_IISPH_SOLVER_HPP
 #define HOKUSAI_IISPH_SOLVER_HPP
 
+#include "./../utils.hpp"
+#include "./../spatialIndex.hpp"
+#include "./../grid.hpp"
 #include "./../particleIISPH.hpp"
 #include "./../boundaryIISPH.hpp"
 #include "./../particleContainer.hpp"
@@ -36,13 +39,16 @@ namespace hokusai
 class IISPHSolver
 {
 public:
-    typedef ParticleIISPH Particle;
-    typedef BoundaryIISPH Boundary;
-
     IISPHSolver();
     ~IISPHSolver();
-    std::shared_ptr< ParticleContainer<Particle> > m_particles;
-    std::shared_ptr< BoundaryContainer<Boundary> > m_boundaries;
+
+    AkinciKernel m_aKernel;
+    MonaghanKernel m_pKernel;
+    BoundaryKernel m_bKernel;
+
+    ParticleContainerPtr<ParticleIISPH> m_particles;
+    BoundaryContainerPtr<BoundaryIISPH> m_boundaries;
+    SpatialIndex<Grid> m_index;
 };
 
 }

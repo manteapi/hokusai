@@ -41,11 +41,10 @@ namespace hokusai
 //         System : creation and simulation functions
 //-----------------------------------------------------
 
-template<typename Solver>
-System<Solver>::System() :
-    m_particles( ParticleContainerPtr<Particle>() ),
-    m_boundaries( BoundaryContainerPtr<Boundary>() )
-{
+System::System(int resolution) :
+    m_particles( ParticleContainerPtr<ParticleIISPH>() ),
+    m_boundaries( BoundaryContainerPtr<BoundaryIISPH>() )
+{            
     m_countExport = 0;
     m_countTime = 0;
     m_particleNumber = 0;
@@ -75,81 +74,45 @@ System<Solver>::System() :
     m_bKernel = BoundaryKernel();
 
     m_gridInfo = GridUtility();
-    //m_particles = ParticleContainer<Particle>();
-    //m_particles = vector<Particle>();
-    //m_boundaries = BoundaryContainer<Boundary>();
-    //m_boundaries = std::vector<Boundary>();
-}
-
-template<typename Solver>
-System<Solver>::System(int resolution) :
-    m_particles( ParticleContainerPtr<Particle>() ),
-    m_boundaries( BoundaryContainerPtr<Boundary>() )
-{
-    m_countExport = 0;
-    m_countTime = 0;
-    m_particleNumber = 0;
-    m_boundaryNumber = 0;
-
-    m_volume = 0.0;
-    m_restDensity = 0.0;
-    m_meanDensity = 0.0;
-    m_densityFluctuation = 0.0;
-    m_realVolume = 0.0;
-    m_mass = 0.0;
-    m_h = 0.0;
-    m_fcohesion = 0.0;
-    m_badhesion = 0.0;
-    m_cs = 0.0;
-    m_alpha = 0.0;
-    m_boundaryH = 0.0;
-    m_dt = 0.0;
-    m_time = 0.0;
-    m_rho_avg_l = 0.0;
-    m_maxEta = 1.0;
-
-    m_gravity = Vec3r(0,-9.81,0);
-
-    m_aKernel = AkinciKernel();
-    m_pKernel = MonaghanKernel();
-    m_bKernel = BoundaryKernel();
-
-    m_gridInfo = GridUtility();
-    //m_particles = ParticleContainer<Particle>();
-    //m_particles = std::vector<Particle>();
+    //m_particles = ParticleContainer<ParticleIISPH>();
+    //m_particles = std::vector<ParticleIISPH>();
     //m_boundaries = BoundaryContainer<Boundary>();
     //m_boundaries = std::vector<Boundary>();
 
     setParameters(resolution, 1.0);
+
+    GridParams params(2.0*m_h);
+    m_pNeighbors = std::make_shared< SpatialIndex<Grid> >( params );
+    m_bNeighbors = std::make_shared< SpatialIndex<Grid> >( params );
 }
 
-template<typename Solver>
-System<Solver>::~System(){}
 
-template<typename Solver>
-void System<Solver>::computeDensity(int i)
+System::~System(){}
+
+
+void System::computeDensity(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     std::vector<int>& fneighbors=pi.fluidNeighbor;
     std::vector<int>& bneighbors=pi.boundaryNeighbor;
     pi.rho=0.0;
     for(int& j : fneighbors)
     {
-        Particle& pj=m_particles[j];
+        ParticleIISPH& pj=m_particles[j];
         pi.rho += m_mass*m_pKernel.monaghanValue(pi.x-pj.x);
     }
     for(int& j : bneighbors)
     {
-        Boundary& bj = m_boundaries[j];
+        BoundaryIISPH& bj = m_boundaries[j];
         pi.rho += m_pKernel.monaghanValue(pi.x-bj.x)*bj.psi;
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeNormal(int i)
+
+void System::computeNormal(int i)
 {
     //Compute normal
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     std::vector< int > & neighbors = m_particles[i].fluidNeighbor;
     Vec3r n(0.0);
     Vec3r gradient(0.0);
@@ -157,7 +120,7 @@ void System<Solver>::computeNormal(int i)
     {
         if(i!=j)
         {
-            Particle& pj = m_particles[j];
+            ParticleIISPH& pj = m_particles[j];
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
             n += (m_mass/pj.rho)*gradient;
         }
@@ -165,8 +128,8 @@ void System<Solver>::computeNormal(int i)
     pi.n = m_h*n;
 }
 
-template<typename Solver>
-bool System<Solver>::isSurfaceParticle(int i, HReal treshold)
+
+bool System::isSurfaceParticle(int i, HReal treshold)
 {
     HReal n_length = m_particles[i].n.lengthSquared();
     if( n_length > treshold )
@@ -179,8 +142,8 @@ bool System<Solver>::isSurfaceParticle(int i, HReal treshold)
     }
 }
 
-template<typename Solver>
-std::vector<typename Solver::Particle> System<Solver>::getSurfaceParticle()
+
+std::vector<ParticleIISPH> System::getSurfaceParticle()
 {
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
@@ -195,7 +158,7 @@ std::vector<typename Solver::Particle> System<Solver>::getSurfaceParticle()
         computeNormal(i);
 
     HReal treshold = 0.05;
-    std::vector<Particle> surfaceParticles;
+    std::vector<ParticleIISPH> surfaceParticles;
     for(int i=0; i<m_particleNumber; ++i)
     {
         if( isSurfaceParticle(i, treshold) )
@@ -204,10 +167,10 @@ std::vector<typename Solver::Particle> System<Solver>::getSurfaceParticle()
     return surfaceParticles;
 }
 
-template<typename Solver>
-void System<Solver>::computeAdvectionForces(int i)
+
+void System::computeAdvectionForces(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     pi.f_adv.fill(0.0);
     for(int& j : pi.fluidNeighbor)
     {
@@ -222,17 +185,17 @@ void System<Solver>::computeAdvectionForces(int i)
     pi.f_adv+=m_gravity*m_mass;
 }
 
-template<typename Solver>
-void System<Solver>::predictVelocity(int i)
+
+void System::predictVelocity(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     pi.v_adv = pi.v + (m_dt/m_mass)*pi.f_adv;
 }
 
-template<typename Solver>
-void System<Solver>::predictDensity(int i)
+
+void System::predictDensity(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     std::vector<int>& fneighbors=pi.fluidNeighbor;
     std::vector<int>& bneighbors=pi.boundaryNeighbor;
     HReal fdrho=0.0, bdrho=0.0;
@@ -242,7 +205,7 @@ void System<Solver>::predictDensity(int i)
     {
         if(i!=j)
         {
-            Particle& pj=m_particles[j];
+            ParticleIISPH& pj=m_particles[j];
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
             Vec3r vij_adv=pi.v_adv-pj.v_adv;
             fdrho+=m_mass*Vec3r::dotProduct(vij_adv, gradient);
@@ -251,7 +214,7 @@ void System<Solver>::predictDensity(int i)
 
     for(int& j: bneighbors)
     {
-        Boundary& bj=m_boundaries[j];
+        BoundaryIISPH& bj=m_boundaries[j];
         Vec3r vb(0.1), v(0.0); v = pi.v_adv - vb; //vb(t+dt)
         m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
         bdrho+=bj.psi*Vec3r::dotProduct(v,gradient);
@@ -260,17 +223,17 @@ void System<Solver>::predictDensity(int i)
     pi.rho_adv = pi.rho + m_dt*( fdrho + bdrho );
 }
 
-template<typename Solver>
-void System<Solver>::computeSumDijPj(int i)
+
+void System::computeSumDijPj(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     std::vector<int>& fneighbors=pi.fluidNeighbor;
     pi.sum_dij.fill(0.0);
     for(int& j : fneighbors)
     {
         if(i!=j)
         {
-            Particle& pj=m_particles[j];
+            ParticleIISPH& pj=m_particles[j];
             Vec3r gradient(0.0);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
             pi.sum_dij+=(-m_mass/pow(pj.rho,2))*pj.p_l*gradient;
@@ -279,11 +242,11 @@ void System<Solver>::computeSumDijPj(int i)
     pi.sum_dij *= pow(m_dt,2);
 }
 
-template<typename Solver>
-void System<Solver>::computeViscosityForces(int i, int j)
+
+void System::computeViscosityForces(int i, int j)
 {
-    Particle& pi=m_particles[i];
-    Particle& pj=m_particles[j];
+    ParticleIISPH& pi=m_particles[i];
+    ParticleIISPH& pj=m_particles[j];
     Vec3r r = pi.x - pj.x;
     Vec3r vij = pi.v - pj.v;
     HReal dotVijRij = Vec3r::dotProduct(vij,r);
@@ -298,11 +261,11 @@ void System<Solver>::computeViscosityForces(int i, int j)
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeBoundaryFrictionForces(int i, int j)
+
+void System::computeBoundaryFrictionForces(int i, int j)
 {
-    Particle& pi=m_particles[i];
-        Boundary& bj=m_boundaries[j];
+    ParticleIISPH& pi=m_particles[i];
+        BoundaryIISPH& bj=m_boundaries[j];
         Vec3r vij = pi.v;//-pj.v;
         Vec3r xij= pi.x - bj.x;
         HReal dotVijRij = Vec3r::dotProduct(vij,xij);
@@ -317,13 +280,13 @@ void System<Solver>::computeBoundaryFrictionForces(int i, int j)
         }
 }
 
-template<typename Solver>
-void System<Solver>::computeSurfaceTensionForces(int i, int j)
+
+void System::computeSurfaceTensionForces(int i, int j)
 {
     if(i!=j)
     {
-        Particle& pi=m_particles[i];
-        Particle& pj=m_particles[j];
+        ParticleIISPH& pi=m_particles[i];
+        ParticleIISPH& pj=m_particles[j];
         if(pi.isSurface==true || pj.isSurface==true)
         {
             Vec3r r = pi.x - pj.x;
@@ -337,31 +300,31 @@ void System<Solver>::computeSurfaceTensionForces(int i, int j)
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeBoundaryAdhesionForces(int i, int j)
+
+void System::computeBoundaryAdhesionForces(int i, int j)
 {
-    Particle& pi=m_particles[i];
-        Boundary& bj=m_boundaries[j];
+    ParticleIISPH& pi=m_particles[i];
+        BoundaryIISPH& bj=m_boundaries[j];
         Vec3r xij= pi.x - bj.x;
         HReal l = xij.length();
         pi.f_adv += -(m_badhesion*m_mass*m_boundaries[j].psi*m_aKernel.adhesionValue(l)/l)*xij;
 }
 
-template<typename Solver>
-Vec3r System<Solver>::computeDij(int i, int j)
+
+Vec3r System::computeDij(int i, int j)
 {
-    Particle& pi=m_particles[i];
-    Particle& pj=m_particles[j];
+    ParticleIISPH& pi=m_particles[i];
+    ParticleIISPH& pj=m_particles[j];
     Vec3r gradient(0.0);
     m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
     Vec3r d=-(m_dt*m_dt*m_mass)/pow(pj.rho,2)*gradient;
     return d;
 }
 
-template<typename Solver>
-void System<Solver>::computePressure(int i)
+
+void System::computePressure(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     std::vector<int>& fneighbors=pi.fluidNeighbor, bneighbors=pi.boundaryNeighbor;
     HReal fsum=0.0, bsum=0.0, omega=0.5;
 
@@ -369,7 +332,7 @@ void System<Solver>::computePressure(int i)
     {
         if(i!=j)
         {
-            Particle& pj=m_particles[j];
+            ParticleIISPH& pj=m_particles[j];
             Vec3r gradient_ij(0.0), dji=computeDij(j, i);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient_ij);
             Vec3r aux = pi.sum_dij - (pj.dii_fluid+pj.dii_boundary)*pj.p_l - (pj.sum_dij - dji*pi.p_l);
@@ -379,7 +342,7 @@ void System<Solver>::computePressure(int i)
 
     for(int& j : bneighbors)
     {
-        Boundary& bj=m_boundaries[j];
+        BoundaryIISPH& bj=m_boundaries[j];
         Vec3r gradient(0.0), r(0.0); r=pi.x-bj.x;
         m_pKernel.monaghanGradient(r, gradient);
         bsum+=bj.psi*Vec3r::dotProduct(pi.sum_dij,gradient);
@@ -396,10 +359,10 @@ void System<Solver>::computePressure(int i)
     pi.rho_corr += pi.aii*previousPl;
 }
 
-template<typename Solver>
-void System<Solver>::computePressureForce(int i)
+
+void System::computePressureForce(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     pi.f_p.fill(0.0);
     std::vector<int>& fneighbors=pi.fluidNeighbor;
     std::vector<int>& bneighbors=pi.boundaryNeighbor;
@@ -417,12 +380,12 @@ void System<Solver>::computePressureForce(int i)
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeFluidPressureForce(int i, int j)
+
+void System::computeFluidPressureForce(int i, int j)
 {
     Vec3r gradient(0.0);
-    Particle& pi=m_particles[i];
-    Particle& pj=m_particles[j];
+    ParticleIISPH& pi=m_particles[i];
+    ParticleIISPH& pj=m_particles[j];
     m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
     if( i!=j )
     {
@@ -430,25 +393,25 @@ void System<Solver>::computeFluidPressureForce(int i, int j)
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeBoundaryPressureForce(int i, int j)
+
+void System::computeBoundaryPressureForce(int i, int j)
 {
     Vec3r gradient(0.0);
-    Particle& pi=m_particles[i];
-    Boundary& bj=m_boundaries[j];
+    ParticleIISPH& pi=m_particles[i];
+    BoundaryIISPH& bj=m_boundaries[j];
         m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
         pi.f_p += -m_mass*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
 }
 
-template<typename Solver>
-void System<Solver>::initializePressure(int i)
+
+void System::initializePressure(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     pi.p_l=0.5*pi.p;
 }
 
-template<typename Solver>
-void System<Solver>::computeError()
+
+void System::computeError()
 {
     m_rho_avg_l=0.0;
     for(int i=0; i<m_particleNumber; ++i)
@@ -457,31 +420,31 @@ void System<Solver>::computeError()
 }
 
 
-template<typename Solver>
-void System<Solver>::computeDii_Boundary(int i)
+
+void System::computeDii_BoundaryIISPH(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     pi.dii_boundary.fill(0.0);
     for(int& j : pi.boundaryNeighbor)
     {
-        Boundary& bj=m_boundaries[j];
+        BoundaryIISPH& bj=m_boundaries[j];
         Vec3r gradient(0.0);
         m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
         pi.dii_boundary+=(-m_dt*m_dt*bj.psi/pow(pi.rho,2))*gradient;
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeDii_Fluid(int i)
+
+void System::computeDii_Fluid(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     pi.dii_fluid.fill(0.0);
     pi.dii_boundary.fill(0.0);
     for(int& j : pi.fluidNeighbor)
     {
         if(i!=j)
         {
-            Particle& pj=m_particles[j];
+            ParticleIISPH& pj=m_particles[j];
             Vec3r gradient(0.0);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
             pi.dii_fluid+=(-m_dt*m_dt*m_mass/pow(pi.rho,2))*gradient;
@@ -489,17 +452,17 @@ void System<Solver>::computeDii_Fluid(int i)
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeDii(int i)
+
+void System::computeDii(int i)
 {
-    Particle& pi=m_particles[i];
+    ParticleIISPH& pi=m_particles[i];
     pi.dii_fluid.fill(0.0);
     pi.dii_boundary.fill(0.0);
     for(int& j : pi.fluidNeighbor)
     {
         if(i!=j)
         {
-            Particle& pj=m_particles[j];
+            ParticleIISPH& pj=m_particles[j];
             Vec3r gradient(0.0);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
             pi.dii_fluid+=(-m_dt*m_dt*m_mass/pow(pi.rho,2))*gradient;
@@ -507,22 +470,22 @@ void System<Solver>::computeDii(int i)
     }
     for(int& j : pi.boundaryNeighbor)
     {
-        Boundary& bj=m_boundaries[j];
+        BoundaryIISPH& bj=m_boundaries[j];
         Vec3r gradient(0.0);
         m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
         pi.dii_boundary+=(-m_dt*m_dt*bj.psi/pow(pi.rho,2))*gradient;
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeAii( int i)
+
+void System::computeAii( int i)
 {
-    Particle& pi=m_particles[i]; pi.aii=0.0;
+    ParticleIISPH& pi=m_particles[i]; pi.aii=0.0;
     for(int& j : pi.fluidNeighbor)
     {
         if(i!=j)
         {
-            Particle& pj=m_particles[j];
+            ParticleIISPH& pj=m_particles[j];
             Vec3r dji=computeDij(j,i);
             Vec3r gradient_ij(0.0);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient_ij);
@@ -531,17 +494,17 @@ void System<Solver>::computeAii( int i)
     }
     for(int& j : pi.boundaryNeighbor)
     {
-        Boundary& bj=m_boundaries[j];
+        BoundaryIISPH& bj=m_boundaries[j];
         Vec3r gradient_ij(0.0);
         m_pKernel.monaghanGradient(pi.x-bj.x, gradient_ij);
         pi.aii+=bj.psi*Vec3r::dotProduct(pi.dii_fluid+pi.dii_boundary,gradient_ij);
     }
 }
 
-template<typename Solver>
-void System<Solver>::getNearestNeighbor(const int i, const HReal radius)
+
+void System::getNearestNeighbor(const int i, const HReal radius)
 {
-    Particle& p = m_particles[i];
+    ParticleIISPH& p = m_particles[i];
     p.fluidNeighbor.clear();
     p.boundaryNeighbor.clear();
 
@@ -554,7 +517,7 @@ void System<Solver>::getNearestNeighbor(const int i, const HReal radius)
         for(size_t j=0; j<bNeighborCell.size(); ++j)
         {
             int bParticleId = m_boundaryGrid[neighborCell[i]][j];
-            Boundary& bParticle = m_boundaries[bParticleId];
+            BoundaryIISPH& bParticle = m_boundaries[bParticleId];
             Vec3r d = bParticle.x-p.x;
             if( d.lengthSquared()<radius*radius )
                 p.boundaryNeighbor.push_back(bParticleId);
@@ -564,7 +527,7 @@ void System<Solver>::getNearestNeighbor(const int i, const HReal radius)
         for(size_t j=0; j< fNeighborCell.size(); ++j)
         {
             int fParticleId = m_fluidGrid[neighborCell[i]][j];
-            Particle& fParticle = m_particles[fParticleId];
+            ParticleIISPH& fParticle = m_particles[fParticleId];
             Vec3r d = fParticle.x-p.x;
             if( d.lengthSquared()<radius*radius)
                 p.fluidNeighbor.push_back(fParticleId);
@@ -572,14 +535,14 @@ void System<Solver>::getNearestNeighbor(const int i, const HReal radius)
     }
 }
 
-template<typename Solver>
-ParticleContainer<typename Solver::Particle>& System<Solver>::getParticles()
+
+ParticleContainer<ParticleIISPH>& System::getParticles()
 {
     return *(m_particles.get());
 }
 
-template<typename Solver>
-void System<Solver>::getNearestNeighbor(std::vector< int >& neighbor, const std::vector< std::vector<int> >& grid, const Vec3r &x)
+
+void System::getNearestNeighbor(std::vector< int >& neighbor, const std::vector< std::vector<int> >& grid, const Vec3r &x)
 {
     std::vector<int> neighborCell;
     m_gridInfo.get27Neighbors(neighborCell, x, m_gridInfo.spacing());
@@ -593,8 +556,8 @@ void System<Solver>::getNearestNeighbor(std::vector< int >& neighbor, const std:
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeBoundaryVolume()
+
+void System::computeBoundaryVolume()
 {
     for(int i=0; i<m_boundaryNumber; ++i)
     {
@@ -607,8 +570,8 @@ void System<Solver>::computeBoundaryVolume()
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeMeanDensity()
+
+void System::computeMeanDensity()
 {
     m_meanDensity=0.0;
     for(int i=0; i<m_particleNumber; ++i)
@@ -618,14 +581,14 @@ void System<Solver>::computeMeanDensity()
     m_meanDensity/=m_particleNumber;
 }
 
-template<typename Solver>
-void System<Solver>::computeDensityFluctuation()
+
+void System::computeDensityFluctuation()
 {
     m_densityFluctuation=m_meanDensity-m_restDensity;
 }
 
-template<typename Solver>
-void System<Solver>::computeVolume()
+
+void System::computeVolume()
 {
     m_realVolume=0.0;
     for(int i=0; i<m_particleNumber; ++i)
@@ -634,20 +597,20 @@ void System<Solver>::computeVolume()
     }
 }
 
-template<typename Solver>
-void System<Solver>::setGravity(const Vec3r& _gravity)
+
+void System::setGravity(const Vec3r& _gravity)
 {
     m_gravity = _gravity;
 }
 
-template<typename Solver>
-const Vec3r& System<Solver>::getGravity()
+
+const Vec3r& System::getGravity()
 {
     return m_gravity;
 }
 
-template<typename Solver>
-void System<Solver>::setParameters( int _wishedNumber, HReal _volume )
+
+void System::setParameters( int _wishedNumber, HReal _volume )
 {
     m_time = 0.0;
     m_countTime = 0.0;
@@ -659,8 +622,8 @@ void System<Solver>::setParameters( int _wishedNumber, HReal _volume )
     m_maxEta=1.0;
     m_restDensity = 1000;
     m_mass = (m_restDensity * m_volume) / _wishedNumber;
-    m_particlePerCell = 33.8; //better
-    m_h = 0.5*pow( HReal(3*m_volume*m_particlePerCell) / HReal(4*M_PI*_wishedNumber), 1.0/3.0);
+    HReal particlePerCell = 33.8; //better
+    m_h = 0.5*pow( HReal(3*m_volume*particlePerCell) / HReal(4*M_PI*_wishedNumber), 1.0/3.0);
 
     HReal eta = 0.01;
     HReal H = 0.1;
@@ -680,8 +643,8 @@ void System<Solver>::setParameters( int _wishedNumber, HReal _volume )
     m_bKernel = BoundaryKernel( m_boundaryH, m_cs );
 }
 
-template<typename Solver>
-void System<Solver>::init()
+
+void System::init()
 {
     mortonSort();
 
@@ -707,8 +670,8 @@ void System<Solver>::init()
     debugFluid();
 }
 
-template<typename Solver>
-void System<Solver>::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
+
+void System::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
 {
     int epsilon = 0;
     int widthSize = floor(scale[0]/m_h);
@@ -721,7 +684,7 @@ void System<Solver>::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
             Vec3r position(i*m_h, offset[1], j*m_h);
-            m_boundaries.add(Boundary(position,Vec3r(0.0),0.0));
+            m_boundaries.add(BoundaryIISPH(position,Vec3r(0.0),0.0));
             m_boundaryNumber++;
         }
     }
@@ -732,7 +695,7 @@ void System<Solver>::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
             Vec3r position(i*m_h, offset[1]+scale[1], j*m_h);
-            m_boundaries.add(Boundary(position,Vec3r(0.0),0.0));
+            m_boundaries.add(BoundaryIISPH(position,Vec3r(0.0),0.0));
             m_boundaryNumber++;
         }
     }
@@ -743,7 +706,7 @@ void System<Solver>::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
         for(int j = -epsilon; j <= heightSize+epsilon; ++j)
         {
             Vec3r position(i*m_h, j*m_h, offset[2]);
-            m_boundaries.add(Boundary(position,Vec3r(0.0),0.0));
+            m_boundaries.add(BoundaryIISPH(position,Vec3r(0.0),0.0));
             m_boundaryNumber++;
         }
     }
@@ -754,7 +717,7 @@ void System<Solver>::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
         for(int j = -epsilon; j <= heightSize-epsilon; ++j)
         {
             Vec3r position(i*m_h, j*m_h, offset[2]+scale[2]);
-            m_boundaries.add(Boundary(position,Vec3r(0.0),0.0));
+            m_boundaries.add(BoundaryIISPH(position,Vec3r(0.0),0.0));
             m_boundaryNumber++;
         }
     }
@@ -765,7 +728,7 @@ void System<Solver>::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
             Vec3r position(offset[0], i*m_h, j*m_h);
-            m_boundaries.add(Boundary(position,Vec3r(0.0),0.0));
+            m_boundaries.add(BoundaryIISPH(position,Vec3r(0.0),0.0));
             m_boundaryNumber++;
         }
     }
@@ -776,7 +739,7 @@ void System<Solver>::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
             Vec3r position(offset[0]+scale[0], i*m_h, j*m_h);
-            m_boundaries.add(Boundary(position,Vec3r(0.0),0.0));
+            m_boundaries.add(BoundaryIISPH(position,Vec3r(0.0),0.0));
             m_boundaryNumber++;
         }
     }
@@ -784,42 +747,42 @@ void System<Solver>::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
     m_gridInfo.update(offset-Vec3r(2.0*m_h), scale+Vec3r(4.0*m_h), 2.0*m_h);
 }
 
-template<typename Solver>
-void System<Solver>::addBoundarySphere(const Vec3r& offset, const HReal& radius)
+
+void System::addBoundarySphere(const Vec3r& offset, const HReal& radius)
 {
     std::vector<Vec3r> samples = getSphereSampling(offset, radius, m_h, m_h);
     for(size_t i=0; i<samples.size(); ++i)
     {
-        m_boundaries.add(Boundary(samples[i],Vec3r(0.0),0.0));
+        m_boundaries.add(BoundaryIISPH(samples[i],Vec3r(0.0),0.0));
         m_boundaryNumber++;
     }
 }
 
-template<typename Solver>
-void System<Solver>::addBoundaryHemiSphere(const Vec3r& offset, const HReal& radius)
+
+void System::addBoundaryHemiSphere(const Vec3r& offset, const HReal& radius)
 {
     std::vector<Vec3r> samples = getHemiSphereSampling(offset, radius, m_h, m_h);
     for(size_t i=0; i<samples.size(); ++i)
     {
-        m_boundaries.add(Boundary(samples[i],Vec3r(0.0),0.0));
+        m_boundaries.add(BoundaryIISPH(samples[i],Vec3r(0.0),0.0));
         m_boundaryNumber++;
     }
 }
 
-template<typename Solver>
-void System<Solver>::addBoundaryDisk(const Vec3r& offset, const HReal& radius)
+
+void System::addBoundaryDisk(const Vec3r& offset, const HReal& radius)
 {
     std::vector<Vec3r> samples = getDiskSampling(offset, radius, m_h);
     for(size_t i=0; i<samples.size(); ++i)
     {
-        m_boundaries.add(Boundary(samples[i],Vec3r(0.0),0.0));
+        m_boundaries.add(BoundaryIISPH(samples[i],Vec3r(0.0),0.0));
         m_boundaryNumber++;
     }
 }
 
 
-template<typename Solver>
-void System<Solver>::translateBoundaries(const Vec3r& t)
+
+void System::translateBoundaries(const Vec3r& t)
 {
     for(size_t i=0; i<m_boundaries.size(); ++i)
     {
@@ -827,8 +790,8 @@ void System<Solver>::translateBoundaries(const Vec3r& t)
     }
 }
 
-template<typename Solver>
-void System<Solver>::translateParticles(const Vec3r& t)
+
+void System::translateParticles(const Vec3r& t)
 {
     for(size_t i=0; i<m_particles.size(); ++i)
     {
@@ -836,8 +799,8 @@ void System<Solver>::translateParticles(const Vec3r& t)
     }
 }
 
-template<typename Solver>
-void System<Solver>::addParticleSphere(const Vec3r& centre, const HReal radius)
+
+void System::addParticleSphere(const Vec3r& centre, const HReal radius)
 {
     Vec3r scale(2.0*radius, 2.0*radius, 2.0*radius);
     Vec3r offset = centre - Vec3r(radius, radius, radius);
@@ -851,20 +814,20 @@ void System<Solver>::addParticleSphere(const Vec3r& centre, const HReal radius)
         HReal l2 = (centre-_x).lengthSquared();
         if(l2<=(radius*radius))
         {
-            m_particles.add( Particle(_x,_v) );
+            m_particles.add( ParticleIISPH(_x,_v) );
             m_particleNumber++;
         }
     }
 }
 
-template<typename Solver>
-void System<Solver>::addParticleSource(const ParticleSource<Particle> &s)
+
+void System::addParticleSource(const ParticleSource<ParticleIISPH> &s)
 {
     m_pSources.push_back(s);
 }
 
-template<typename Solver>
-void System<Solver>::addParticleBox(const Vec3r& offset, const Vec3r& scale)
+
+void System::addParticleBox(const Vec3r& offset, const Vec3r& scale)
 {
     int widthSize = floor(scale[0]/m_h);
     int heightSize = floor(scale[1]/m_h);
@@ -878,15 +841,15 @@ void System<Solver>::addParticleBox(const Vec3r& offset, const Vec3r& scale)
             {
                 Vec3r _x = offset + Vec3r(i*m_h,j*m_h,k*m_h);
                 Vec3r _v(0,0,0);
-                m_particles.add( Particle(_x,_v) );
+                m_particles.add( ParticleIISPH(_x,_v) );
                 m_particleNumber++;
             }
         }
     }
 }
 
-template<typename Solver>
-void System<Solver>::addParticleBox(HReal width, HReal height, HReal depth, HReal spacing)
+
+void System::addParticleBox(HReal width, HReal height, HReal depth, HReal spacing)
 {
     int widthSize = floor(width/spacing);
     int heightSize = floor(height/spacing);
@@ -900,7 +863,7 @@ void System<Solver>::addParticleBox(HReal width, HReal height, HReal depth, HRea
             {
                 Vec3r _x(i*spacing,j*spacing,k*spacing);
                 Vec3r _v(0,0,0);
-                m_particles.add( Particle(_x,_v) );
+                m_particles.add( ParticleIISPH(_x,_v) );
                 m_particleNumber++;
             }
         }
@@ -908,8 +871,8 @@ void System<Solver>::addParticleBox(HReal width, HReal height, HReal depth, HRea
 }
 
 
-template<typename Solver>
-void System<Solver>::createParticleVolume(Vec3r& pos, HReal width, HReal /*height*/, HReal depth, HReal spacing, int particleMax)
+
+void System::createParticleVolume(Vec3r& pos, HReal width, HReal /*height*/, HReal depth, HReal spacing, int particleMax)
 {
     int widthSize = floor( width/spacing );
     int depthSize = floor( depth/spacing );
@@ -925,7 +888,7 @@ void System<Solver>::createParticleVolume(Vec3r& pos, HReal width, HReal /*heigh
                 {
                     Vec3r _x(pos[0]+i*spacing,pos[1]+j*spacing,pos[2]+k*spacing);
                     Vec3r _v(0,0,0);
-                    m_particles.add( Particle(_x,_v) );
+                    m_particles.add( ParticleIISPH(_x,_v) );
                     m_particleNumber++;
                 }
                 count++;
@@ -935,22 +898,22 @@ void System<Solver>::createParticleVolume(Vec3r& pos, HReal width, HReal /*heigh
     }
 }
 
-template<typename Solver>
-void System<Solver>::addFluidParticle(const Vec3r& x, const Vec3r& v)
+
+void System::addFluidParticle(const Vec3r& x, const Vec3r& v)
 {
-    m_particles.add( Particle(x,v) );
+    m_particles.add( ParticleIISPH(x,v) );
     m_particleNumber++;
 }
 
-template<typename Solver>
-void System<Solver>::addBoundaryParticle(const Vec3r& x, const Vec3r& v)
+
+void System::addBoundaryParticle(const Vec3r& x, const Vec3r& v)
 {
-    m_boundaries.add( Boundary(x,v) );
+    m_boundaries.add( BoundaryIISPH(x,v) );
     m_boundaryNumber++;
 }
 
-template<typename Solver>
-void System<Solver>::addBoundaryMesh(const char* filename)
+
+void System::addBoundaryMesh(const char* filename)
 {
     TriMesh mesh(filename);
     std::vector<Vec3r> samples;
@@ -963,7 +926,7 @@ void System<Solver>::addBoundaryMesh(const char* filename)
             minBB[j] = std::min(samples[i][j], minBB[j]);
             maxBB[j] = std::max(samples[i][j], maxBB[j]);
         }
-        m_boundaries.add(Boundary(samples[i],Vec3r(0.0),0.0));
+        m_boundaries.add(BoundaryIISPH(samples[i],Vec3r(0.0),0.0));
         m_boundaryNumber++;
     }
     Vec3r offset = minBB;
@@ -976,8 +939,8 @@ bool pairCompare( const std::pair<int,int>& e1, const std::pair<int,int>& e2 )
     return (e1.second < e2.second);
 }
 
-template<typename Solver>
-void System<Solver>::mortonSort()
+
+void System::mortonSort()
 {
     std::vector< std::pair<int, int> > particleZindex;
 
@@ -997,9 +960,9 @@ void System<Solver>::mortonSort()
     std::sort( particleZindex.begin(), particleZindex.end(), pairCompare );
 
     //Move particles according to z-index
-    ParticleContainerPtr<Particle> oldParticles(m_particles);
+    ParticleContainerPtr<ParticleIISPH> oldParticles(m_particles);
 
-    //ParticleContainer<Particle> oldParticles = m_particles;
+    //ParticleContainer<ParticleIISPH> oldParticles = m_particles;
     //vector< Particle > oldParticles = m_particles;
 
     //HReal min = particleZindex[0].second;
@@ -1019,9 +982,10 @@ void System<Solver>::mortonSort()
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeSurfaceParticle()
+
+void System::computeSurfaceParticle()
 {
+    /*
     for(size_t i=0; i<m_particles.size(); ++i)
     {
         m_particles[i].isSurface = false;
@@ -1058,10 +1022,11 @@ void System<Solver>::computeSurfaceParticle()
             surfaceParticle++;
         }
     }
+    */
 }
 
-template<typename Solver>
-void System<Solver>::prepareGrid()
+
+void System::prepareGrid()
 {
     if( m_countTime%100 == 0 )
         mortonSort();
@@ -1083,8 +1048,8 @@ void System<Solver>::prepareGrid()
         getNearestNeighbor(i, 2.0*m_h);
 }
 
-template<typename Solver>
-void System<Solver>::predictAdvection()
+
+void System::predictAdvection()
 {
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
@@ -1098,7 +1063,7 @@ void System<Solver>::predictAdvection()
     for(int i=0; i<m_particleNumber; ++i)
         computeNormal(i);
 
-    computeSurfaceParticle();
+    //computeSurfaceParticleIISPH();
 
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
@@ -1121,8 +1086,8 @@ void System<Solver>::predictAdvection()
     }
 }
 
-template<typename Solver>
-void System<Solver>::pressureSolve()
+
+void System::pressureSolve()
 {
     int l=0; m_rho_avg_l = 0.0;
 
@@ -1151,8 +1116,8 @@ void System<Solver>::pressureSolve()
 
 }
 
-template<typename Solver>
-void System<Solver>::integration()
+
+void System::integration()
 {
     m_countTime++; m_time+=m_dt;
 
@@ -1167,14 +1132,14 @@ void System<Solver>::integration()
 #endif
     for(int i=0; i<m_particleNumber; ++i)
     {
-        Particle& pi=m_particles[i];
+        ParticleIISPH& pi=m_particles[i];
         pi.v = pi.v_adv + (m_dt*pi.f_p)/m_mass;
         pi.x += m_dt*pi.v;
     }
 }
 
-template<typename Solver>
-void System<Solver>::computeSimulationStep()
+
+void System::computeSimulationStep()
 {
     prepareGrid();
     predictAdvection();
@@ -1186,13 +1151,13 @@ void System<Solver>::computeSimulationStep()
     computeStats();
 }
 
-template<typename Solver>
-void System<Solver>::applySources()
+
+void System::applySources()
 {
-    for(ParticleSource<Particle>& s : m_pSources)
+    for(ParticleSource<ParticleIISPH>& s : m_pSources)
     {
-        std::vector<Particle> p_new = s.apply(this->m_time);
-        for(const Particle& p : p_new)
+        std::vector<ParticleIISPH> p_new = s.apply(this->m_time);
+        for(const ParticleIISPH& p : p_new)
         {
             m_particles.add(p);
             m_particleNumber++;
@@ -1200,21 +1165,21 @@ void System<Solver>::applySources()
     }
 }
 
-template<typename Solver>
-void System<Solver>::applySinks()
+
+void System::applySinks()
 {
 }
 
-template<typename Solver>
-void System<Solver>::computeStats()
+
+void System::computeStats()
 {
     computeMeanDensity();
     computeVolume();
     computeDensityFluctuation();
 }
 
-template<typename Solver>
-void System<Solver>::debugIteration(int l)
+
+void System::debugIteration(int l)
 {
     std::cout.precision(10);
     std::cout << "rest density " << m_restDensity << std::endl;
@@ -1222,8 +1187,8 @@ void System<Solver>::debugIteration(int l)
     std::cout << "l : " << l << std::endl;
 }
 
-template<typename Solver>
-void System<Solver>::debugFluid()
+
+void System::debugFluid()
 {
     std::cout << "Particle Number : " << m_particleNumber << std::endl;
     std::cout << "Boundary Number : " << m_boundaryNumber << std::endl;
@@ -1236,8 +1201,8 @@ void System<Solver>::debugFluid()
     m_gridInfo.info();
 }
 
-template<typename Solver>
-void System<Solver>::write(const char * filename, std::vector<HReal> data)
+
+void System::write(const char * filename, std::vector<HReal> data)
 {
     std::ofstream outputFile;
     outputFile.open(filename);
@@ -1249,8 +1214,8 @@ void System<Solver>::write(const char * filename, std::vector<HReal> data)
     outputFile.close();
 }
 
-template<typename Solver>
-void System<Solver>::write(const char * filename, std::vector<Vec3r > data)
+
+void System::write(const char * filename, std::vector<Vec3r > data)
 {
     std::ofstream outputFile;
     outputFile.open(filename);
@@ -1262,8 +1227,8 @@ void System<Solver>::write(const char * filename, std::vector<Vec3r > data)
     outputFile.close();
 }
 
-template<typename Solver>
-void System<Solver>::exportState(const char * baseName)
+
+void System::exportState(const char * baseName)
 {
     std::vector< Vec3r > x = getPosition();
     std::vector< Vec3r > v = getVelocity();

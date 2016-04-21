@@ -22,6 +22,7 @@ endif()
 set(HOKUSAI_SOURCE
     ./src/solver/iisphSolver.cpp
     ./src/system.cpp
+    ./src/spatialIndex.cpp
     ./src/particleContainer.cpp
     ./src/boundaryContainer.cpp
     ./src/particleIISPH.cpp
@@ -30,6 +31,7 @@ set(HOKUSAI_SOURCE
     ./src/HSL2RGB.cpp
     ./src/write_bmp.cpp
     ./src/gridUtility.cpp
+    ./src/grid.cpp
     ./src/io.cpp
     ./src/rasterizer.cpp
     ./src/triMesh.cpp
@@ -46,6 +48,8 @@ set(HOKUSAI_HEADER
     ./include/hokusai/common.hpp
     ./include/hokusai/particleIISPH.hpp
     ./include/hokusai/boundaryIISPH.hpp
+    ./include/hokusai/spatialIndex.hpp
+    ./include/hokusai/spatialIndex.inl
     ./include/hokusai/particleContainer.hpp
     ./include/hokusai/particleContainer.inl
     ./include/hokusai/boundaryContainer.hpp
@@ -55,6 +59,7 @@ set(HOKUSAI_HEADER
     ./include/hokusai/HSL2RGB.hpp
     ./include/hokusai/write_bmp.hpp
     ./include/hokusai/gridUtility.hpp
+    ./include/hokusai/grid.hpp
     ./include/hokusai/io.hpp
     ./include/hokusai/rasterizer.hpp
     ./include/hokusai/triMesh.hpp
