@@ -67,13 +67,11 @@ System::System()
 
     m_gravity = Vec3r(0,-9.81,0);
 
-    m_aKernel = AkinciKernel();
-    m_pKernel = MonaghanKernel();
-    m_bKernel = BoundaryKernel();
+    m_iisphParams = IISPHParams();
 
     m_gridInfo = GridUtility();
-    m_particles = vector<Particle>();
-    m_boundaries = vector<Boundary>();
+    m_particles = std::vector<Particle>();
+    m_boundaries = std::vector<Boundary>();
 }
 
 System::System(int resolution)
@@ -102,13 +100,11 @@ System::System(int resolution)
 
     m_gravity = Vec3r(0,-9.81,0);
 
-    m_aKernel = AkinciKernel();
-    m_pKernel = MonaghanKernel();
-    m_bKernel = BoundaryKernel();
+    m_iisphParams = IISPHParams();
 
     m_gridInfo = GridUtility();
-    m_particles = vector<Particle>();
-    m_boundaries = vector<Boundary>();
+    m_particles = std::vector<Particle>();
+    m_boundaries = std::vector<Boundary>();
 
     setParameters(resolution, 1.0);
 }
@@ -118,18 +114,18 @@ System::~System(){}
 void System::computeDensity(int i)
 {
     Particle& pi=m_particles[i];
-    vector<int>& fneighbors=pi.fluidNeighbor;
-    vector<int>& bneighbors=pi.boundaryNeighbor;
+    std::vector<int>& fneighbors=pi.fluidNeighbor;
+    std::vector<int>& bneighbors=pi.boundaryNeighbor;
     pi.rho=0.0;
     for(int& j : fneighbors)
     {
         Particle& pj=m_particles[j];
-        pi.rho += m_mass*m_pKernel.monaghanValue(pi.x-pj.x);
+        pi.rho += m_mass*m_iisphParams.monaghanKernel().monaghanValue(pi.x-pj.x);
     }
     for(int& j : bneighbors)
     {
         Boundary& bj = m_boundaries[j];
-        pi.rho += m_pKernel.monaghanValue(pi.x-bj.x)*bj.psi;
+        pi.rho += m_iisphParams.monaghanKernel().monaghanValue(pi.x-bj.x)*bj.psi;
     }
 }
 
@@ -137,7 +133,7 @@ void System::computeNormal(int i)
 {
     //Compute normal
     Particle& pi=m_particles[i];
-    vector< int > & neighbors = m_particles[i].fluidNeighbor;
+    std::vector< int > & neighbors = m_particles[i].fluidNeighbor;
     Vec3r n(0.0);
     Vec3r gradient(0.0);
     for(int& j : neighbors)
@@ -145,7 +141,7 @@ void System::computeNormal(int i)
         if(i!=j)
         {
             Particle& pj = m_particles[j];
-            m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
+            m_iisphParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient);
             n += (m_mass/pj.rho)*gradient;
         }
     }
@@ -165,7 +161,7 @@ bool System::isSurfaceParticle(int i, HReal treshold)
     }
 }
 
-vector<Particle> System::getSurfaceParticle()
+std::vector<Particle> System::getSurfaceParticle()
 {
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
@@ -180,7 +176,7 @@ vector<Particle> System::getSurfaceParticle()
         computeNormal(i);
 
     HReal treshold = 0.05;
-    vector<Particle> surfaceParticles;
+    std::vector<Particle> surfaceParticles;
     for(int i=0; i<m_particleNumber; ++i)
     {
         if( isSurfaceParticle(i, treshold) )
@@ -215,8 +211,8 @@ void System::predictVelocity(int i)
 void System::predictDensity(int i)
 {
     Particle& pi=m_particles[i];
-    vector<int>& fneighbors=pi.fluidNeighbor;
-    vector<int>& bneighbors=pi.boundaryNeighbor;
+    std::vector<int>& fneighbors=pi.fluidNeighbor;
+    std::vector<int>& bneighbors=pi.boundaryNeighbor;
     HReal fdrho=0.0, bdrho=0.0;
     Vec3r gradient(0.0);
 
@@ -225,7 +221,7 @@ void System::predictDensity(int i)
         if(i!=j)
         {
             Particle& pj=m_particles[j];
-            m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
+            m_iisphParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient);
             Vec3r vij_adv=pi.v_adv-pj.v_adv;
             fdrho+=m_mass*Vec3r::dotProduct(vij_adv, gradient);
         }
@@ -235,7 +231,7 @@ void System::predictDensity(int i)
     {
         Boundary& bj=m_boundaries[j];
         Vec3r vb(0.1), v(0.0); v = pi.v_adv - vb; //vb(t+dt)
-        m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
+        m_iisphParams.monaghanKernel().monaghanGradient(pi.x-bj.x, gradient);
         bdrho+=bj.psi*Vec3r::dotProduct(v,gradient);
     }
 
@@ -245,7 +241,7 @@ void System::predictDensity(int i)
 void System::computeSumDijPj(int i)
 {
     Particle& pi=m_particles[i];
-    vector<int>& fneighbors=pi.fluidNeighbor;
+    std::vector<int>& fneighbors=pi.fluidNeighbor;
     pi.sum_dij.fill(0.0);
     for(int& j : fneighbors)
     {
@@ -253,7 +249,7 @@ void System::computeSumDijPj(int i)
         {
             Particle& pj=m_particles[j];
             Vec3r gradient(0.0);
-            m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
+            m_iisphParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient);
             pi.sum_dij+=(-m_mass/pow(pj.rho,2))*pj.p_l*gradient;
         }
     }
@@ -272,7 +268,7 @@ void System::computeViscosityForces(int i, int j)
         HReal kij = 2.0*m_restDensity/(pi.rho+pj.rho);
         HReal epsilon=0.01;
         Vec3r gradient(0.0);
-        m_pKernel.monaghanGradient(r, gradient);
+        m_iisphParams.monaghanKernel().monaghanGradient(r, gradient);
         HReal Pij = -kij*(2.0*m_alpha*m_h*m_cs/(pi.rho+pj.rho)) * ( dotVijRij / (r.lengthSquared() + epsilon*m_h*m_h) );
         pi.f_adv += -kij*m_mass*m_mass*Pij*gradient;
     }
@@ -291,7 +287,7 @@ void System::computeBoundaryFrictionForces(int i, int j)
             HReal epsilon=0.01;
             HReal nu = (m_sigma*m_h*m_cs)/(2.0*pi.rho);
             HReal Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.lengthSquared() + epsilon*m_h*m_h) );
-            m_pKernel.monaghanGradient(xij, gradient);
+            m_iisphParams.monaghanKernel().monaghanGradient(xij, gradient);
             pi.f_adv += -m_mass*bj.psi*Pij*gradient;
         }
 }
@@ -307,7 +303,7 @@ void System::computeSurfaceTensionForces(int i, int j)
             Vec3r r = pi.x - pj.x;
             HReal kij = 2.0*m_restDensity/(pi.rho+pj.rho);
             HReal l = r.length();
-            Vec3r cohesionForce = -(m_fcohesion*m_mass*m_mass*m_aKernel.cohesionValue(l)/l) * r;
+            Vec3r cohesionForce = -(m_fcohesion*m_mass*m_mass*m_iisphParams.akinciKernel().cohesionValue(l)/l) * r;
             Vec3r nij = pi.n-pj.n;
             Vec3r curvatureForce = -m_fcohesion*m_mass*nij;
             pi.f_adv += kij*(cohesionForce+curvatureForce);
@@ -321,7 +317,7 @@ void System::computeBoundaryAdhesionForces(int i, int j)
         Boundary& bj=m_boundaries[j];
         Vec3r xij= pi.x - bj.x;
         HReal l = xij.length();
-        pi.f_adv += -(m_badhesion*m_mass*m_boundaries[j].psi*m_aKernel.adhesionValue(l)/l)*xij;
+        pi.f_adv += -(m_badhesion*m_mass*m_boundaries[j].psi*m_iisphParams.akinciKernel().adhesionValue(l)/l)*xij;
 }
 
 Vec3r System::computeDij(int i, int j)
@@ -329,7 +325,7 @@ Vec3r System::computeDij(int i, int j)
     Particle& pi=m_particles[i];
     Particle& pj=m_particles[j];
     Vec3r gradient(0.0);
-    m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
+    m_iisphParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient);
     Vec3r d=-(m_dt*m_dt*m_mass)/pow(pj.rho,2)*gradient;
     return d;
 }
@@ -337,7 +333,7 @@ Vec3r System::computeDij(int i, int j)
 void System::computePressure(int i)
 {
     Particle& pi=m_particles[i];
-    vector<int>& fneighbors=pi.fluidNeighbor, bneighbors=pi.boundaryNeighbor;
+    std::vector<int>& fneighbors=pi.fluidNeighbor, bneighbors=pi.boundaryNeighbor;
     HReal fsum=0.0, bsum=0.0, omega=0.5;
 
     for(int& j : fneighbors)
@@ -346,7 +342,7 @@ void System::computePressure(int i)
         {
             Particle& pj=m_particles[j];
             Vec3r gradient_ij(0.0), dji=computeDij(j, i);
-            m_pKernel.monaghanGradient(pi.x-pj.x, gradient_ij);
+            m_iisphParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient_ij);
             Vec3r aux = pi.sum_dij - (pj.dii_fluid+pj.dii_boundary)*pj.p_l - (pj.sum_dij - dji*pi.p_l);
             fsum+=m_mass*Vec3r::dotProduct(aux, gradient_ij);
         }
@@ -356,7 +352,7 @@ void System::computePressure(int i)
     {
         Boundary& bj=m_boundaries[j];
         Vec3r gradient(0.0), r(0.0); r=pi.x-bj.x;
-        m_pKernel.monaghanGradient(r, gradient);
+        m_iisphParams.monaghanKernel().monaghanGradient(r, gradient);
         bsum+=bj.psi*Vec3r::dotProduct(pi.sum_dij,gradient);
     }
 
@@ -375,8 +371,8 @@ void System::computePressureForce(int i)
 {
     Particle& pi=m_particles[i];
     pi.f_p.fill(0.0);
-    vector<int>& fneighbors=pi.fluidNeighbor;
-    vector<int>& bneighbors=pi.boundaryNeighbor;
+    std::vector<int>& fneighbors=pi.fluidNeighbor;
+    std::vector<int>& bneighbors=pi.boundaryNeighbor;
 
     //Fluid Pressure Force
     for(int& j : fneighbors)
@@ -396,7 +392,7 @@ void System::computeFluidPressureForce(int i, int j)
     Vec3r gradient(0.0);
     Particle& pi=m_particles[i];
     Particle& pj=m_particles[j];
-    m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
+    m_iisphParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient);
     if( i!=j )
     {
         pi.f_p += -m_mass*m_mass*( pi.p/pow(pi.rho,2) + pj.p/pow(pj.rho,2) ) * gradient;
@@ -408,7 +404,7 @@ void System::computeBoundaryPressureForce(int i, int j)
     Vec3r gradient(0.0);
     Particle& pi=m_particles[i];
     Boundary& bj=m_boundaries[j];
-        m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
+        m_iisphParams.monaghanKernel().monaghanGradient(pi.x-bj.x, gradient);
         pi.f_p += -m_mass*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
 }
 
@@ -435,7 +431,7 @@ void System::computeDii_Boundary(int i)
     {
         Boundary& bj=m_boundaries[j];
         Vec3r gradient(0.0);
-        m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
+        m_iisphParams.monaghanKernel().monaghanGradient(pi.x-bj.x, gradient);
         pi.dii_boundary+=(-m_dt*m_dt*bj.psi/pow(pi.rho,2))*gradient;
     }
 }
@@ -451,7 +447,7 @@ void System::computeDii_Fluid(int i)
         {
             Particle& pj=m_particles[j];
             Vec3r gradient(0.0);
-            m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
+            m_iisphParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient);
             pi.dii_fluid+=(-m_dt*m_dt*m_mass/pow(pi.rho,2))*gradient;
         }
     }
@@ -468,7 +464,7 @@ void System::computeDii(int i)
         {
             Particle& pj=m_particles[j];
             Vec3r gradient(0.0);
-            m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
+            m_iisphParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient);
             pi.dii_fluid+=(-m_dt*m_dt*m_mass/pow(pi.rho,2))*gradient;
         }
     }
@@ -476,7 +472,7 @@ void System::computeDii(int i)
     {
         Boundary& bj=m_boundaries[j];
         Vec3r gradient(0.0);
-        m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
+        m_iisphParams.monaghanKernel().monaghanGradient(pi.x-bj.x, gradient);
         pi.dii_boundary+=(-m_dt*m_dt*bj.psi/pow(pi.rho,2))*gradient;
     }
 }
@@ -491,7 +487,7 @@ void System::computeAii( int i)
             Particle& pj=m_particles[j];
             Vec3r dji=computeDij(j,i);
             Vec3r gradient_ij(0.0);
-            m_pKernel.monaghanGradient(pi.x-pj.x, gradient_ij);
+            m_iisphParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient_ij);
             pi.aii+=m_mass*Vec3r::dotProduct((pi.dii_fluid+pi.dii_boundary)-dji,gradient_ij);
         }
     }
@@ -499,7 +495,7 @@ void System::computeAii( int i)
     {
         Boundary& bj=m_boundaries[j];
         Vec3r gradient_ij(0.0);
-        m_pKernel.monaghanGradient(pi.x-bj.x, gradient_ij);
+        m_iisphParams.monaghanKernel().monaghanGradient(pi.x-bj.x, gradient_ij);
         pi.aii+=bj.psi*Vec3r::dotProduct(pi.dii_fluid+pi.dii_boundary,gradient_ij);
     }
 }
@@ -537,7 +533,7 @@ void System::getNearestNeighbor(const int i, const HReal radius)
     }
 }
 
-void System::getNearestNeighbor(vector< int >& neighbor, const vector< vector<int> >& grid, const Vec3r &x)
+void System::getNearestNeighbor(std::vector< int >& neighbor, const std::vector< std::vector<int> >& grid, const Vec3r &x)
 {
     std::vector<int> neighborCell;
     m_gridInfo.get27Neighbors(neighborCell, x, m_gridInfo.spacing());
@@ -556,10 +552,10 @@ void System::computeBoundaryVolume()
     for(int i=0; i<m_boundaryNumber; ++i)
     {
         HReal densityNumber=0.0;
-        vector<int> neighbors;
+        std::vector<int> neighbors;
         getNearestNeighbor(neighbors, m_boundaryGrid, m_boundaries[i].x);
         for(int& j : neighbors)
-            densityNumber += m_pKernel.monaghanValue(m_boundaries[i].x-m_boundaries[j].x);
+            densityNumber += m_iisphParams.monaghanKernel().monaghanValue(m_boundaries[i].x-m_boundaries[j].x);
         m_boundaries[i].psi = m_restDensity/densityNumber;
     }
 }
@@ -626,9 +622,7 @@ void System::setParameters( int _wishedNumber, HReal _volume )
 
     m_dt = 0.004;
 
-    m_pKernel = MonaghanKernel( m_h );
-    m_aKernel = AkinciKernel( 2.0*m_h );
-    m_bKernel = BoundaryKernel( m_boundaryH, m_cs );
+    m_iisphParams = IISPHParams( MonaghanKernel(m_h), AkinciKernel(2.0*m_h), BoundaryKernel(m_boundaryH, m_cs) );
 }
 
 void System::init()
@@ -920,7 +914,7 @@ void System::mortonSort()
     for(int i = 0; i < m_particleNumber; ++i)
     {
         Vec3i _gridIndex = m_gridInfo.worldToGrid(m_particles[i].x);
-        array<int,3> gridIndex;
+        std::array<int,3> gridIndex;
         for(int j=0; j<3; ++j)
             gridIndex[j] = _gridIndex[j];
         int zindex = mortonNumber( gridIndex );
@@ -932,7 +926,7 @@ void System::mortonSort()
     std::sort( particleZindex.begin(), particleZindex.end(), pairCompare );
 
     //Move particles according to z-index
-    vector< Particle > oldParticles = m_particles;
+    std::vector< Particle > oldParticles = m_particles;
 
     //HReal min = particleZindex[0].second;
     //HReal max = particleZindex[particleNumber-1].second;
@@ -1158,9 +1152,9 @@ void System::debugFluid()
     m_gridInfo.info();
 }
 
-void System::write(const char * filename, vector<HReal> data)
+void System::write(const char * filename, std::vector<HReal> data)
 {
-    ofstream outputFile;
+    std::ofstream outputFile;
     outputFile.open(filename);
     outputFile.precision(16);
     for(unsigned int i=0; i <data.size(); ++i)
@@ -1170,9 +1164,9 @@ void System::write(const char * filename, vector<HReal> data)
     outputFile.close();
 }
 
-void System::write(const char * filename, vector<Vec3r > data)
+void System::write(const char * filename, std::vector<Vec3r > data)
 {
-    ofstream outputFile;
+    std::ofstream outputFile;
     outputFile.open(filename);
     outputFile.precision(16);
     for(unsigned int i=0; i <data.size(); ++i)
@@ -1184,18 +1178,18 @@ void System::write(const char * filename, vector<Vec3r > data)
 
 void System::exportState(const char * baseName)
 {
-    vector< Vec3r > x = getPosition();
-    vector< Vec3r > v = getVelocity();
-    vector< HReal > d = getDensity();
-    vector< HReal > m = getMass();
+    std::vector< Vec3r > x = getPosition();
+    std::vector< Vec3r > v = getVelocity();
+    std::vector< HReal > d = getDensity();
+    std::vector< HReal > m = getMass();
 
-    stringstream ss_padding;
+    std::stringstream ss_padding;
     ss_padding.fill('0');
     ss_padding.width(5);
     ss_padding << m_countExport++;
     std::string padding = ss_padding.str();
 
-    stringstream posFilename, velFilename, densFilename, massFilename;
+    std::stringstream posFilename, velFilename, densFilename, massFilename;
     posFilename << baseName << "/position/position" << padding << ".txt";
     velFilename << baseName << "/velocity/velocity" << padding << ".txt";
     densFilename << baseName << "/density/density" << padding << ".txt";

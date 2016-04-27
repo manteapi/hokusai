@@ -33,69 +33,14 @@
 namespace hokusai
 {
 
-using namespace std;
-
-class AkinciKernel
-{
-public :
-    AkinciKernel();
-    AkinciKernel(HReal _h);
-    AkinciKernel(const AkinciKernel& k);
-    ~AkinciKernel();
-    HReal cohesionValue( const HReal r);
-    HReal adhesionValue(const HReal r);
-    HReal h,m_v1,m_v2,adhesion;
-};
-
-//Monaghan 3D kernel
-class MonaghanKernel
-{
-public :
-
-    MonaghanKernel();
-    MonaghanKernel( HReal _h );
-    MonaghanKernel( const MonaghanKernel& k );
-    ~MonaghanKernel();
-
-public :
-
-    HReal h;
-    HReal m_v;
-    HReal m_g;
-
-public :
-
-    HReal monaghanValue( const Vec3r& r );
-    void monaghanGradient( const Vec3r& r, Vec3r& gradient );
-};
-
-class BoundaryKernel
-{
-public :
-
-    BoundaryKernel();
-    BoundaryKernel( HReal h, HReal cs );
-    BoundaryKernel( const BoundaryKernel& k);
-    ~BoundaryKernel();
-
-public :
-
-    HReal h;
-    HReal cs;
-
-public :
-
-    HReal gamma( HReal distance );
-};
-
-int mortonNumber( array<int,3>& index );
+int mortonNumber( std::array<int,3>& index );
 
 //--------------------------------------------------------------------
 
 //IO functions
-void write(const char * filename, vector<Vec3r > data);
-void write(const char * filename, vector<HReal> data);
-void write_frame(vector<Particle>& particles, int step, HReal offset=4.0);
+void write(const char * filename, std::vector<Vec3r > data);
+void write(const char * filename, std::vector<HReal> data);
+void write_frame(std::vector<Particle>& particles, int step, HReal offset=4.0);
 
 //---------------------------------------------------------------------
 }
