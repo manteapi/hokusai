@@ -51,17 +51,18 @@ public:
     ~System();
 
 public :
+
+    //Stats
     int m_countTime;
     int m_countExport;
-    int m_particleNumber;
-    int m_boundaryNumber;
-
-    HReal m_particlePerCell;
+    HReal m_time;
     HReal m_volume;
     HReal m_restDensity;
     HReal m_meanDensity;
     HReal m_densityFluctuation;
     HReal m_realVolume;
+
+    //Fluid parameters
     HReal m_mass;
     HReal m_h; // Smoothing radius
     HReal m_fcohesion; //Fluid cohesion
@@ -70,11 +71,12 @@ public :
     HReal m_cs;// Sound speed
     HReal m_alpha; // Viscosity
     HReal m_boundaryH;
-    HReal m_dt;
-    HReal m_time;
 
-    HReal m_rho_avg_l;
-    HReal m_maxEta;
+    //Simulation parameters
+    int m_particleNumber;
+    int m_boundaryNumber;
+    HReal m_particlePerCell;
+    HReal m_dt;
 
     Vec3r m_gravity;
 
@@ -135,12 +137,10 @@ public :
     const Vec3r& getGravity();
     void setGravity(const Vec3r& _gravity);
     void setParameters(int _number, HReal _volume=1.0);
-    void createParticleVolume(Vec3r& pos, HReal width, HReal height, HReal depth, HReal spacing, int particleMax);
 
     void translateParticles(const Vec3r& t);
     void translateBoundaries(const Vec3r& t);
 
-    void addParticleBox(HReal width, HReal height, HReal depth, HReal spacing);
     void addParticleBox(const Vec3r& offset, const Vec3r& dimension);
     void addParticleSphere(const Vec3r& centre, const HReal radius);
 

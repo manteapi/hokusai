@@ -521,6 +521,91 @@ std::vector< Vec3r > getCylinderSampling(const Vec3r& center, HReal height, HRea
     return result;
 }
 
+std::vector<Vec3r> getCubeSampling(const Vec3r& offset, const Vec3r& scale, HReal spacing)
+{
+    std::vector<Vec3r> result;
+    int widthSize = floor(scale[0]/spacing);
+    int heightSize = floor(scale[1]/spacing);
+    int depthSize = floor(scale[2]/spacing);
+
+    for(int i=0; i<widthSize; ++i)
+    {
+        for(int j=0; j<heightSize; ++j)
+        {
+            for(int k=0; k<depthSize; ++k)
+            {
+                result.push_back(offset + Vec3r(i*spacing,j*spacing,k*spacing));
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<Vec3r> getBoxSampling(const Vec3r& offset, const Vec3r& scale, HReal spacing)
+{
+    int epsilon = 0;
+    int widthSize = std::floor(scale[0]/spacing);
+    int heightSize = std::floor(scale[1]/spacing);
+    int depthSize = std::floor(scale[2]/spacing);
+    std::vector<Vec3r> result;
+
+    //ZX plane - bottom
+    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
+    {
+        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
+        {
+            result.push_back(Vec3r(i*spacing, offset[1], j*spacing));
+        }
+    }
+
+    //ZX plane - top
+    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
+    {
+        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
+        {
+            result.push_back(Vec3r(i*spacing, offset[1]+scale[1], j*spacing));
+        }
+    }
+
+    //XY plane - back
+    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
+    {
+        for(int j = -epsilon; j <= heightSize+epsilon; ++j)
+        {
+            result.push_back(Vec3r(i*spacing, j*spacing, offset[2]));
+        }
+    }
+
+    //XY plane - front
+    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
+    {
+        for(int j = -epsilon; j <= heightSize-epsilon; ++j)
+        {
+            result.push_back(Vec3r(i*spacing, j*spacing, offset[2]+scale[2]));
+        }
+    }
+
+    //YZ plane - left
+    for(int i = -epsilon; i <= heightSize+epsilon; ++i)
+    {
+        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
+        {
+            result.push_back(Vec3r(offset[0], i*spacing, j*spacing));
+        }
+    }
+
+    //YZ plane - right
+    for(int i = -epsilon; i <= heightSize+epsilon; ++i)
+    {
+        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
+        {
+            result.push_back(Vec3r(offset[0]+scale[0], i*spacing, j*spacing));
+        }
+    }
+    return result;
+}
+
 std::vector<Vec3r > getDiskSampling(const Vec3r& center, HReal radius, HReal spacing)
 {
     HReal theta=0.0;

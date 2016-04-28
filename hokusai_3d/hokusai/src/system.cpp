@@ -62,12 +62,12 @@ System::System()
     m_boundaryH = 0.0;
     m_dt = 0.0;
     m_time = 0.0;
-    m_rho_avg_l = 0.0;
-    m_maxEta = 1.0;
+    //m_iisphParams.averageDensity() = 0.0;
+    //m_maxEta = 1.0;
 
     m_gravity = Vec3r(0,-9.81,0);
 
-    m_iisphParams = IISPHParams();
+    m_iisphParams = IISPHParams(m_h, m_boundaryH, m_cs, 1.0, 2);
 
     m_gridInfo = GridUtility();
     m_particles = std::vector<Particle>();
@@ -95,12 +95,12 @@ System::System(int resolution)
     m_boundaryH = 0.0;
     m_dt = 0.0;
     m_time = 0.0;
-    m_rho_avg_l = 0.0;
-    m_maxEta = 1.0;
+    //m_iisphParams.averageDensity() = 0.0;
+    //m_maxEta = 1.0;
 
     m_gravity = Vec3r(0,-9.81,0);
 
-    m_iisphParams = IISPHParams();
+    m_iisphParams = IISPHParams(m_h, m_boundaryH, m_cs, 1.0, 2);
 
     m_gridInfo = GridUtility();
     m_particles = std::vector<Particle>();
@@ -416,10 +416,10 @@ void System::initializePressure(int i)
 
 void System::computeError()
 {
-    m_rho_avg_l=0.0;
+    m_iisphParams.averageDensity() = 0.0;
     for(int i=0; i<m_particleNumber; ++i)
-        m_rho_avg_l+=m_particles[i].rho_corr;
-    m_rho_avg_l /= m_particleNumber;
+        m_iisphParams.averageDensity()+=m_particles[i].rho_corr;
+    m_iisphParams.averageDensity() /= m_particleNumber;
 }
 
 
@@ -603,7 +603,7 @@ void System::setParameters( int _wishedNumber, HReal _volume )
     m_boundaryNumber = 0;
     m_volume = _volume;
 
-    m_maxEta=1.0;
+    //m_maxEta=1.0;
     m_restDensity = 1000;
     m_mass = (m_restDensity * m_volume) / _wishedNumber;
     m_particlePerCell = 33.8; //better
@@ -622,7 +622,7 @@ void System::setParameters( int _wishedNumber, HReal _volume )
 
     m_dt = 0.004;
 
-    m_iisphParams = IISPHParams( MonaghanKernel(m_h), AkinciKernel(2.0*m_h), BoundaryKernel(m_boundaryH, m_cs) );
+    m_iisphParams = IISPHParams(m_h, m_boundaryH, m_cs, 1.0, 2);
 }
 
 void System::init()
@@ -652,78 +652,13 @@ void System::init()
 }
 
 void System::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
-{
-    int epsilon = 0;
-    int widthSize = floor(scale[0]/m_h);
-    int heightSize = floor(scale[1]/m_h);
-    int depthSize = floor(scale[2]/m_h);
-
-    //ZX plane - bottom
-    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
+{    
+    std::vector<Vec3r> positions = getBoxSampling(offset, scale, m_h);
+    for(const Vec3r& x : positions)
     {
-        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
-        {
-            Vec3r position(i*m_h, offset[1], j*m_h);
-            m_boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
-            m_boundaryNumber++;
-        }
+        m_boundaries.push_back(Boundary(x,Vec3r(0.0),0.0));
+        m_boundaryNumber++;
     }
-
-    //ZX plane - top
-    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
-        {
-            Vec3r position(i*m_h, offset[1]+scale[1], j*m_h);
-            m_boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
-            m_boundaryNumber++;
-        }
-    }
-
-    //XY plane - back
-    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= heightSize+epsilon; ++j)
-        {
-            Vec3r position(i*m_h, j*m_h, offset[2]);
-            m_boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
-            m_boundaryNumber++;
-        }
-    }
-
-    //XY plane - front
-    for(int i = -epsilon; i <= widthSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= heightSize-epsilon; ++j)
-        {
-            Vec3r position(i*m_h, j*m_h, offset[2]+scale[2]);
-            m_boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
-            m_boundaryNumber++;
-        }
-    }
-
-    //YZ plane - left
-    for(int i = -epsilon; i <= heightSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
-        {
-            Vec3r position(offset[0], i*m_h, j*m_h);
-            m_boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
-            m_boundaryNumber++;
-        }
-    }
-
-    //YZ plane - right
-    for(int i = -epsilon; i <= heightSize+epsilon; ++i)
-    {
-        for(int j = -epsilon; j <= depthSize+epsilon; ++j)
-        {
-            Vec3r position(offset[0]+scale[0], i*m_h, j*m_h);
-            m_boundaries.push_back(Boundary(position,Vec3r(0.0),0.0));
-            m_boundaryNumber++;
-        }
-    }
-
     m_gridInfo.update(offset-Vec3r(2.0*m_h), scale+Vec3r(4.0*m_h), 2.0*m_h);
 }
 
@@ -756,7 +691,6 @@ void System::addBoundaryDisk(const Vec3r& offset, const HReal& radius)
         m_boundaryNumber++;
     }
 }
-
 
 void System::translateBoundaries(const Vec3r& t)
 {
@@ -801,70 +735,11 @@ void System::addParticleSource(const ParticleSource& s)
 
 void System::addParticleBox(const Vec3r& offset, const Vec3r& scale)
 {
-    int widthSize = floor(scale[0]/m_h);
-    int heightSize = floor(scale[1]/m_h);
-    int depthSize = floor(scale[2]/m_h);
-
-    for(int i=0; i<widthSize; ++i)
+    std::vector<Vec3r> positions = getCubeSampling(offset, scale, m_h);
+    for(Vec3r & x : positions)
     {
-        for(int j=0; j<heightSize; ++j)
-        {
-            for(int k=0; k<depthSize; ++k)
-            {
-                Vec3r _x = offset + Vec3r(i*m_h,j*m_h,k*m_h);
-                Vec3r _v(0,0,0);
-                m_particles.push_back( Particle(_x,_v) );
-                m_particleNumber++;
-            }
-        }
-    }
-}
-
-void System::addParticleBox(HReal width, HReal height, HReal depth, HReal spacing)
-{
-    int widthSize = floor(width/spacing);
-    int heightSize = floor(height/spacing);
-    int depthSize = floor(depth/spacing);
-
-    for(int i=0; i<widthSize; ++i)
-    {
-        for(int j=0; j<heightSize; ++j)
-        {
-            for(int k=0; k<depthSize; ++k)
-            {
-                Vec3r _x(i*spacing,j*spacing,k*spacing);
-                Vec3r _v(0,0,0);
-                m_particles.push_back( Particle(_x,_v) );
-                m_particleNumber++;
-            }
-        }
-    }
-}
-
-
-void System::createParticleVolume(Vec3r& pos, HReal width, HReal /*height*/, HReal depth, HReal spacing, int particleMax)
-{
-    int widthSize = floor( width/spacing );
-    int depthSize = floor( depth/spacing );
-    int count = 0;
-    int j = 0;
-    while(count < particleMax)
-    {
-        for(int i = 0; i <= widthSize; ++i)
-        {
-            for(int k = 0; k <= depthSize; ++k)
-            {
-                if(count < particleMax)
-                {
-                    Vec3r _x(pos[0]+i*spacing,pos[1]+j*spacing,pos[2]+k*spacing);
-                    Vec3r _v(0,0,0);
-                    m_particles.push_back( Particle(_x,_v) );
-                    m_particleNumber++;
-                }
-                count++;
-            }
-        }
-        j++;
+        m_particles.push_back( Particle(x, Vec3r(0.0,0.0,0.0)) );
+        m_particleNumber++;
     }
 }
 
@@ -1046,9 +921,10 @@ void System::predictAdvection()
 
 void System::pressureSolve()
 {
-    int l=0; m_rho_avg_l = 0.0;
+    int l=0; m_iisphParams.averageDensity() = 0.0;
 
-    while( ( (m_rho_avg_l-m_restDensity)>m_maxEta ) || (l<2) )
+    while(((m_iisphParams.averageDensity()-m_restDensity)>m_iisphParams.maxDensityError() ) ||
+           (l<m_iisphParams.maxPressureSolveIterationNb()) )
     {
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
@@ -1135,7 +1011,7 @@ void System::debugIteration(int l)
 {
     std::cout.precision(10);
     std::cout << "rest density " << m_restDensity << std::endl;
-    std::cout << "rho avg : " << m_rho_avg_l << std::endl;
+    std::cout << "rho avg : " << m_iisphParams.averageDensity() << std::endl;
     std::cout << "l : " << l << std::endl;
 }
 

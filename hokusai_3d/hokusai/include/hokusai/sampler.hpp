@@ -40,7 +40,8 @@ bool AkinciEdgeSampling( const Vec3r& p1, const Vec3r& p2, const HReal& particle
 bool AkinciMeshSampling(const TriMesh& mesh, const HReal &particleDiameter, std::vector<Vec3r>& samples);
 bool AkinciFullTriangleSampling( const Vec3r& p1, const Vec3r& p2, const Vec3r& p3, const HReal& particleDiameter, std::vector< Vec3r >& samples);
 
-
+std::vector<Vec3r> getCubeSampling(const Vec3r& offset, const Vec3r& scale, HReal spacing);
+std::vector<Vec3r> getBoxSampling(const Vec3r& offset, const Vec3r& scale, HReal spacing);
 
 std::vector<Vec3r > getDiskSampling(const Vec3r& center, HReal radius, HReal spacing);
 std::vector<Vec3r > getSphereSampling(const Vec3r& center, HReal radius, HReal spacingX, HReal spacingY);
