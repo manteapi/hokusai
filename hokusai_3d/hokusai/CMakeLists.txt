@@ -20,7 +20,6 @@ if(HOKUSAI_OPENMP)
 endif()
 
 set(HOKUSAI_SOURCE
-    ./src/iisph.cpp
     ./src/kernel.cpp
     ./src/system.cpp
     ./src/particle.cpp
@@ -37,7 +36,6 @@ set(HOKUSAI_SOURCE
 )
 
 set(HOKUSAI_HEADER
-    ./include/hokusai/iisph.hpp
     ./include/hokusai/kernel.hpp
     ./include/hokusai/system.hpp
     ./include/hokusai/common.hpp

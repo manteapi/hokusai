@@ -35,7 +35,6 @@
 #include "triMesh.hpp"
 #include "sampler.hpp"
 #include "particleSource.hpp"
-#include "iisph.hpp"
 #include "kernel.hpp"
 
 namespace hokusai
@@ -47,7 +46,7 @@ class System
 public:
 
     System();
-    System(int resolution);
+    System(int wishedParticleNumber);
     ~System();
 
 public :
@@ -80,7 +79,12 @@ public :
 
     Vec3r m_gravity;
 
-    IISPHParams m_iisphParams;
+    HReal m_averageDensity;
+    int m_maxPressureSolveIterationNb;
+    HReal m_maxDensityError;
+    MonaghanKernel m_pKernel;
+    AkinciKernel m_aKernel;
+    BoundaryKernel m_bKernel;
 
     std::vector<Particle> m_particles;
     std::vector<Boundary> m_boundaries;
@@ -143,7 +147,6 @@ public :
 
     void addParticleBox(const Vec3r& offset, const Vec3r& dimension);
     void addParticleSphere(const Vec3r& centre, const HReal radius);
-
     void addParticleSource(const ParticleSource& s);
 
     //Boundary sampling

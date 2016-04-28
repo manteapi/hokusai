@@ -21,6 +21,7 @@
 */
 
 #include "./../include/hokusai/sampler.hpp"
+#include "./../include/hokusai/gridUtility.hpp"
 
 namespace hokusai
 {
@@ -601,6 +602,26 @@ std::vector<Vec3r> getBoxSampling(const Vec3r& offset, const Vec3r& scale, HReal
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
             result.push_back(Vec3r(offset[0]+scale[0], i*spacing, j*spacing));
+        }
+    }
+    return result;
+}
+
+std::vector<Vec3r> getBallSampling(const Vec3r& center, HReal radius, HReal spacing)
+{
+    std::vector<Vec3r> result;
+    Vec3r scale(2.0*radius, 2.0*radius, 2.0*radius);
+    Vec3r offset = center - Vec3r(radius, radius, radius);
+    GridUtility grid(offset, scale, spacing);
+
+    for(int i=0; i<grid.size(); ++i)
+    {
+        Vec3r x = grid.gridToWorld(i);
+        x+=grid.spacing()/2.0;
+        HReal l2 = (center-x).lengthSquared();
+        if(l2<=(radius*radius))
+        {
+            result.push_back(x);
         }
     }
     return result;
