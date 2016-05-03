@@ -21,3 +21,32 @@
 */
 
 #include "../include/hokusai/boundary.hpp"
+
+namespace hokusai
+{
+
+Boundary::Boundary()
+{
+    psi=0.0;
+    x=Vec3r(0.0);
+    v=Vec3r(0.0);
+}
+
+Boundary::Boundary(const Vec3r& _x, const Vec3r _v, const HReal _psi)
+{
+    x=_x;
+    v=_v;
+    psi=_psi;
+}
+
+Boundary::Boundary(const Boundary& b)
+{
+    x=b.x;
+    v=b.v;
+    psi=b.psi;
+}
+
+Boundary::~Boundary(){}
+
+
+}//namespace hokusai
