@@ -53,15 +53,16 @@ To do...soon...
 --5.pyramid
 --6.capsule
 --7.torus
-3. Output vector field image
-4. Parameters preset
-5. Smoke simulation
-6. Add profiling functions to get an idea of the requested computational time.
-7. Add exporting tools to standard format such as Disney Particle Format
+2. Add particleContainer to handle different types of fluids/boundaries
+3. Smoke simulation
+4. Add profiling functions to get an idea of the requested computational time.
+5. Add exporting tools to standard format such as Disney Particle Format
 
 Done
 ----
 
 1. Basic primitives sampling
-1. Arbitrary boundaries handlling
+2. Arbitrary boundaries handlling
+3. Parameters preset for fluid and boundary particles
+
 

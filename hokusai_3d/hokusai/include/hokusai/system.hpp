@@ -71,13 +71,14 @@ public :
     //Simulation parameters
     int m_particleNumber;
     int m_boundaryNumber;
-    HReal m_dt;
 
     Vec3r m_gravity;
 
-    HReal m_averageDensity;
     int m_maxPressureSolveIterationNb;
+    HReal m_averageDensity;
+    HReal m_dt;
     HReal m_maxDensityError;
+
     MonaghanKernel m_pKernel;
     AkinciKernel m_aKernel;
     BoundaryKernel m_bKernel;
