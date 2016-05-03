@@ -1068,4 +1068,99 @@ void System::exportState(const char * baseName)
     write(  massFilename.str().c_str(), m );
 }
 
+HReal System::getTime()
+{
+    return m_time;
+}
+
+HReal & System::getSmoothingRadiusValue()
+{
+    return m_h;
+}
+
+const HReal & System::getSmoothingRadius() const
+{
+    return m_h;
+}
+
+HReal & System::getTimeStepValue()
+{
+    return m_dt;
+}
+
+HReal & System::getMassValue()
+{
+    return m_mass;
+}
+
+HReal & System::getMeanDensityValue()
+{
+    return m_meanDensity;
+}
+
+HReal & System::getDensityFluctuationValue()
+{
+    return m_densityFluctuation;
+}
+
+HReal & System::getRealVolumeValue()
+{
+    return m_realVolume;
+}
+
+int & System::getParticleNumber()
+{
+    return m_particleNumber;
+}
+
+HReal & System::getViscosity()
+{
+    return m_alpha;
+}
+
+const HReal & System::getViscosity() const
+{
+    return m_alpha;
+}
+
+HReal & System::getFluidCohesion()
+{
+    return m_fcohesion;
+}
+
+const HReal & System::getFluidCohesion() const
+{
+    return m_fcohesion;
+}
+
+HReal & System::getBoundaryAdhesion()
+{
+    return m_badhesion;
+}
+
+const HReal & System::getBoundaryAdhesion() const
+{
+    return m_badhesion;
+}
+
+const HReal & System::getBoundaryFriction() const
+{
+    return m_sigma;
+}
+
+HReal & System::getBoundaryFriction()
+{
+    return m_sigma;
+}
+
+HReal & System::getTimeStep()
+{
+    return m_dt;
+}
+
+const HReal& System::getTimeStep() const
+{
+    return m_dt;
+}
+
 }//namespace hokusai

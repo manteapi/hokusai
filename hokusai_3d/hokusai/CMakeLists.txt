@@ -23,6 +23,7 @@ set(HOKUSAI_SOURCE
     ./src/kernel.cpp
     ./src/system.cpp
     ./src/particle.cpp
+    ./src/boundary.cpp
     ./src/utils.cpp
     ./src/HSL2RGB.cpp
     ./src/write_bmp.cpp
@@ -40,6 +41,7 @@ set(HOKUSAI_HEADER
     ./include/hokusai/system.hpp
     ./include/hokusai/common.hpp
     ./include/hokusai/particle.hpp
+    ./include/hokusai/boundary.hpp
     ./include/hokusai/utils.hpp
     ./include/hokusai/HSL2RGB.hpp
     ./include/hokusai/write_bmp.hpp

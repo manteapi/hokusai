@@ -31,6 +31,7 @@
 #include "utils.hpp"
 #include "common.hpp"
 #include "particle.hpp"
+#include "boundary.hpp"
 #include "gridUtility.hpp"
 #include "triMesh.hpp"
 #include "sampler.hpp"
@@ -181,26 +182,30 @@ public :
     void write(const char* filename, std::vector< Vec3r > data);
     void write(const char* filename, std::vector<HReal> data);
     void exportState(const char* baseName);
-    HReal getTime(){return m_time;}
-    HReal & getSmoothingRadiusValue(){ return m_h; }
-    const HReal & getSmoothingRadius() const { return m_h; }
-    HReal & getTimeStepValue(){ return m_dt; }
-    HReal & getMassValue(){ return m_mass; }
-    HReal & getMeanDensityValue(){ return m_meanDensity;}
-    HReal & getDensityFluctuationValue(){ return m_densityFluctuation;}
-    HReal & getRealVolumeValue(){ return m_realVolume; }
-    int & getParticleNumber(){ return m_particleNumber; }
+    HReal getTime();
+    HReal & getSmoothingRadiusValue();
+    const HReal & getSmoothingRadius() const;
+    HReal & getTimeStepValue();
+    HReal & getMassValue();
+    HReal & getMeanDensityValue();
+    HReal & getDensityFluctuationValue();
+    HReal & getRealVolumeValue();
+    int & getParticleNumber();
 
-    HReal & getViscosity(){return m_alpha;}
-    const HReal & getViscosity() const {return m_alpha;}
-    HReal & getFluidCohesion(){return m_fcohesion;}
-    const HReal & getFluidCohesion() const {return m_fcohesion;}
-    HReal & getBoundaryAdhesion(){return m_badhesion;}
-    const HReal & getBoundaryAdhesion() const {return m_badhesion;}
-    const HReal & getBoundaryFriction() const {return m_sigma;}
-    HReal & getBoundaryFriction() {return m_sigma;}
-    HReal & getTimeStep() {return m_dt;}
-    const HReal& getTimeStep() const {return m_dt;}
+    HReal & getViscosity();
+    const HReal & getViscosity() const;
+
+    HReal & getFluidCohesion();
+    const HReal & getFluidCohesion() const;
+
+    HReal & getBoundaryAdhesion();
+    const HReal & getBoundaryAdhesion() const;
+
+    const HReal & getBoundaryFriction() const;
+    HReal & getBoundaryFriction();
+
+    HReal & getTimeStep();
+    const HReal& getTimeStep() const;
 };
 
 bool pairCompare( const std::pair<int,int>& e1, const std::pair<int,int>& e2 );
