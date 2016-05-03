@@ -46,7 +46,7 @@ namespace hokusai
         public :
         ~Particle();
         Particle();
-        Particle(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0));
+        Particle(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0), const HReal& _m =1.0);
         Particle(const Particle& _p);
 
 

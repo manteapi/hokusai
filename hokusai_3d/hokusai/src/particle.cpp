@@ -35,11 +35,11 @@ Particle::Particle()
     boundaryNeighbor.clear();
 }
 
-Particle::Particle(const Vec3r& _x, const Vec3r& _v)
+Particle::Particle(const Vec3r& _x, const Vec3r& _v, const HReal &_m)
 {
     x = _x;
     v = _v;
-    m = 1.0;
+    m = _m;
     isSurface=true;
     rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
     v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec3r(0.0);

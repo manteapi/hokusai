@@ -21,6 +21,8 @@ endif()
 
 set(HOKUSAI_SOURCE
     ./src/kernel.cpp
+    ./src/fluidParams.cpp
+    ./src/boundaryParams.cpp
     ./src/system.cpp
     ./src/particle.cpp
     ./src/boundary.cpp
@@ -39,6 +41,8 @@ set(HOKUSAI_SOURCE
 set(HOKUSAI_HEADER
     ./include/hokusai/kernel.hpp
     ./include/hokusai/system.hpp
+    ./include/hokusai/fluidParams.hpp
+    ./include/hokusai/boundaryParams.hpp
     ./include/hokusai/common.hpp
     ./include/hokusai/particle.hpp
     ./include/hokusai/boundary.hpp

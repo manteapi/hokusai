@@ -30,8 +30,13 @@
 #include <aljabr/AljabrCore>
 #include "utils.hpp"
 #include "common.hpp"
+
 #include "particle.hpp"
 #include "boundary.hpp"
+
+#include "fluidParams.hpp"
+#include "boundaryParams.hpp"
+
 #include "gridUtility.hpp"
 #include "triMesh.hpp"
 #include "sampler.hpp"
@@ -45,7 +50,6 @@ class System
 {
 
 public:
-
     System();
     System(int wishedParticleNumber);
     ~System();
@@ -56,26 +60,17 @@ public :
     int m_countTime;
     int m_countExport;
     HReal m_time;
-    HReal m_volume;
-    HReal m_restDensity;
     HReal m_meanDensity;
     HReal m_densityFluctuation;
     HReal m_realVolume;
 
     //Fluid parameters
-    HReal m_mass;
-    HReal m_h; // Smoothing radius
-    HReal m_fcohesion; //Fluid cohesion
-    HReal m_badhesion; //Boundary adhesion
-    HReal m_sigma; //Boundary friction
-    HReal m_cs;// Sound speed
-    HReal m_alpha; // Viscosity
-    HReal m_boundaryH;
+    FluidParams m_fluidParams;
+    BoundaryParams m_boundaryParams;
 
     //Simulation parameters
     int m_particleNumber;
     int m_boundaryNumber;
-    HReal m_particlePerCell;
     HReal m_dt;
 
     Vec3r m_gravity;
@@ -102,7 +97,6 @@ public :
 
     //Simulation Loop
     void prepareGrid();
-    void computeSurfaceParticle();
     void predictAdvection();
     void predictDensity(int i);
     void initializePressure(int i);
@@ -136,12 +130,12 @@ public :
     void applySinks();
 
     void addBoundaryParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0));
-    void addFluidParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0));
+    void addFluidParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0), const HReal &m = 1.0);
 
     //Initialize a dam break scenario
     const Vec3r& getGravity();
     void setGravity(const Vec3r& _gravity);
-    void setParameters(int _number, HReal _volume=1.0);
+    void setParameters(int _number, HReal _volume=1.0, HReal _density=1000.0);
 
     void translateParticles(const Vec3r& t);
     void translateBoundaries(const Vec3r& t);
@@ -168,16 +162,13 @@ public :
     void computeStats();
     void computeDensityFluctuation();
     void computeVolume();
-    void computeCellChange();
-    void computeScalarField();
-    void computeSurface();
 
     //Getter
-    std::vector< Vec3r > getPosition(){ std::vector<Vec3r > pos; for(int i=0; i<m_particleNumber; ++i){pos.push_back(m_particles[i].x);} return pos;}
-    std::vector< Vec3r > getVelocity(){ std::vector<Vec3r > vel; for(int i=0; i<m_particleNumber; ++i){vel.push_back(m_particles[i].v);} return vel;}
-    std::vector< Vec3r > getNormal(){ std::vector<Vec3r > normal; for(int i=0; i<m_particleNumber; ++i){normal.push_back(m_particles[i].n);} return normal;}
-    std::vector< HReal > getDensity(){ std::vector<HReal> density; for(int i=0; i<m_particleNumber; ++i){density.push_back(m_particles[i].rho);} return density;}
-    std::vector< HReal > getMass(){ std::vector<HReal> o_mass; for(int i=0; i<m_particleNumber; ++i){o_mass.push_back(m_mass);} return o_mass;}
+    std::vector< Vec3r > getPosition();
+    std::vector< Vec3r > getVelocity();
+    std::vector< Vec3r > getNormal();
+    std::vector< HReal > getDensity();
+    std::vector< HReal > getMass();
 
     void write(const char* filename, std::vector< Vec3r > data);
     void write(const char* filename, std::vector<HReal> data);
