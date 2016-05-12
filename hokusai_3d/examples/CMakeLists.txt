@@ -4,27 +4,28 @@ project(hokusai_examples)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-
-add_subdirectory(../hokusai hokusai/build)
-include_directories(../hokusai/include)
-
 find_package(Boost COMPONENTS timer system REQUIRED)
 include_directories( ${BOOST_INCLUDE_DIRS} )
 
 set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to alajabr headers")
 include_directories(${ALJABR_INCLUDE_DIRS})
 
-if(HOKUSAI_OPENMP)
-    find_package(OpenMP)
-    if(OPENMP_FOUND)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    endif()
+set(HOKUSAI_INCLUDE_DIRS "" CACHE PATH "path to hokusai header")
+include_directories(${HOKUSAI_INCLUDE_DIRS})
+
+set(HOKUSAI_LIBRARIES "" CACHE FILEPATH "path to hokusai library")
+
+#if(HOKUSAI_OPENMP)
+find_package(OpenMP)
+if(OPENMP_FOUND)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
+#endif()
 
 set(
     ALL_LIBS
     ${Boost_LIBRARIES}
-    HOKUSAI 
+    ${HOKUSAI_LIBRARIES}
     )
 
 add_executable(particleSource particleSource.cpp)
