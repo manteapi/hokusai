@@ -113,7 +113,8 @@ public :
     void pressureSolve();
     void computeSumDijPj(int i);    
     Vec3r computeDij(int i, int j);
-    void computePressure(int i);
+    void computeWCSPHPressure(int i);
+    void computeIISPHPressure(int i);
 
     void computeAdvectionForces(int i);
     void computeViscosityForces(int i, int j);

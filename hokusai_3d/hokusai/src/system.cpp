@@ -309,7 +309,14 @@ Vec3r System::computeDij(int i, int j)
     return d;
 }
 
-void System::computePressure(int i)
+void System::computeWCSPHPressure(int i)
+{
+    Particle& pi=m_particles[i];
+    HReal stiffness = 1000.0;
+    pi.p = stiffness*(pi.rho-m_fluidParams.density());
+}
+
+void System::computeIISPHPressure(int i)
 {
     Particle& pi=m_particles[i];
     std::vector<int>& fneighbors=pi.fluidNeighbor, bneighbors=pi.boundaryNeighbor;
@@ -609,7 +616,7 @@ void System::setParameters( int _wishedNumber, HReal _volume, HReal _density )
     m_fluidParams = FluidParams(_wishedNumber, _volume, _density, 0.1, 0.05);
     m_boundaryParams = BoundaryParams( m_fluidParams.smoothingRadius()/2.0, 0.0001, 1.0);
 
-    m_dt = 0.004;
+    m_dt = 0.0005;
     m_averageDensity = 0.0;
     m_maxPressureSolveIterationNb =2;
     m_maxDensityError = 1.0;
@@ -879,7 +886,8 @@ void System::pressureSolve()
 #endif
         for(int i=0; i<m_particleNumber; ++i)
         {
-            computePressure(i);
+            computeWCSPHPressure(i);
+            //computeIISPHPressure(i);
         }
 
         computeError();
