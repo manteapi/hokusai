@@ -20,12 +20,15 @@ int main()
     int resolution = 20000; ///particle number per m3
     System sph(resolution);
 
-    Vec3r  securityOffset(1.05*sph.getSmoothingRadius());
+    FluidParams fluidParams = FluidParams(20000, 1.0, 1000, 0.1, 0.05);
+    BoundaryParams boundaryParams = BoundaryParams( fluidParams.smoothingRadius()/2.0, 0.0001, 1.0);
+
+    Vec3r  securityOffset(1.05*fluidParams.smoothingRadius());
     Vec3r  boundBox(2.0,2.5,1.0);
     boundBox += securityOffset;
     Vec3r  boundOffset(0,0,0);
     boundOffset -= securityOffset;
-    sph.addBoundaryBox(boundOffset, boundBox);
+    sph.addBoundaryBox(boundOffset, boundBox, boundaryParams);
 
     HReal startTime, endTime, delay, spacing;
     Vec3r  position, orientation, scale, velocity;
@@ -33,18 +36,18 @@ int main()
     startTime=0;
     endTime = 3.0;
     delay=0.02;
-    spacing = 1.05*sph.getSmoothingRadius();
+    spacing = 1.05*fluidParams.smoothingRadius();
     velocity = Vec3r(0.0,0.0,2.0);
     scale = Vec3r(0.15,0.15,0.15);
 
     position = Vec3r(0.25,1.0,0.5);
     orientation = Vec3r(0,M_PI/2.0,0);
-    ParticleSource source1(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    ParticleSource source1(startTime, endTime, delay, spacing, position, orientation, scale, velocity, fluidParams);
     sph.addParticleSource(source1);
 
     position = Vec3r(1.75,1.0,0.5);
     orientation = Vec3r(0,-M_PI/2.0,0);
-    ParticleSource source2(startTime, endTime, delay, spacing, position, orientation, scale, velocity);
+    ParticleSource source2(startTime, endTime, delay, spacing, position, orientation, scale, velocity, fluidParams);
     sph.addParticleSource(source2);
 
     sph.init();
@@ -57,7 +60,6 @@ int main()
     {
         //Simulate
         sph.computeSimulationStep();
-
 
         //Output
         if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )

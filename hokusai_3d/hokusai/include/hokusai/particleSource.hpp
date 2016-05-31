@@ -10,7 +10,9 @@ namespace hokusai
 class ParticleSource
 {
 public :
-    ParticleSource(const HReal& startTime_, const HReal& endTime_, const HReal& delay_, const HReal& spacing_, const Vec3r& position_=Vec3r(0,0,0), const Vec3r& orientation_=Vec3r(0,0,0), const Vec3r& scale_=Vec3r(1,1,1), const Vec3r& velocity_=Vec3r(0,0,0));
+    ParticleSource(const HReal& startTime_, const HReal& endTime_, const HReal& delay_,
+                   const HReal& spacing_, const Vec3r& position_=Vec3r(0,0,0), const Vec3r& orientation_=Vec3r(0,0,0),
+                   const Vec3r& scale_=Vec3r(1,1,1), const Vec3r& velocity_=Vec3r(0,0,0), const FluidParams& fluidParams=FluidParams());
     ParticleSource(const ParticleSource& source);
     ParticleSource();
     ~ParticleSource();
@@ -29,9 +31,14 @@ public :
     HReal delay;
     HReal lastTime;
 
+    FluidParams m_fluidParams;
+
     std::vector<Particle> p_stencil;
 
     std::vector<Particle> apply(const HReal time);
+
+    FluidParams& fluidParams();
+    const FluidParams& fluidParams() const;
 };
 
 }

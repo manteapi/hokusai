@@ -17,32 +17,26 @@ int main()
     int resolution = 2.5e6; ///particle number per m3
     System sph(resolution);
 
+    FluidParams fluidParams = FluidParams(resolution, 1.0, 1000, 0.1, 0.05);
+    BoundaryParams boundaryParams = BoundaryParams( fluidParams.smoothingRadius()/2.0, 0.0001, 1.0);
+
     Vec3r  fluidBox1(0.5,1.0,0.5);
     Vec3r  fluidOffset1(0,0,0);
-    sph.addParticleBox(fluidOffset1, fluidBox1);
+    sph.addParticleBox(fluidOffset1, fluidBox1, fluidParams);
 
     Vec3r  fluidBox2(0.5,1.0,0.5);
     Vec3r  fluidOffset2(1.0,0.0,0.5);
-    sph.addParticleBox(fluidOffset2, fluidBox2);
+    sph.addParticleBox(fluidOffset2, fluidBox2, fluidParams);
 
-    Vec3r  securityOffset(1.05*sph.getSmoothingRadius());
+    Vec3r  securityOffset(1.05*fluidParams.smoothingRadius());
     Vec3r  boundBox(1.5,1.0,1.0);
     boundBox += securityOffset;
     Vec3r  boundOffset = fluidOffset1;
     boundOffset -= securityOffset;
-    sph.addBoundaryBox(boundOffset, boundBox);
+    sph.addBoundaryBox(boundOffset, boundBox,boundaryParams);
 
     sph.init();
-
-    sph.getViscosity() = 0.01;
-    sph.getFluidCohesion() = 0.05;
-    sph.getBoundaryAdhesion() = 0.01;
-    sph.getBoundaryFriction() = 0.01;
     sph.getTimeStep() = 1e-4;
-
-    std::cout << "Viscosity : " << sph.getViscosity() << std::endl;
-    std::cout << "Cohesion : " << sph.getFluidCohesion() << std::endl;
-    std::cout << "Adhesion : " << sph.getBoundaryAdhesion() << std::endl;
 
     double time = 10.0;
     int count=0;

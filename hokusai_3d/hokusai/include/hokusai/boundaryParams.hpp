@@ -2,6 +2,8 @@
 #define HOKUSAI_BOUNDARY_PARAMS_HPP
 
 #include "common.hpp"
+#include "kernel.hpp"
+#include <memory>
 
 namespace hokusai
 {
@@ -22,11 +24,21 @@ public:
     HReal& friction();
     const HReal& friction() const;
 
+    HReal& soundSpeed();
+    const HReal& soundSpeed() const;
+
+    BoundaryKernel& boundaryKernel();
+    const BoundaryKernel& boundaryKernel() const;
+
 private:
     HReal m_radius;
     HReal m_adhesion;
     HReal m_friction;
+    HReal m_soundSpeed;
+    BoundaryKernel m_bKernel;
 };
+
+typedef std::shared_ptr<BoundaryParams> BoundaryParamsPtr;
 
 }//namespace hokusai
 

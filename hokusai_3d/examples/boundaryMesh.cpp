@@ -18,14 +18,17 @@ int main()
     int resolution = 2000; ///particle number per m3
     System sph(resolution);
 
+    FluidParams fluidParams = FluidParams(resolution, 1.0, 1000, 0.1, 0.05);
+    BoundaryParams boundaryParams = BoundaryParams( fluidParams.smoothingRadius()/2.0, 0.0001, 1.0);
+
     std::string filename = "./../../mesh/sphere.obj";
-    sph.addBoundaryMesh(filename.c_str());
+    sph.addBoundaryMesh(filename.c_str(), boundaryParams);
 
     sph.m_gridInfo.info();
 
     Vec3r offsetSphere(1,1,0);
     double radius = 0.5;
-    sph.addParticleSphere(offsetSphere, radius);
+    sph.addParticleSphere(offsetSphere, radius, fluidParams);
 
     sph.init();
 

@@ -27,7 +27,21 @@ FluidParams::FluidParams(int particleNumber, HReal volume, HReal density, HReal 
     HReal H = 0.1;
     HReal vf = std::sqrt( 2*9.81*H );
     m_soundSpeed = vf/(std::sqrt(eta));
+    m_pKernel = MonaghanKernel(m_h);
+    m_aKernel = AkinciKernel(2.0*m_h);
+}
 
+FluidParams::FluidParams(const FluidParams& fluidParams)
+{
+    m_viscosity = fluidParams.viscosity();
+    m_cohesion = fluidParams.cohesion();
+    m_restDensity = fluidParams.density();
+    m_mass = fluidParams.mass();
+    m_h = fluidParams.smoothingRadius();
+    m_r = fluidParams.radius();
+    m_soundSpeed = fluidParams.soundSpeed();
+    m_pKernel = fluidParams.monaghanKernel();
+    m_aKernel = fluidParams.akinciKernel();
 }
 
 FluidParams::~FluidParams()
@@ -103,6 +117,26 @@ HReal& FluidParams::soundSpeed()
 const HReal& FluidParams::soundSpeed() const
 {
     return m_soundSpeed;
+}
+
+MonaghanKernel& FluidParams::monaghanKernel()
+{
+    return m_pKernel;
+}
+
+const MonaghanKernel& FluidParams::monaghanKernel() const
+{
+    return m_pKernel;
+}
+
+AkinciKernel& FluidParams::akinciKernel()
+{
+    return m_aKernel;
+}
+
+const AkinciKernel& FluidParams::akinciKernel() const
+{
+    return m_aKernel;
 }
 
 }//namespace hokusai

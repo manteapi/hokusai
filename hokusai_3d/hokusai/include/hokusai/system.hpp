@@ -79,10 +79,6 @@ public :
     HReal m_dt;
     HReal m_maxDensityError;
 
-    MonaghanKernel m_pKernel;
-    AkinciKernel m_aKernel;
-    BoundaryKernel m_bKernel;
-
     std::vector<Particle> m_particles;
     std::vector<Boundary> m_boundaries;
 
@@ -131,8 +127,6 @@ public :
     void applySources();
     void applySinks();
 
-    void addBoundaryParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0));
-    void addFluidParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0), const HReal &m = 1.0);
 
     //Initialize a dam break scenario
     const Vec3r& getGravity();
@@ -142,16 +136,21 @@ public :
     void translateParticles(const Vec3r& t);
     void translateBoundaries(const Vec3r& t);
 
-    void addParticleBox(const Vec3r& offset, const Vec3r& dimension);
-    void addParticleSphere(const Vec3r& centre, const HReal radius);
+    //Source
     void addParticleSource(const ParticleSource& s);
 
+    //Fluid sampling
+    void addFluidParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0), const FluidParams& fluidParams=FluidParams());
+    void addParticleBox(const Vec3r& offset, const Vec3r& dimension, const FluidParams& fluidParams=FluidParams());
+    void addParticleSphere(const Vec3r& centre, const HReal radius, const FluidParams& fluidParams=FluidParams());
+
     //Boundary sampling
-    void addBoundaryMesh(const char* filename);
-    void addBoundaryBox(const Vec3r& offset, const Vec3r& scale);
-    void addBoundarySphere(const Vec3r& offset, const HReal& radius);
-    void addBoundaryHemiSphere(const Vec3r& offset, const HReal& radius);
-    void addBoundaryDisk(const Vec3r& offset, const HReal& radius);
+    void addBoundaryParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0), const BoundaryParams& boundaryParams=BoundaryParams());
+    void addBoundaryMesh(const char* filename, const BoundaryParams& boundaryParams=BoundaryParams());
+    void addBoundaryBox(const Vec3r& offset, const Vec3r& scale, const BoundaryParams& boundaryParams=BoundaryParams());
+    void addBoundarySphere(const Vec3r& offset, const HReal& radius,const BoundaryParams& boundaryParams=BoundaryParams());
+    void addBoundaryHemiSphere(const Vec3r& offset, const HReal& radius,const BoundaryParams& boundaryParams=BoundaryParams());
+    void addBoundaryDisk(const Vec3r& offset, const HReal& radius,const BoundaryParams& boundaryParams=BoundaryParams());
 
     void debugFluid();
     void debugIteration(int l);
@@ -176,26 +175,11 @@ public :
     void write(const char* filename, std::vector<HReal> data);
     void exportState(const char* baseName);
     HReal getTime();
-    HReal & getSmoothingRadiusValue();
-    const HReal & getSmoothingRadius() const;
     HReal & getTimeStepValue();
-    HReal & getMassValue();
     HReal & getMeanDensityValue();
     HReal & getDensityFluctuationValue();
     HReal & getRealVolumeValue();
     int & getParticleNumber();
-
-    HReal & getViscosity();
-    const HReal & getViscosity() const;
-
-    HReal & getFluidCohesion();
-    const HReal & getFluidCohesion() const;
-
-    HReal & getBoundaryAdhesion();
-    const HReal & getBoundaryAdhesion() const;
-
-    const HReal & getBoundaryFriction() const;
-    HReal & getBoundaryFriction();
 
     HReal & getTimeStep();
     const HReal& getTimeStep() const;

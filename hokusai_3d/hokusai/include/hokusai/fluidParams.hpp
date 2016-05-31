@@ -2,6 +2,8 @@
 #define HOKUSAI_FLUID_PARAMS_HPP
 
 #include "common.hpp"
+#include "kernel.hpp"
+#include <memory>
 
 namespace hokusai
 {
@@ -12,6 +14,7 @@ public:
     FluidParams();
     FluidParams(int particleNumber, HReal volume, HReal density,
                 HReal viscosity=0.1, HReal fluidCohesion=0.05);
+    FluidParams(const FluidParams& fluidParams);
     ~FluidParams();
 
     HReal& smoothingRadius();
@@ -35,6 +38,12 @@ public:
     HReal& soundSpeed();
     const HReal& soundSpeed() const;
 
+    MonaghanKernel& monaghanKernel();
+    const MonaghanKernel& monaghanKernel() const;
+
+    AkinciKernel& akinciKernel();
+    const AkinciKernel& akinciKernel() const;
+
 private:
     HReal m_soundSpeed;
     HReal m_cohesion;
@@ -43,7 +52,11 @@ private:
     HReal m_h;
     HReal m_r;
     HReal m_mass;
+    MonaghanKernel m_pKernel;
+    AkinciKernel m_aKernel;
 };
+
+typedef std::shared_ptr<FluidParams> FluidParamsPtr;
 
 }//namespace hokusai
 
