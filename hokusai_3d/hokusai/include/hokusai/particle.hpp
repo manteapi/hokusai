@@ -25,7 +25,6 @@
 
 #include <vector>
 #include "common.hpp"
-#include "fluidParams.hpp"
 
 /*! \brief Brief description.
  *         Brief description continued.
@@ -39,19 +38,20 @@ namespace hokusai
     {
         public :
         bool isSurface;
-        HReal rho, rho_adv, rho_corr, p, p_l, previousP, aii;
+        HReal m, rho, rho_adv, rho_corr, p, p_l, previousP, aii;
         Vec3r x, v, v_adv, f_adv, f_p, dii_fluid, dii_boundary, sum_dij, n;
-        FluidParams m_fluidParams;
         std::vector<int> fluidNeighbor;
         std::vector<int> boundaryNeighbor;
 
         public :
         ~Particle();
         Particle();
-        Particle(const Vec3r& _x, const Vec3r& _v, const FluidParams& fluidParams);
+        Particle(const Vec3r& _x, const Vec3r& _v = Vec3r(0,0,0));
         Particle(const Particle& _p);
-        FluidParams& fluidParams();
-        const FluidParams& fluidParams() const;
+
+
+        const HReal& mass() const;
+        HReal& mass();
     };
 }
 #endif

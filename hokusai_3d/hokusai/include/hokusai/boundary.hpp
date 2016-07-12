@@ -25,7 +25,6 @@
 
 #include <vector>
 #include "common.hpp"
-#include "boundaryParams.hpp"
 
 /*! \brief Brief description.
  *         Brief description continued.
@@ -41,14 +40,12 @@ namespace hokusai
         public :
         HReal psi; //density number
         Vec3r x,v; ///position and velocity
-        BoundaryParams m_boundaryParams;
+
         public :
         Boundary();
-        Boundary(const Vec3r& _x, const Vec3r _v = Vec3r(0,0,0), const HReal _psi=0.0, const BoundaryParams& boundaryParams=BoundaryParams());
+        Boundary(const Vec3r& _x, const Vec3r _v = Vec3r(0,0,0), const HReal _psi=0.0);
         Boundary(const Boundary& b);
         ~Boundary();
-        BoundaryParams& boundaryParams();
-        const BoundaryParams& boundaryParams() const;
     };
 }
 #endif //HOKUSAI_BOUNDARY_HPP

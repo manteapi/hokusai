@@ -18,16 +18,13 @@ int main()
     int resolution = 100; ///particle number per m3
     System sph(resolution);
 
-    FluidParams fluidParams = FluidParams(resolution, 1.0, 1000, 0.1, 0.05);
-    BoundaryParams boundaryParams = BoundaryParams( fluidParams.smoothingRadius()/2.0, 0.0001, 1.0);
-
     Vec3r  offsetDomain(0,0,0);
     Vec3r  scaleDomain(6,6,6);
-    sph.addBoundaryBox(offsetDomain, scaleDomain, boundaryParams);
+    sph.addBoundaryBox(offsetDomain, scaleDomain);
 
     Vec3r  offsetSphere(3,3,3);
     double radius = 2.5;
-    sph.addParticleSphere(offsetSphere, radius, fluidParams);
+    sph.addParticleSphere(offsetSphere, radius);
 
     sph.init();
 

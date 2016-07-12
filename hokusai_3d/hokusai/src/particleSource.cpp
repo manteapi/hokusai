@@ -28,7 +28,7 @@
 namespace hokusai
 {
 
-ParticleSource::ParticleSource(const HReal& startTime_, const HReal& endTime_, const HReal& delay_, const HReal &spacing_, const Vec3r& position_, const Vec3r& orientation_, const Vec3r& scale_, const Vec3r& velocity_, const FluidParams &fluidParams)
+ParticleSource::ParticleSource(const HReal& startTime_, const HReal& endTime_, const HReal& delay_, const HReal &spacing_, const Vec3r& position_, const Vec3r& orientation_, const Vec3r& scale_, const Vec3r& velocity_)
 {
     position = position_;
     orientation = orientation_;
@@ -42,8 +42,6 @@ ParticleSource::ParticleSource(const HReal& startTime_, const HReal& endTime_, c
     spacing = spacing_;
 
     lastTime = 0.0;
-
-    m_fluidParams = fluidParams;
 
     init();
 }
@@ -62,8 +60,6 @@ ParticleSource::ParticleSource(const ParticleSource& source)
 
     lastTime = source.lastTime;
 
-    m_fluidParams = source.m_fluidParams;
-
     init();
 }
 
@@ -80,8 +76,6 @@ ParticleSource::ParticleSource()
     spacing = 0;
 
     lastTime = 0.0;
-
-    m_fluidParams = FluidParams();
 
     init();
 }
@@ -108,7 +102,9 @@ void ParticleSource::init()
             {
                 Vec3r tmp_x = m*Vec3r(x, y, 0.0);
                 Vec3r tmp_v = rx * ry * rz * velocity;
-                Particle tmp_p(tmp_x, tmp_v, m_fluidParams);
+                Particle tmp_p;
+                tmp_p.x = tmp_x;
+                tmp_p.v = tmp_v;
                 p_stencil.push_back(tmp_p);
             }
         }
@@ -129,16 +125,6 @@ std::vector<Particle> ParticleSource::apply(const HReal time)
     }
     else
         return std::vector<Particle>();
-}
-
-FluidParams& ParticleSource::fluidParams()
-{
-    return m_fluidParams;
-}
-
-const FluidParams& ParticleSource::fluidParams() const
-{
-    return m_fluidParams;
 }
 
 }

@@ -32,12 +32,11 @@ Boundary::Boundary()
     v=Vec3r(0.0);
 }
 
-Boundary::Boundary(const Vec3r& _x, const Vec3r _v, const HReal _psi, const BoundaryParams &boundaryParams)
+Boundary::Boundary(const Vec3r& _x, const Vec3r _v, const HReal _psi)
 {
     x=_x;
     v=_v;
     psi=_psi;
-    m_boundaryParams = boundaryParams;
 }
 
 Boundary::Boundary(const Boundary& b)
@@ -45,19 +44,9 @@ Boundary::Boundary(const Boundary& b)
     x=b.x;
     v=b.v;
     psi=b.psi;
-    m_boundaryParams = b.boundaryParams();
 }
 
 Boundary::~Boundary(){}
 
-BoundaryParams& Boundary::boundaryParams()
-{
-    return m_boundaryParams;
-}
-
-const BoundaryParams& Boundary::boundaryParams() const
-{
-    return m_boundaryParams;
-}
 
 }//namespace hokusai
