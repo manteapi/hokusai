@@ -53,7 +53,6 @@ System::System()
     m_meanDensity = 0.0;
     m_densityFluctuation = 0.0;
     m_realVolume = 0.0;
-    m_mass = 0.0;
     m_h = 0.0;
     m_fcohesion = 0.0;
     m_badhesion = 0.0;
@@ -87,7 +86,6 @@ System::System(int wishedParticleNumber)
     m_meanDensity = 0.0;
     m_densityFluctuation = 0.0;
     m_realVolume = 0.0;
-    m_mass = 0.0;
     m_h = 0.0;
     m_fcohesion = 0.0;
     m_badhesion = 0.0;
@@ -117,7 +115,7 @@ void System::computeDensity(int i)
     for(int& j : fneighbors)
     {
         Particle& pj=m_particles[j];
-        pi.rho += m_mass*m_pKernel.monaghanValue(pi.x-pj.x);
+        pi.rho += pi.fluidParams().mass()*m_pKernel.monaghanValue(pi.x-pj.x);
     }
     for(int& j : bneighbors)
     {
@@ -139,7 +137,7 @@ void System::computeNormal(int i)
         {
             Particle& pj = m_particles[j];
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
-            n += (m_mass/pj.rho)*gradient;
+            n += (pj.fluidParams().mass()/pj.rho)*gradient;
         }
     }
     pi.n = m_h*n;
@@ -196,13 +194,13 @@ void System::computeAdvectionForces(int i)
         computeBoundaryFrictionForces(i, j);
         computeBoundaryAdhesionForces(i, j);
     }
-    pi.f_adv+=m_gravity*m_mass;
+    pi.f_adv+=m_gravity*pi.fluidParams().mass();
 }
 
 void System::predictVelocity(int i)
 {
     Particle& pi=m_particles[i];
-    pi.v_adv = pi.v + (m_dt/m_mass)*pi.f_adv;
+    pi.v_adv = pi.v + (m_dt/pi.fluidParams().mass())*pi.f_adv;
 }
 
 void System::predictDensity(int i)
@@ -220,7 +218,7 @@ void System::predictDensity(int i)
             Particle& pj=m_particles[j];
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
             Vec3r vij_adv=pi.v_adv-pj.v_adv;
-            fdrho+=m_mass*Vec3r::dotProduct(vij_adv, gradient);
+            fdrho+=pj.fluidParams().mass()*Vec3r::dotProduct(vij_adv, gradient);
         }
     }
 
@@ -247,7 +245,7 @@ void System::computeSumDijPj(int i)
             Particle& pj=m_particles[j];
             Vec3r gradient(0.0);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
-            pi.sum_dij+=(-m_mass/pow(pj.rho,2))*pj.p_l*gradient;
+            pi.sum_dij+=(-pj.fluidParams().mass()/pow(pj.rho,2))*pj.p_l*gradient;
         }
     }
     pi.sum_dij *= pow(m_dt,2);
@@ -267,7 +265,7 @@ void System::computeViscosityForces(int i, int j)
         Vec3r gradient(0.0);
         m_pKernel.monaghanGradient(r, gradient);
         HReal Pij = -kij*(2.0*m_alpha*m_h*m_cs/(pi.rho+pj.rho)) * ( dotVijRij / (r.lengthSquared() + epsilon*m_h*m_h) );
-        pi.f_adv += -kij*m_mass*m_mass*Pij*gradient;
+        pi.f_adv += -kij*pi.fluidParams().mass()*pj.fluidParams().mass()*Pij*gradient;
     }
 }
 
@@ -285,7 +283,7 @@ void System::computeBoundaryFrictionForces(int i, int j)
         HReal nu = (m_sigma*m_h*m_cs)/(2.0*pi.rho);
         HReal Pij = -nu * ( std::min(dotVijRij,0.0) / (xij.lengthSquared() + epsilon*m_h*m_h) );
         m_pKernel.monaghanGradient(xij, gradient);
-        pi.f_adv += -m_mass*bj.psi*Pij*gradient;
+        pi.f_adv += -pi.fluidParams().mass()*bj.psi*Pij*gradient;
     }
 }
 
@@ -300,9 +298,9 @@ void System::computeSurfaceTensionForces(int i, int j)
             Vec3r r = pi.x - pj.x;
             HReal kij = 2.0*m_restDensity/(pi.rho+pj.rho);
             HReal l = r.length();
-            Vec3r cohesionForce = -(m_fcohesion*m_mass*m_mass*m_aKernel.cohesionValue(l)/l) * r;
+            Vec3r cohesionForce = -(m_fcohesion*pi.fluidParams().mass()*pj.fluidParams().mass()*m_aKernel.cohesionValue(l)/l) * r;
             Vec3r nij = pi.n-pj.n;
-            Vec3r curvatureForce = -m_fcohesion*m_mass*nij;
+            Vec3r curvatureForce = -m_fcohesion*pj.fluidParams().mass()*nij;
             pi.f_adv += kij*(cohesionForce+curvatureForce);
         }
     }
@@ -314,7 +312,7 @@ void System::computeBoundaryAdhesionForces(int i, int j)
     Boundary& bj=m_boundaries[j];
     Vec3r xij= pi.x - bj.x;
     HReal l = xij.length();
-    pi.f_adv += -(m_badhesion*m_mass*m_boundaries[j].psi*m_aKernel.adhesionValue(l)/l)*xij;
+    pi.f_adv += -(m_badhesion*pi.fluidParams().mass()*m_boundaries[j].psi*m_aKernel.adhesionValue(l)/l)*xij;
 }
 
 Vec3r System::computeDij(int i, int j)
@@ -323,7 +321,7 @@ Vec3r System::computeDij(int i, int j)
     Particle& pj=m_particles[j];
     Vec3r gradient(0.0);
     m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
-    Vec3r d=-(m_dt*m_dt*m_mass)/pow(pj.rho,2)*gradient;
+    Vec3r d=-(m_dt*m_dt*pj.fluidParams().mass())/pow(pj.rho,2)*gradient;
     return d;
 }
 
@@ -341,7 +339,7 @@ void System::computePressure(int i)
             Vec3r gradient_ij(0.0), dji=computeDij(j, i);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient_ij);
             Vec3r aux = pi.sum_dij - (pj.dii_fluid+pj.dii_boundary)*pj.p_l - (pj.sum_dij - dji*pi.p_l);
-            fsum+=m_mass*Vec3r::dotProduct(aux, gradient_ij);
+            fsum+=pj.fluidParams().mass()*Vec3r::dotProduct(aux, gradient_ij);
         }
     }
 
@@ -392,7 +390,7 @@ void System::computeFluidPressureForce(int i, int j)
     m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
     if( i!=j )
     {
-        pi.f_p += -m_mass*m_mass*( pi.p/pow(pi.rho,2) + pj.p/pow(pj.rho,2) ) * gradient;
+        pi.f_p += -pi.fluidParams().mass()*pj.fluidParams().mass()*( pi.p/pow(pi.rho,2) + pj.p/pow(pj.rho,2) ) * gradient;
     }
 }
 
@@ -402,7 +400,7 @@ void System::computeBoundaryPressureForce(int i, int j)
     Particle& pi=m_particles[i];
     Boundary& bj=m_boundaries[j];
     m_pKernel.monaghanGradient(pi.x-bj.x, gradient);
-    pi.f_p += -m_mass*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
+    pi.f_p += -pi.fluidParams().mass()*bj.psi*( pi.p/pow(pi.rho,2) ) * gradient;
 }
 
 void System::initializePressure(int i)
@@ -445,7 +443,7 @@ void System::computeDii_Fluid(int i)
             Particle& pj=m_particles[j];
             Vec3r gradient(0.0);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
-            pi.dii_fluid+=(-m_dt*m_dt*m_mass/pow(pi.rho,2))*gradient;
+            pi.dii_fluid+=(-m_dt*m_dt*pj.fluidParams().mass()/pow(pi.rho,2))*gradient;
         }
     }
 }
@@ -462,7 +460,7 @@ void System::computeDii(int i)
             Particle& pj=m_particles[j];
             Vec3r gradient(0.0);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient);
-            pi.dii_fluid+=(-m_dt*m_dt*m_mass/pow(pi.rho,2))*gradient;
+            pi.dii_fluid+=(-m_dt*m_dt*pi.fluidParams().mass()/pow(pi.rho,2))*gradient;
         }
     }
     for(int& j : pi.boundaryNeighbor)
@@ -485,7 +483,7 @@ void System::computeAii( int i)
             Vec3r dji=computeDij(j,i);
             Vec3r gradient_ij(0.0);
             m_pKernel.monaghanGradient(pi.x-pj.x, gradient_ij);
-            pi.aii+=m_mass*Vec3r::dotProduct((pi.dii_fluid+pi.dii_boundary)-dji,gradient_ij);
+            pi.aii+=pj.fluidParams().mass()*Vec3r::dotProduct((pi.dii_fluid+pi.dii_boundary)-dji,gradient_ij);
         }
     }
     for(int& j : pi.boundaryNeighbor)
@@ -577,7 +575,8 @@ void System::computeVolume()
     m_realVolume=0.0;
     for(int i=0; i<m_particleNumber; ++i)
     {
-        m_realVolume += m_mass/m_particles[i].rho;
+        Particle& pi = m_particles[i];
+        m_realVolume += pi.fluidParams().mass()/pi.rho;
     }
 }
 
@@ -601,7 +600,7 @@ void System::setParameters( int _wishedNumber, HReal _volume )
     m_volume = _volume;
 
     m_restDensity = 1000;
-    m_mass = (m_restDensity * m_volume) / _wishedNumber;
+    HReal mass = (m_restDensity * m_volume) / _wishedNumber;
     m_particlePerCell = 33.8; //better
     m_h = 0.5*pow( HReal(3*m_volume*m_particlePerCell) / HReal(4*M_PI*_wishedNumber), 1.0/3.0);
 
@@ -610,7 +609,7 @@ void System::setParameters( int _wishedNumber, HReal _volume )
     HReal vf = sqrt( 2*9.81*H );
     m_cs = vf/(sqrt(eta));
 
-    m_alpha = 0.1;
+    m_alpha = 0.5;
     m_fcohesion = 0.05;
     m_badhesion = 0.001;
     m_sigma=1.0;
@@ -956,7 +955,7 @@ void System::integration()
     for(int i=0; i<m_particleNumber; ++i)
     {
         Particle& pi=m_particles[i];
-        pi.v = pi.v_adv + (m_dt*pi.f_p)/m_mass;
+        pi.v = pi.v_adv + (m_dt*pi.f_p)/pi.fluidParams().mass();
         pi.x += m_dt*pi.v;
     }
 }
@@ -1086,11 +1085,6 @@ const HReal & System::getSmoothingRadius() const
 HReal & System::getTimeStepValue()
 {
     return m_dt;
-}
-
-HReal & System::getMassValue()
-{
-    return m_mass;
 }
 
 HReal & System::getMeanDensityValue()

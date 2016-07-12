@@ -34,7 +34,7 @@ int main()
 
     sph.init();
 
-    double time = 3.0;
+    double time = 10.0;
     int count=0;
     boost::timer::auto_cpu_timer t;
     boost::progress_display show_progress( std::floor(time/sph.getTimeStep()) );

@@ -63,7 +63,6 @@ public :
     HReal m_realVolume;
 
     //Fluid parameters
-    HReal m_mass;
     HReal m_h; // Smoothing radius
     HReal m_fcohesion; //Fluid cohesion
     HReal m_badhesion; //Boundary adhesion
@@ -177,7 +176,7 @@ public :
     std::vector< Vec3r > getVelocity(){ std::vector<Vec3r > vel; for(int i=0; i<m_particleNumber; ++i){vel.push_back(m_particles[i].v);} return vel;}
     std::vector< Vec3r > getNormal(){ std::vector<Vec3r > normal; for(int i=0; i<m_particleNumber; ++i){normal.push_back(m_particles[i].n);} return normal;}
     std::vector< HReal > getDensity(){ std::vector<HReal> density; for(int i=0; i<m_particleNumber; ++i){density.push_back(m_particles[i].rho);} return density;}
-    std::vector< HReal > getMass(){ std::vector<HReal> o_mass; for(int i=0; i<m_particleNumber; ++i){o_mass.push_back(m_mass);} return o_mass;}
+    std::vector< HReal > getMass(){ std::vector<HReal> o_mass; for(int i=0; i<m_particleNumber; ++i){o_mass.push_back(m_particles[i].fluidParams().mass());} return o_mass;}
 
     void write(const char* filename, std::vector< Vec3r > data);
     void write(const char* filename, std::vector<HReal> data);
