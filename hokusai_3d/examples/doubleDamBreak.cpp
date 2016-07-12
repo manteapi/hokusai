@@ -14,16 +14,20 @@ using namespace hokusai;
 
 int main()
 {
-    int resolution = 2.5e6; ///particle number per m3
-    System sph(resolution);
+    int particleNumber = 2.5e6; ///particle number
+    HReal volume = 1.0; ///m3
+    HReal restDensity = 1000.0; ///kg/m3
+    FluidParams fluidParams(particleNumber,volume, restDensity );
+
+    System sph(particleNumber);
 
     Vec3r  fluidBox1(0.5,1.0,0.5);
     Vec3r  fluidOffset1(0,0,0);
-    sph.addParticleBox(fluidOffset1, fluidBox1);
+    sph.addParticleBox(fluidOffset1, fluidBox1, fluidParams);
 
     Vec3r  fluidBox2(0.5,1.0,0.5);
     Vec3r  fluidOffset2(1.0,0.0,0.5);
-    sph.addParticleBox(fluidOffset2, fluidBox2);
+    sph.addParticleBox(fluidOffset2, fluidBox2, fluidParams);
 
     Vec3r  securityOffset(1.05*sph.getSmoothingRadius());
     Vec3r  boundBox(1.5,1.0,1.0);

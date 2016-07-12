@@ -17,8 +17,12 @@ typedef double HReal;
 
 int main()
 {
-    int resolution = 20000; ///particle number per m3
-    System sph(resolution);
+    int particleNumber = 20000; ///particle number
+    HReal volume = 1.0; ///m3
+    HReal restDensity = 1000.0; ///kg/m3
+    FluidParams fluidParams(particleNumber,volume, restDensity );
+
+    System sph(particleNumber);
 
     Vec3r  securityOffset(1.05*sph.getSmoothingRadius());
     Vec3r  boundBox(2.0,2.5,1.0);

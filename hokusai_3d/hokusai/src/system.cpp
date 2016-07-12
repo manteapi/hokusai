@@ -709,12 +709,12 @@ void System::translateParticles(const Vec3r& t)
     }
 }
 
-void System::addParticleSphere(const Vec3r& centre, const HReal radius)
+void System::addParticleSphere(const Vec3r& centre, const HReal radius, const FluidParams &params)
 {
     std::vector<Vec3r> positions = getBallSampling(centre, radius, m_h);
     for(Vec3r& x : positions)
     {
-        m_particles.push_back( Particle(x,Vec3r(0.0,0.0,0.0)) );
+        m_particles.push_back( Particle(x,Vec3r(0.0,0.0,0.0), params) );
         m_particleNumber++;
     }
 }
@@ -724,19 +724,19 @@ void System::addParticleSource(const ParticleSource& s)
     m_pSources.push_back(s);
 }
 
-void System::addParticleBox(const Vec3r& offset, const Vec3r& scale)
+void System::addParticleBox(const Vec3r& offset, const Vec3r& scale, const FluidParams &params)
 {
     std::vector<Vec3r> positions = getCubeSampling(offset, scale, m_h);
     for(Vec3r & x : positions)
     {
-        m_particles.push_back( Particle(x, Vec3r(0.0,0.0,0.0)) );
+        m_particles.push_back( Particle(x, Vec3r(0.0,0.0,0.0), params) );
         m_particleNumber++;
     }
 }
 
-void System::addFluidParticle(const Vec3r& x, const Vec3r& v)
+void System::addFluidParticle(const Vec3r& x, const Vec3r& v, const FluidParams& params)
 {
-    m_particles.push_back( Particle(x,v) );
+    m_particles.push_back( Particle(x,v,params) );
     m_particleNumber++;
 }
 

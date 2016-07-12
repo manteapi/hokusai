@@ -34,6 +34,7 @@ set(HOKUSAI_SOURCE
     ./src/sampler.cpp
     ./src/particleSource.cpp
     ./src/particleSink.cpp
+    ./src/fluidParams.cpp
 )
 
 set(HOKUSAI_HEADER
@@ -53,6 +54,7 @@ set(HOKUSAI_HEADER
     ./include/hokusai/sampler.hpp
     ./include/hokusai/particleSource.hpp
     ./include/hokusai/particleSink.hpp
+    ./include/hokusai/fluidParams.hpp
 )
 
 set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to aljabr headers")

@@ -14,9 +14,12 @@ using namespace hokusai;
 
 int main()
 {
+    int particleNumber = 100; ///particle number
+    HReal volume = 1.0; ///m3
+    HReal restDensity = 1000.0; ///kg/m3
+    FluidParams fluidParams(particleNumber,volume, restDensity );
 
-    int resolution = 100; ///particle number per m3
-    System sph(resolution);
+    System sph(particleNumber);
 
     Vec3r  offsetDomain(0,0,0);
     Vec3r  scaleDomain(6,6,6);
@@ -24,7 +27,7 @@ int main()
 
     Vec3r  offsetSphere(3,3,3);
     double radius = 2.5;
-    sph.addParticleSphere(offsetSphere, radius);
+    sph.addParticleSphere(offsetSphere, radius, fluidParams);
 
     sph.init();
 

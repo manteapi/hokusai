@@ -136,7 +136,7 @@ public :
     void applySinks();
 
     void addBoundaryParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0));
-    void addFluidParticle(const Vec3r& x, const Vec3r& v = Vec3r(0,0,0));
+    void addFluidParticle(const Vec3r& x, const Vec3r& v, const FluidParams &params);
 
     //Initialize a dam break scenario
     const Vec3r& getGravity();
@@ -146,8 +146,8 @@ public :
     void translateParticles(const Vec3r& t);
     void translateBoundaries(const Vec3r& t);
 
-    void addParticleBox(const Vec3r& offset, const Vec3r& dimension);
-    void addParticleSphere(const Vec3r& centre, const HReal radius);
+    void addParticleBox(const Vec3r& offset, const Vec3r& dimension, const FluidParams& params);
+    void addParticleSphere(const Vec3r& centre, const HReal radius, const FluidParams& params);
     void addParticleSource(const ParticleSource& s);
 
     //Boundary sampling

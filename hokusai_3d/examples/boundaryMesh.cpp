@@ -1,5 +1,6 @@
 #include <hokusai/system.hpp>
 #include <hokusai/utils.hpp>
+#include <hokusai/fluidParams.hpp>
 
 #define timer   timer_class
 #include <boost/progress.hpp>
@@ -14,9 +15,12 @@ using namespace hokusai;
 
 int main()
 {
+    int particleNumber = 2000; ///particle number
+    HReal volume = 1.0; ///m3
+    HReal restDensity = 1000.0; ///kg/m3
+    FluidParams fluidParams(particleNumber,volume, restDensity );
 
-    int resolution = 2000; ///particle number per m3
-    System sph(resolution);
+    System sph(particleNumber);
 
     std::string filename = "./../../mesh/sphere.obj";
     sph.addBoundaryMesh(filename.c_str());
@@ -25,7 +29,7 @@ int main()
 
     Vec3r offsetSphere(1,1,0);
     double radius = 0.5;
-    sph.addParticleSphere(offsetSphere, radius);
+    sph.addParticleSphere(offsetSphere, radius, fluidParams);
 
     sph.init();
 
