@@ -27,7 +27,6 @@ namespace hokusai
 
 Particle::Particle()
 {
-    m_fluidParams = FluidParams();
     isSurface=true;
     rho = rho_adv = rho_corr = p = p_l = previousP = aii = 0.0;
     m = 1.0;
@@ -36,7 +35,7 @@ Particle::Particle()
     boundaryNeighbor.clear();
 }
 
-Particle::Particle(const Vec3r& _x, const Vec3r& _v, const FluidParams& _params)
+Particle::Particle(const Vec3r& _x, const Vec3r& _v)
 {
     x = _x;
     v = _v;
@@ -46,12 +45,10 @@ Particle::Particle(const Vec3r& _x, const Vec3r& _v, const FluidParams& _params)
     v_adv = f_adv = f_p = dii_fluid = dii_boundary = sum_dij = n = Vec3r(0.0);
     fluidNeighbor.clear();
     boundaryNeighbor.clear();
-    m_fluidParams = _params;
 }
 
 Particle::Particle(const Particle& _p)
 {
-    m_fluidParams = _p.fluidParams();
     m = _p.mass();
     rho=_p.rho;
     rho_adv=_p.rho_adv;
@@ -88,16 +85,6 @@ const HReal& Particle::mass() const
 HReal& Particle::mass()
 {
     m;
-}
-
-FluidParams& Particle::fluidParams()
-{
-    return m_fluidParams;
-}
-
-const FluidParams& Particle::fluidParams() const
-{
-    return m_fluidParams;
 }
 
 }//namespace hokusai

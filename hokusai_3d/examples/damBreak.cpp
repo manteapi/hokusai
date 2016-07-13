@@ -17,15 +17,26 @@ int main()
     int particleNumber = 140000; ///particle number
     HReal volume = 1.0; ///m3
     HReal restDensity = 1000.0; ///kg/m3
-    FluidParams fluidParams(particleNumber,volume, restDensity );
+    HReal viscosity = 0.01;
+    HReal cohesion = 0.2;
+    FluidParams fluidParams(particleNumber, volume, restDensity, viscosity, cohesion);
 
-    System sph(particleNumber);
+    HReal adhesion=0.001;
+    HReal friction=0.01;
+    BoundaryParams boundaryParams(fluidParams.smoothingRadius()/2.0, adhesion, friction);
+
+    HReal timeStep = 2e-3;
+    int maxPressureSolveIterationNb = 2;
+    HReal maxDensityError = 1.0;
+    SolverParams solverParams(timeStep, maxPressureSolveIterationNb, maxDensityError);
+
+    System sph(fluidParams, boundaryParams, solverParams);
 
     Vec3r  fluidBox(1.0,1.0,1.0);
     Vec3r  fluidOffset(0,0,0);
-    sph.addParticleBox(fluidOffset, fluidBox, fluidParams);
+    sph.addParticleBox(fluidOffset, fluidBox);
 
-    Vec3r  securityOffset(1.05*sph.getSmoothingRadius());
+    Vec3r  securityOffset(1.05*fluidParams.smoothingRadius());
     Vec3r  boundBox(2.5,2.5,1.0);
     boundBox += securityOffset;
     Vec3r  boundOffset = fluidOffset;
@@ -34,27 +45,17 @@ int main()
 
     sph.init();
 
-    sph.getViscosity() = 0.01;
-    sph.getFluidCohesion() = 0.2;
-    sph.getBoundaryAdhesion() = 0.001;
-    sph.getBoundaryFriction() = 0.01;
-    sph.getTimeStep() = 2e-3;
-
-    std::cout << "Viscosity : " << sph.getViscosity() << std::endl;
-    std::cout << "Cohesion : " << sph.getFluidCohesion() << std::endl;
-    std::cout << "Adhesion : " << sph.getBoundaryAdhesion() << std::endl;
-
     double time = 2.0;
     int count=0;
     boost::timer::auto_cpu_timer t;
-    boost::progress_display show_progress( std::floor(time/sph.getTimeStep()) );
+    boost::progress_display show_progress( std::floor(time/solverParams.timeStep()) );
     while(sph.getTime()<=time)
     {
         //Simulate
         sph.computeSimulationStep();
 
         //Output
-        if( std::floor((sph.getTime()-sph.getTimeStep())/0.016) != std::floor(sph.getTime()/0.016) )
+        if( std::floor((sph.getTime()-solverParams.timeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
             write_frame(sph.m_particles, count, 10.0);
             sph.exportState("./");
