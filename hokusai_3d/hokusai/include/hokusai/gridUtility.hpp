@@ -40,15 +40,14 @@ class GridUtility
         HReal h;
         Vec3i dimension;
 
-        void get27Neighbors(std::vector<int>& neighbors, const int i, const HReal radius);
-        void get27Neighbors(std::vector<Vec3i>& neighbors,const int i, const HReal radius);
+        void get27Neighbors(std::vector<int>& neighbors, const int i, const HReal radius) const;
+        void get27Neighbors(std::vector<Vec3i>& neighbors,const int i, const HReal radius) const;
 
-        void get27Neighbors(std::vector<int>& neighbors, const Vec3r& p, const HReal radius);
-        void get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3r& p, const HReal radius);
+        void get27Neighbors(std::vector<int>& neighbors, const Vec3r& p, const HReal radius) const;
+        void get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3r& p, const HReal radius) const;
 
-        void get27Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius);
-        void get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius);
-
+        void get27Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius) const;
+        void get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius) const;
 
         void get7Neighbors(std::vector<int>& neighbors, const Vec3r& p) const;
         void get7Neighbors(std::vector<Vec3i>& neighbors,const Vec3r& p) const;

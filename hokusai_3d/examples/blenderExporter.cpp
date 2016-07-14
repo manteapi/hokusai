@@ -1,5 +1,6 @@
 #include <hokusai/system.hpp>
 #include <hokusai/utils.hpp>
+#include <hokusai/io.hpp>
 
 #define timer   timer_class
 #include <boost/progress.hpp>
@@ -14,10 +15,10 @@ using namespace hokusai;
 
 int main()
 {
-    int particleNumber = 1e4; ///particle number
+    int particleNumber = 1000; ///particle number
     HReal volume = 1.0; ///m3
     HReal restDensity = 1000.0; ///kg/m3
-    HReal viscosity = 1e-3;
+    HReal viscosity = 0.5;
     HReal cohesion = 0.05;
     FluidParams fluidParams(particleNumber, volume, restDensity, viscosity, cohesion);
 
@@ -45,8 +46,13 @@ int main()
 
     sph.init();
 
-    double time = 10.0;
+    double time = 1.0;
     int count=0;
+    int frameNumber = std::floor(time/0.016)-1;
+    std::cout << "Frame number: " << frameNumber << std::endl;
+    std::string prefix="test";
+    std::string path="./";
+    BlenderExporter blenderExporter(prefix, path, sph.particleNumber(), frameNumber);
     boost::timer::auto_cpu_timer t;
     boost::progress_display show_progress( std::floor(time/solverParams.timeStep()) );
     while(sph.getTime()<=time)
@@ -57,6 +63,7 @@ int main()
         //Output
         if( std::floor((sph.getTime()-solverParams.timeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
+            blenderExporter.apply(sph);
             write_frame(sph.m_particles, count);
             ++count;
         }

@@ -187,31 +187,31 @@ int GridUtility::cellId(int i, int j, int k) const
     return i + j*dimension[0] + k*dimension[0]*dimension[1];
 }
 
-void GridUtility::get27Neighbors(std::vector<int>& neighbors, const int i, const HReal radius)
+void GridUtility::get27Neighbors(std::vector<int>& neighbors, const int i, const HReal radius) const
 {
     Vec3i gCoord= gridCoord(i);
     get27Neighbors(neighbors, gCoord, std::floor(radius/h) );
 }
 
-void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const int i, const HReal radius)
+void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const int i, const HReal radius) const
 {
     Vec3i gCoord = gridCoord(i);
     get27Neighbors(neighbors, gCoord, std::floor(radius/h) );
 }
 
-void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3r& p, const HReal radius)
+void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3r& p, const HReal radius) const
 {
     Vec3i gridCoord = worldToGrid(p);
     get27Neighbors(neighbors, gridCoord, std::floor(radius/h) );
 }
 
-void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3r& p, const HReal radius)
+void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3r& p, const HReal radius) const 
 {
     Vec3i gridCoord = worldToGrid(p);
     get27Neighbors(neighbors, gridCoord, std::floor(radius/h) );
 }
 
-void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius)
+void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius) const
 {
     neighbors.clear();
     if(!isInside(p))
@@ -229,7 +229,7 @@ void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, 
     }
 }
 
-void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius)
+void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius) const
 {
     neighbors.clear();
     if(!isInside(p))

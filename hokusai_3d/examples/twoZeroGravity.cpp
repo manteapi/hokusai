@@ -25,14 +25,14 @@ int main()
     HReal friction=1.0;
     BoundaryParams boundaryParams(fluidParams.smoothingRadius()/2.0, adhesion, friction);
 
-    HReal timeStep = 4e-3;
+    HReal timeStep = 1e-2;
     int maxPressureSolveIterationNb = 2;
     HReal maxDensityError = 1.0;
     SolverParams solverParams(timeStep, maxPressureSolveIterationNb, maxDensityError);
 
     System sph(fluidParams, boundaryParams, solverParams);
 
-    Vec3r  fluidBox(1.5,1.5,1.5);
+    Vec3r  fluidBox(4.0,0.5,0.5);
     Vec3r  fluidOffset(0,0,0);
     sph.addParticleBox(fluidOffset, fluidBox);
 
@@ -45,7 +45,7 @@ int main()
 
     sph.init();
 
-    double time = 10.0;
+    double time = 20.0;
     int count=0;
     boost::timer::auto_cpu_timer t;
     boost::progress_display show_progress( std::floor(time/solverParams.timeStep()) );

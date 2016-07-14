@@ -537,6 +537,26 @@ const SolverParams& System::solverParams() const
     return m_solverParams;
 }
 
+std::vector<Particle>& System::particles()
+{
+    return m_particles;
+}
+
+const std::vector<Particle>& System::particles() const
+{
+    return m_particles;
+}
+
+std::vector<Boundary>& System::boundaries()
+{
+    return m_boundaries;
+}
+
+const std::vector<Boundary>& System::boundaries() const
+{
+    return m_boundaries;
+}
+
 void System::getNearestNeighbor(std::vector< int >& neighbor, const std::vector< std::vector<int> >& grid, const Vec3r &x)
 {
     std::vector<int> neighborCell;
@@ -1060,7 +1080,7 @@ HReal & System::getRealVolumeValue()
     return m_realVolume;
 }
 
-int & System::getParticleNumber()
+const int & System::particleNumber() const
 {
     return m_particleNumber;
 }

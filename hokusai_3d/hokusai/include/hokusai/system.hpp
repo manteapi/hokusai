@@ -94,6 +94,12 @@ public :
     SolverParams& solverParams();
     const SolverParams& solverParams() const;
 
+    std::vector<Particle>& particles();
+    const std::vector<Particle>& particles() const;
+
+    std::vector<Boundary>& boundaries();
+    const std::vector<Boundary>& boundaries() const;
+
     void getNearestNeighbor(std::vector< int >& neighbors, const std::vector<std::vector<int> > &grid, const Vec3r& x);
     void getNearestNeighbor(const int i, const HReal radius);
 
@@ -181,7 +187,7 @@ public :
     HReal & getMeanDensityValue();
     HReal & getDensityFluctuationValue();
     HReal & getRealVolumeValue();
-    int & getParticleNumber();
+    const int& particleNumber() const;
 };
 
 bool pairCompare( const std::pair<int,int>& e1, const std::pair<int,int>& e2 );

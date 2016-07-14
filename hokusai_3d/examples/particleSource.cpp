@@ -85,7 +85,7 @@ int main()
         //Update progress bar
         ++show_progress;
     }
-    std::cout << "Particle Number : " << sph.getParticleNumber() << std::endl;
+    std::cout << "Particle Number : " << sph.particleNumber() << std::endl;
 
     return 0;
 }

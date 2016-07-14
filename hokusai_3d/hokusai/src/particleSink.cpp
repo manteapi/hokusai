@@ -34,5 +34,23 @@ ParticleSink::ParticleSink()
 ParticleSink::~ParticleSink()
 {}
 
+ParticleSink::ParticleSink(const HReal& startTime, const HReal& endTime, const HReal& radius, const Vec3r& position)
+{
+    m_startTime = startTime;
+    m_endTime = endTime;
+    m_position = position;
+    m_radius = radius;
+}
+
+std::vector<int> ParticleSink::apply(const GridUtility& gridInfo, const HReal& time)
+{
+    std::vector<int> result;
+    if(time>=m_startTime && time <=m_endTime)
+    {
+        gridInfo.get27Neighbors(result, m_position, m_radius);
+    }
+    return result;
+}
+
 }
 #endif

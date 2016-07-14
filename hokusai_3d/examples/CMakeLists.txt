@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 project(hokusai_examples)
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
@@ -53,3 +53,13 @@ target_link_libraries(takanaga ${ALL_LIBS})
 
 add_executable(zeroGravity zeroGravity.cpp)
 target_link_libraries(zeroGravity ${ALL_LIBS})
+
+add_executable(twoZeroGravity twoZeroGravity.cpp)
+target_link_libraries(twoZeroGravity ${ALL_LIBS})
+
+add_executable(blenderExporter blenderExporter.cpp)
+target_link_libraries(blenderExporter ${ALL_LIBS})
+
+add_executable(debugExporter debugExporter.cpp)
+target_link_libraries(debugExporter ${ALL_LIBS})
+

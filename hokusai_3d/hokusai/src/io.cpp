@@ -1,8 +1,25 @@
 #include "./../include/hokusai/io.hpp"
+#include <iomanip>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 using namespace std;
 namespace hokusai
 {
+
+int countDigits(int number)
+{
+    if (number < 10) {
+        return 1;
+    }
+    int count = 0;
+    while (number > 0) {
+        number /= 10;
+        count++;
+    }
+    return count;
+}
 
 // Skip comments in an ASCII file (lines beginning with #)
 void skip_comments(FILE *f)
@@ -117,4 +134,232 @@ bool read_obj(FILE *f, vector< Vec3r >& vertices, vector< Vec3r >& normals, vect
 
     return true;
 }
+
+BlenderExporter::~BlenderExporter()
+{
 }
+
+BlenderExporter::BlenderExporter()
+{
+}
+
+BlenderExporter::BlenderExporter(const std::string& prefix, const std::string& path, 
+                                 const int& particleNumber, const int& frameNumber)
+{
+    m_particleNumber = particleNumber;
+    m_prefix = prefix;
+    m_path = path;
+    m_frameNumber = frameNumber;
+    m_frameCounter = 0;
+
+    std::stringstream padding; 
+    padding.fill('0'); 
+    padding.width( max(6,countDigits(particleNumber)) );
+    padding << '0';
+    std::string filename = m_path + m_prefix + "_" + padding.str() + "_00.bphys";
+
+    std::ofstream file(filename.c_str(), ios::out|ios::binary);
+    if(file)
+    {
+        //HEADER
+        const std::string bphysics = "BPHYSICS";
+        file.write(bphysics.c_str(), sizeof(bphysics));
+        //FLAG (compression algorithm maybe)
+        unsigned int flag = 1;
+        file.write((char*)&flag, sizeof(flag));
+        //NUMBER OF DATA
+        unsigned int size = particleNumber;
+        file.write((char*)&size, sizeof(size));
+        //dunno
+        unsigned int unknown = 64;
+        file.write((char*)&unknown, sizeof(unknown));
+        //DATA
+        for(int i=0; i<particleNumber; ++i)
+        {
+            float frameStart = 1;
+            float frameEnd = m_frameNumber+1;
+            float frameNumber = m_frameNumber;
+            file.write((char*)&frameStart, sizeof(frameStart));
+            file.write((char*)&frameEnd, sizeof(frameEnd));
+            file.write((char*)&frameNumber, sizeof(frameNumber));
+        }
+        file.close();
+    }
+}
+
+void BlenderExporter::debugHeader(const std::string& fileName)
+{
+    std::ifstream readStream(fileName.c_str(), ios::binary | ios::in);
+    if(readStream)
+    {
+        char bphysics[8];
+        readStream.read((char*)&bphysics, sizeof(bphysics));
+        std::cout << "Header: " << bphysics << std::endl;
+
+        int flag;
+        readStream.read((char*)&flag, sizeof(flag));
+        std::cout << "Flag: " << flag << std::endl;
+
+        int particleNumber;
+        readStream.read((char*)&particleNumber, sizeof(particleNumber));
+        std::cout << "ParticleNumber: " << particleNumber << std::endl;
+
+        int unknown_64;
+        readStream.read((char*)&unknown_64, sizeof(unknown_64));
+        std::cout << "Unknown_64: " << unknown_64 << std::endl;
+
+        for(int i=0; i<particleNumber; ++i)
+        {
+            float frameStart=0.0, frameEnd=0.0, frameNumber=0.0;
+            readStream.read((char*)&frameStart, sizeof(frameStart));
+            readStream.read((char*)&frameEnd, sizeof(frameEnd));
+            readStream.read((char*)&frameNumber, sizeof(frameNumber));
+            std::cout << "Particle " << i << ", lifeTime :" << frameStart << ", " << frameEnd << ", " << frameNumber << std::endl;
+        }
+
+        readStream.close();
+    }
+    else
+    {
+        std::cerr << "Reading : Unable to open the file" << std::endl;
+        std::cerr << "Filename :" << fileName << std::endl;
+    }
+}
+
+void BlenderExporter::debugFrame(const std::string& fileName)
+{
+    std::ifstream readStream(fileName.c_str(), ios::binary | ios::in);
+    if(readStream)
+    {
+        char bphysics[8];
+        readStream.read((char*)&bphysics, sizeof(bphysics));
+        std::cout << "Header: " << bphysics << std::endl;
+
+        unsigned int type;
+        readStream.read((char*)&type, sizeof(type));
+        std::cout << "Type: " << type << std::endl;
+
+        unsigned int particleNumber;
+        readStream.read((char*)&particleNumber, sizeof(particleNumber));
+        std::cout << "ParticleNumber: " << particleNumber << std::endl;
+
+        unsigned int dataType;
+        readStream.read((char*)&dataType, sizeof(dataType));
+        std::cout << "DataType: " << dataType << std::endl;
+
+        for(unsigned int i=0; i<particleNumber; ++i)
+        {
+            float x1, x2, x3, v1, v2, v3;
+            readStream.read((char*)&x1, sizeof(x1));
+            readStream.read((char*)&x2, sizeof(x2));
+            readStream.read((char*)&x3, sizeof(x3));
+            readStream.read((char*)&v1, sizeof(v1));
+            readStream.read((char*)&v2, sizeof(v2));
+            readStream.read((char*)&v3, sizeof(v3));
+            std::cout << "Particle " << i << " : x(" << x1 << ", " << x2 << ", " << x3 << "), v(" << v1 << ", " << v2 << ", " << v3 << ")" << std::endl;
+        }
+
+        readStream.close();
+    }
+    else
+    {
+        std::cerr << "Reading : Unable to open the file" << std::endl;
+        std::cerr << "Filename :" << fileName << std::endl;
+    }
+}
+
+void BlenderExporter::apply(const System& system)
+{
+    //Build a file per frame
+    std::stringstream padding; 
+    padding.fill('0'); 
+    padding.width( max(6,countDigits(m_particleNumber)) );
+    m_frameCounter++;
+    padding << std::to_string(m_frameCounter);
+    std::string filename = m_path + m_prefix + "_" + padding.str() + "_00.bphys";
+    std::ofstream file(filename.c_str(), ios::out|ios::binary);
+    if(file)
+    {
+        //HEADER
+        const string bphysics = "BPHYSICS";
+        file.write(bphysics.c_str(), sizeof(bphysics));
+        //TYPE
+        unsigned int type = 1;
+        file.write((char*)&type,sizeof(type));
+        //NUMBER OF DATA
+        unsigned int size = m_particleNumber;
+        file.write((char*)&size,sizeof(size));
+        //DATA TYPE (index + location + velocity = 7)
+        unsigned int dataType = 7;
+        file.write((char*)&dataType,sizeof(dataType));
+        for(int i=0; i<system.particleNumber(); ++i)
+        {
+            const Particle& pi = system.particles()[i];
+            float x1 = pi.x[0], x2 = pi.x[1], x3 = pi.x[2];
+            float v1 = pi.v[0], v2 = pi.v[1], v3 = pi.v[2];
+            //DATA
+            //Index
+            file.write((char*)&i,sizeof(i));
+            //Location
+            file.write((char*)&x1, sizeof(x1));
+            file.write((char*)&x2, sizeof(x2));
+            file.write((char*)&x3, sizeof(x3));
+            //Velocity
+            file.write((char*)&v1, sizeof(v1));
+            file.write((char*)&v2, sizeof(v2));
+            file.write((char*)&v3, sizeof(v3));
+            //Orientation
+            //file.write((char*)orientationblender, 16);
+        }
+        file.close();
+    }
+}
+
+void BlenderExporter::toBlenderVector(float* dest, const Vec3r& src)
+{
+    dest[0] = (float)src[0];
+    dest[1] = (float)src[1];
+    dest[2] = (float)src[2];
+}
+
+std::string& BlenderExporter::prefix()
+{
+    return m_prefix;
+}
+
+const std::string& BlenderExporter::prefix() const
+{
+    return m_prefix;
+}
+
+std::string& BlenderExporter::path()
+{
+    return m_path;
+}
+
+const std::string& BlenderExporter::path() const
+{
+    return m_path;
+}
+
+int& BlenderExporter::frameNumber()
+{
+    return m_frameNumber;
+}
+
+const int& BlenderExporter::frameNumber() const
+{
+    return m_frameNumber;
+}
+
+int& BlenderExporter::particleNumber()
+{
+    return m_particleNumber;
+}
+
+const int& BlenderExporter::particleNumber() const
+{
+    return m_particleNumber;
+}
+
+}//namespace hokusai
