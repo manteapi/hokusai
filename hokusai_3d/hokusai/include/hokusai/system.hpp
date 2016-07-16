@@ -146,8 +146,8 @@ public :
     void translateBoundaries(const Vec3r& t);
 
     void addFluidParticle(const Vec3r& x, const Vec3r& v);
-    void addParticleBox(const Vec3r& offset, const Vec3r& dimension);
-    void addParticleSphere(const Vec3r& centre, const HReal radius);
+    void addParticleBox(const Vec3r& offset, const Vec3r& dimension, const Vec3r& velocity);
+    void addParticleSphere(const Vec3r& centre, const HReal radius, const Vec3r& velocity);
     void addParticleSource(const ParticleSource& s);
 
     //Boundary sampling
@@ -160,7 +160,8 @@ public :
 
     void debugFluid();
     void debugIteration(int l);
-    void mortonSort();
+    void mortonSortFluid();
+    void mortonSortBoundary();
     void init();
 
     //Data

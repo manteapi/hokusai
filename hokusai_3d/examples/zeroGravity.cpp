@@ -34,11 +34,8 @@ int main()
 
     Vec3r  fluidBox(1.5,1.5,1.5);
     Vec3r  fluidOffset(0,0,0);
-    sph.addParticleBox(fluidOffset, fluidBox);
-
-    Vec3r  boundBox(8.0,8.0,8.0);
-    Vec3r  boundOffset = Vec3r(-4,-4,-4);
-    sph.addBoundaryBox(boundOffset, boundBox);
+    Vec3r velocity(0,0,0);
+    sph.addParticleBox(fluidOffset, fluidBox, velocity);
 
     Vec3r  gravity(0,0,0);
     sph.setGravity(gravity);

@@ -621,21 +621,9 @@ const Vec3r& System::getGravity()
 
 void System::init()
 {  
-    mortonSort();
-
-    m_boundaryGrid.resize(m_gridInfo.size());
-    for(size_t i=0; i<m_boundaries.size(); ++i)
-    {
-        int id = m_gridInfo.cellId(m_boundaries[i].x);
-        if(m_gridInfo.isInside(id))
-            m_boundaryGrid[id].push_back(i);
-    }
-
-    m_fluidGrid.resize(m_gridInfo.size());
-
-    //Init simulation values
-    computeBoundaryVolume();
     prepareGrid();
+
+    computeBoundaryVolume();
 
     for(size_t i=0; i<m_particles.size(); ++i)
     {
@@ -653,7 +641,6 @@ void System::addBoundaryBox(const Vec3r& offset, const Vec3r& scale)
         m_boundaries.push_back(Boundary(x,Vec3r(0.0),0.0));
         m_boundaryNumber++;
     }
-    m_gridInfo.update(offset-Vec3r(2.0*m_fluidParams.smoothingRadius()), scale+Vec3r(4.0*m_fluidParams.smoothingRadius()), 2.0*m_fluidParams.smoothingRadius());
 }
 
 void System::addBoundarySphere(const Vec3r& offset, const HReal& radius)
@@ -702,12 +689,12 @@ void System::translateParticles(const Vec3r& t)
     }
 }
 
-void System::addParticleSphere(const Vec3r& centre, const HReal radius)
+void System::addParticleSphere(const Vec3r& centre, const HReal radius, const Vec3r& velocity)
 {
     std::vector<Vec3r> positions = getBallSampling(centre, radius, m_fluidParams.smoothingRadius());
     for(Vec3r& x : positions)
     {
-        m_particles.push_back( Particle(x,Vec3r(0.0,0.0,0.0)) );
+        m_particles.push_back( Particle(x,velocity) );
         m_particleNumber++;
     }
 }
@@ -717,12 +704,12 @@ void System::addParticleSource(const ParticleSource& s)
     m_pSources.push_back(s);
 }
 
-void System::addParticleBox(const Vec3r& offset, const Vec3r& scale)
+void System::addParticleBox(const Vec3r& offset, const Vec3r& scale, const Vec3r& velocity)
 {
     std::vector<Vec3r> positions = getCubeSampling(offset, scale, m_fluidParams.smoothingRadius());
     for(Vec3r & x : positions)
     {
-        m_particles.push_back( Particle(x, Vec3r(0.0,0.0,0.0)) );
+        m_particles.push_back( Particle(x, velocity) );
         m_particleNumber++;
     }
 }
@@ -744,20 +731,11 @@ void System::addBoundaryMesh(const char* filename)
     TriMesh mesh(filename);
     std::vector<Vec3r> samples;
     AkinciMeshSampling(mesh, m_fluidParams.smoothingRadius()/2.0, samples);
-    Vec3r minBB(std::numeric_limits<HReal>::max()), maxBB(-std::numeric_limits<HReal>::max());
     for(size_t i=0; i<samples.size(); ++i)
     {
-        for(int j=0; j<3; ++j)
-        {
-            minBB[j] = std::min(samples[i][j], minBB[j]);
-            maxBB[j] = std::max(samples[i][j], maxBB[j]);
-        }
         m_boundaries.push_back(Boundary(samples[i],Vec3r(0.0),0.0));
         m_boundaryNumber++;
     }
-    Vec3r offset = minBB;
-    Vec3r scale = maxBB-minBB;
-    m_gridInfo.update(offset-Vec3r(2.0*m_fluidParams.smoothingRadius()), scale+Vec3r(4.0*m_fluidParams.smoothingRadius()), 2.0*m_fluidParams.smoothingRadius());
 }
 
 bool pairCompare( const std::pair<int,int>& e1, const std::pair<int,int>& e2 )
@@ -765,7 +743,11 @@ bool pairCompare( const std::pair<int,int>& e1, const std::pair<int,int>& e2 )
     return (e1.second < e2.second);
 }
 
-void System::mortonSort()
+void System::mortonSortBoundary()
+{
+}
+
+void System::mortonSortFluid()
 {
     std::vector< std::pair<int, int> > particleZindex;
 
@@ -787,9 +769,6 @@ void System::mortonSort()
     //Move particles according to z-index
     std::vector< Particle > oldParticles = m_particles;
 
-    //HReal min = particleZindex[0].second;
-    //HReal max = particleZindex[particleNumber-1].second;
-
     for(int i = 0; i < m_particleNumber; ++i)
     {
         std::pair<int,int>& paire = particleZindex[i];
@@ -797,10 +776,6 @@ void System::mortonSort()
         {
             m_particles[i] = oldParticles[paire.first];
         }
-        //HReal color = (paire.second-min)/(max-min);
-        //particles[i].c[0] = color;
-        //particles[i].c[1] = 0;
-        //particles[i].c[2] = 0;
     }
 }
 
@@ -847,16 +822,56 @@ void System::computeSurfaceParticle()
 void System::prepareGrid()
 {
     if( m_countTime%100 == 0 )
-        mortonSort();
+    {
+        mortonSortFluid();
+        mortonSortBoundary();
+    }
 
-    for(size_t i=0; i<m_fluidGrid.size(); ++i)
+    Vec3r minBB(std::numeric_limits<HReal>::max());
+    Vec3r maxBB(-std::numeric_limits<HReal>::max());
+    for(size_t i=0; i<m_particles.size(); ++i)
+    {
+        Particle & pi = m_particles[i];
+        for(size_t j=0; j<3; ++j)
+        {
+            minBB[j] = std::min(minBB[j], pi.x[j]);
+            maxBB[j] = std::max(maxBB[j], pi.x[j]);
+        }
+    }
+    for(size_t i=0; i<m_boundaries.size(); ++i)
+    {
+        Boundary & bi = m_boundaries[i];
+        for(size_t j=0; j<3; ++j)
+        {
+            minBB[j] = std::min(minBB[j], bi.x[j]);
+            maxBB[j] = std::max(maxBB[j], bi.x[j]);
+        }
+    }
+
+    Vec3r offset = minBB-Vec3r(2.0*m_fluidParams.smoothingRadius());
+    Vec3r scale = maxBB-minBB+Vec3r(4.0*m_fluidParams.smoothingRadius());
+    m_gridInfo = GridUtility(offset, scale, 2.0*m_fluidParams.smoothingRadius());
+
+    m_fluidGrid.resize(m_gridInfo.size());
+    m_boundaryGrid.resize(m_gridInfo.size());
+    for(int i=0; i<m_gridInfo.size(); ++i)
+    {
         m_fluidGrid[i].clear();
+        m_boundaryGrid[i].clear();
+    }
 
     for(size_t i=0; i<m_particles.size(); ++i)
     {
         int id = m_gridInfo.cellId(m_particles[i].x);
         if(m_gridInfo.isInside(id))
             m_fluidGrid[id].push_back(i);
+    }
+
+    for(size_t i=0; i<m_boundaries.size(); ++i)
+    {
+        int id = m_gridInfo.cellId(m_boundaries[i].x);
+        if(m_gridInfo.isInside(id))
+            m_boundaryGrid[id].push_back(i);
     }
 
 #ifdef HOKUSAI_USING_OPENMP

@@ -34,7 +34,8 @@ int main()
 
     Vec3r  fluidBox(2.0,4.0,1.0);
     Vec3r  fluidOffset(0,0,0);
-    sph.addParticleBox(fluidOffset, fluidBox);
+    Vec3r velocity(0,0,0);
+    sph.addParticleBox(fluidOffset, fluidBox, velocity);
 
     Vec3r  securityOffset(1.05*fluidParams.smoothingRadius());
     Vec3r  boundBox(6.0,8.0,1.0);

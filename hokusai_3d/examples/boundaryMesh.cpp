@@ -40,7 +40,8 @@ int main()
 
     Vec3r offsetSphere(1,1,0);
     double radius = 0.5;
-    sph.addParticleSphere(offsetSphere, radius);
+    Vec3r velocity(0,0,0);
+    sph.addParticleSphere(offsetSphere, radius, velocity);
 
     sph.init();
 
