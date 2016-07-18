@@ -21,6 +21,61 @@ int main()
     HReal viscosity = 1e-5;
     HReal cohesion = 0.05;
     FluidParams fluidParams(particleNumber, volume, restDensity, viscosity, cohesion);
+    HReal adhesion=0.001;
+    HReal friction=1.0;
+    BoundaryParams boundaryParams(fluidParams.smoothingRadius()/2.0, adhesion, friction);
+
+    HReal timeStep = 1e-2;
+    int maxPressureSolveIterationNb = 2;
+    HReal maxDensityError = 1.0;
+    SolverParams solverParams(timeStep, maxPressureSolveIterationNb, maxDensityError);
+
+    System sph(fluidParams, boundaryParams, solverParams);
+
+    HReal radius1 = 0.5;
+    Vec3r  fluidOffset1(0,0,0);
+    Vec3r velocity1(0.1,0,0);
+    sph.addParticleSphere(fluidOffset1, radius1, velocity1);
+
+    HReal radius2 = 0.5;
+    Vec3r  fluidOffset2(1.5,0,0);
+    Vec3r velocity2(-0.1,0,0);
+    sph.addParticleSphere(fluidOffset2, radius2, velocity2);
+
+    Vec3r  gravity(0,0,0);
+    sph.setGravity(gravity);
+
+    sph.init();
+
+    double time = 240.0;
+    int count=0;
+    int frameNumber = std::floor(time/0.016)-1;
+
+    std::string prefix="test";
+    std::string path="/media/manteapi/DATA/FluidSimulation/";
+    BlenderExporter blenderExporter(prefix, path, sph.particleNumber(), frameNumber);
+
+    boost::timer::auto_cpu_timer t;
+    boost::progress_display show_progress( std::floor(time/solverParams.timeStep()) );
+    while(sph.getTime()<=time)
+    {
+        //Simulate
+        sph.computeSimulationStep();
+
+        //Output
+        if( std::floor((sph.getTime()-solverParams.timeStep())/0.016) != std::floor(sph.getTime()/0.016) )
+        {
+            blenderExporter.apply(sph);
+            write_frame(sph.m_particles, count);
+            ++count;
+        }
+
+        //Update progress bar
+        ++show_progress;
+    }
+
+    return 0;
+}
 
     HReal timeStep = 1e-2;
     int maxPressureSolveIterationNb = 2;
