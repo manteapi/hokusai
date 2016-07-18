@@ -15,7 +15,7 @@ using namespace hokusai;
 
 int main()
 {
-    int particleNumber = 4e4; ///particle number
+    int particleNumber = 2e4; ///particle number
     HReal volume = 1.0; ///m3
     HReal restDensity = 1000.0; ///kg/m3
     HReal viscosity = 1e-5;
@@ -34,13 +34,9 @@ int main()
 
     HReal radius1 = 0.5;
     Vec3r  fluidOffset1(0,0,0);
-    Vec3r velocity1(0.1,0,0);
-    sph.addParticleSphere(fluidOffset1, radius1, velocity1);
-
-    HReal radius2 = 0.5;
-    Vec3r  fluidOffset2(1.5,0,0);
-    Vec3r velocity2(-0.1,0,0);
-    sph.addParticleSphere(fluidOffset2, radius2, velocity2);
+    Vec3r  fluidScale1(1.5,1.5,1.5);
+    Vec3r velocity1(0,0,0);
+    sph.addParticleBox(fluidOffset1, fluidScale1, velocity1);
 
     Vec3r  gravity(0,0,0);
     sph.setGravity(gravity);
