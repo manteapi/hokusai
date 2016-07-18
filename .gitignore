@@ -2,7 +2,7 @@
 # to .git/info/exclude instead of .gitignore. Also, .gitignore files
 # can be placed in sub-directories to avoid polluting the root one.
 hokusai_2d/hokusai/CMakeLists.txt.user
-hokusai_3d/hokusai/CMakeLists.txt.user
 hokusai_2d/examples/CMakeLists.txt.user
+hokusai_3d/hokusai/CMakeLists.txt.user
 hokusai_3d/examples/CMakeLists.txt.user
 build
