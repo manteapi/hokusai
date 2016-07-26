@@ -28,6 +28,21 @@ bool read_obj(FILE *f,  std::vector< Vec3r >& vertices,
               std::vector< Vec3r >& normals,
               std::vector< Vec3i >& triangles);
 
+
+class HokusaiImporter
+{
+public:
+    ~HokusaiImporter();
+    HokusaiImporter(const std::string& fileName, System& system);
+};
+
+class HokusaiExporter
+{
+public:
+    ~HokusaiExporter();
+    HokusaiExporter(const std::string& fileName, const System& system);
+};
+
 class BlenderExporter
 {
     public:
@@ -47,7 +62,6 @@ class BlenderExporter
         const int& particleNumber() const;
         int& frameCounter();
         const int& frameCounter() const;
-        void toBlenderVector(float* dest, const Vec3r& src);
     private:
         std::string m_prefix;
         std::string m_path;

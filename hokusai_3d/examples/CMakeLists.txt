@@ -39,6 +39,9 @@ target_link_libraries(cube ${ALL_LIBS})
 add_executable(damBreak damBreak.cpp)
 target_link_libraries(damBreak ${ALL_LIBS})
 
+add_executable(simpleBreakingDam_Ferstl2016 simpleBreakingDam_Ferstl2016.cpp)
+target_link_libraries(simpleBreakingDam_Ferstl2016 ${ALL_LIBS})
+
 add_executable(doubleDamBreak doubleDamBreak.cpp)
 target_link_libraries(doubleDamBreak ${ALL_LIBS})
 
@@ -59,6 +62,12 @@ target_link_libraries(twoZeroGravity ${ALL_LIBS})
 
 add_executable(blenderExporter blenderExporter.cpp)
 target_link_libraries(blenderExporter ${ALL_LIBS})
+
+add_executable(hokusaiExporter hokusaiExporter.cpp)
+target_link_libraries(hokusaiExporter ${ALL_LIBS})
+
+add_executable(hokusaiImporter hokusaiImporter.cpp)
+target_link_libraries(hokusaiImporter ${ALL_LIBS})
 
 add_executable(debugExporter debugExporter.cpp)
 target_link_libraries(debugExporter ${ALL_LIBS})

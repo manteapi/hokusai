@@ -135,6 +135,67 @@ bool read_obj(FILE *f, vector< Vec3r >& vertices, vector< Vec3r >& normals, vect
     return true;
 }
 
+HokusaiImporter::~HokusaiImporter(){}
+
+HokusaiImporter::HokusaiImporter(const std::string& fileName, System& system)
+{
+    std::ifstream file(fileName.c_str(), ios::out|ios::binary);
+    if(file)
+    {
+        //Particle number
+        int particleNumber;
+        file.read((char*)&particleNumber, sizeof(particleNumber));
+        //Smoothing radius
+        HReal smoothingRadius;
+        file.read((char*)&smoothingRadius, sizeof(smoothingRadius));
+        //Particle positions
+        float x,y,z;
+        for(int i=0; i<particleNumber; ++i)
+        {
+            file.read((char*)&x, sizeof(x));
+            file.read((char*)&y, sizeof(y));
+            file.read((char*)&z, sizeof(z));
+            system.addFluidParticle(Vec3r(x,y,z), Vec3r(0,0,0));
+        }
+        file.close();
+    }
+    else
+    {
+        std::cout << "HokusaiExporter:: error while reading the file" << std::endl;
+    }
+}
+
+HokusaiExporter::~HokusaiExporter(){}
+
+HokusaiExporter::HokusaiExporter(const std::string& fileName, const System& system)
+{
+    std::ofstream file(fileName.c_str(), ios::out|ios::binary);
+    if(file)
+    {
+        //Particle number
+        const int particleNumber = system.particleNumber();
+        file.write((char*)&particleNumber, sizeof(particleNumber));
+        //Smoothing radius
+        const HReal smoothingRadius = system.fluidParams().smoothingRadius();
+        file.write((char*)&smoothingRadius, sizeof(smoothingRadius));
+        //Particle positions
+        const std::vector<Particle>& particles = system.particles();
+        for(int i=0; i<particleNumber; ++i)
+        {
+            const Particle& p = particles[i];
+            float x=p.x[0], y=p.x[1], z=p.x[2];
+            file.write((char*)&x, sizeof(x));
+            file.write((char*)&y, sizeof(y));
+            file.write((char*)&z, sizeof(z));
+        }
+        file.close();
+    }
+    else
+    {
+        std::cout << "HokusaiExporter:: error while writting the file" << std::endl;
+    }
+}
+
 BlenderExporter::~BlenderExporter()
 {
 }
@@ -313,13 +374,6 @@ void BlenderExporter::apply(const System& system)
         }
         file.close();
     }
-}
-
-void BlenderExporter::toBlenderVector(float* dest, const Vec3r& src)
-{
-    dest[0] = (float)src[0];
-    dest[1] = (float)src[1];
-    dest[2] = (float)src[2];
 }
 
 std::string& BlenderExporter::prefix()
