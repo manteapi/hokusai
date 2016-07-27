@@ -18,15 +18,15 @@ int main()
     int particleNumber = 4e5; ///particle number
     HReal volume = 1.0; ///m3
     HReal restDensity = 1000.0; ///kg/m3
-    HReal viscosity = 1e-2;
-    HReal cohesion = 5e-3;
+    HReal viscosity = 5e-1;
+    HReal cohesion = 1e-5;
     FluidParams fluidParams(particleNumber, volume, restDensity, viscosity, cohesion);
 
     HReal adhesion=0.000;
     HReal friction=0.00;
-    BoundaryParams boundaryParams(fluidParams.smoothingRadius()/2.0, adhesion, friction);
+    BoundaryParams boundaryParams(0.4*fluidParams.smoothingRadius(), adhesion, friction);
 
-    HReal timeStep = 5e-3;
+    HReal timeStep = 1e-3;
     int maxPressureSolveIterationNb = 2;
     HReal maxDensityError = 1.0;
     SolverParams solverParams(timeStep, maxPressureSolveIterationNb, maxDensityError);
@@ -67,13 +67,8 @@ int main()
 
     sph.init();
 
-    double time = 240.0;
+    double time = 2;
     int count=0;
-    int frameNumber = std::floor(time/0.016)-1;
-    std::string prefix="test";
-    std::string path="/media/manteapi/49534769-eb68-4ca6-a09a-7e173f850b03/Hokusai/FluidSimulation/";
-    BlenderExporter blenderExporter(prefix, path, sph.particleNumber(), frameNumber);
-
     boost::timer::auto_cpu_timer t;
     boost::progress_display show_progress( std::floor(time/solverParams.timeStep()) );
     while(sph.getTime()<=time)
@@ -84,7 +79,6 @@ int main()
         //Output
         if( std::floor((sph.getTime()-solverParams.timeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            blenderExporter.apply(sph);
             write_frame(sph, count, 10.0);
             ++count;
         }
@@ -92,6 +86,9 @@ int main()
         //Update progress bar
         ++show_progress;
     }
+
+    std::string fileName = "./../../data/simpleBreakingDam_Ferstl2016.bin";
+    HokusaiExporter hokusaiExporter(fileName, sph);
 
     return 0;
 }
