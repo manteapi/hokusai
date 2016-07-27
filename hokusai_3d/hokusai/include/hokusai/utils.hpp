@@ -23,25 +23,14 @@
 #ifndef HOKUSAI_UTILS_HPP
 #define HOKUSAI_UTILS_HPP
 
-#include <vector>
-#include "write_bmp.hpp"
-#include "particle.hpp"
 #include "common.hpp"
-#include <fstream>
-#include <sstream>
 
 namespace hokusai
 {
 
 int mortonNumber( std::array<int,3>& index );
+void buildRotationMatrix( HReal xrad, HReal yrad, HReal R[3][3] );
+void transform( HReal p[3], HReal R[3][3] );
 
-//--------------------------------------------------------------------
-
-//IO functions
-void write(const char * filename, std::vector<Vec3r > data);
-void write(const char * filename, std::vector<HReal> data);
-void write_frame(std::vector<Particle>& particles, int step, HReal offset=4.0);
-
-//---------------------------------------------------------------------
 }
 #endif

@@ -556,7 +556,7 @@ std::vector<Vec3r> getBoxSampling(const Vec3r& offset, const Vec3r& scale, HReal
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            result.push_back(Vec3r(i*spacing, offset[1], j*spacing));
+            result.push_back(Vec3r(offset[0]+i*spacing, offset[1], offset[2]+j*spacing));
         }
     }
 
@@ -565,7 +565,7 @@ std::vector<Vec3r> getBoxSampling(const Vec3r& offset, const Vec3r& scale, HReal
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            result.push_back(Vec3r(i*spacing, offset[1]+scale[1], j*spacing));
+            result.push_back(Vec3r(offset[0]+i*spacing, offset[1]+scale[1], offset[2]+j*spacing));
         }
     }
 
@@ -574,7 +574,7 @@ std::vector<Vec3r> getBoxSampling(const Vec3r& offset, const Vec3r& scale, HReal
     {
         for(int j = -epsilon; j <= heightSize+epsilon; ++j)
         {
-            result.push_back(Vec3r(i*spacing, j*spacing, offset[2]));
+            result.push_back(Vec3r(offset[0]+i*spacing, offset[1]+j*spacing, offset[2]));
         }
     }
 
@@ -583,7 +583,7 @@ std::vector<Vec3r> getBoxSampling(const Vec3r& offset, const Vec3r& scale, HReal
     {
         for(int j = -epsilon; j <= heightSize-epsilon; ++j)
         {
-            result.push_back(Vec3r(i*spacing, j*spacing, offset[2]+scale[2]));
+            result.push_back(Vec3r(offset[0]+i*spacing, offset[1]+j*spacing, offset[2]+scale[2]));
         }
     }
 
@@ -592,7 +592,7 @@ std::vector<Vec3r> getBoxSampling(const Vec3r& offset, const Vec3r& scale, HReal
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            result.push_back(Vec3r(offset[0], i*spacing, j*spacing));
+            result.push_back(Vec3r(offset[0], offset[1]+i*spacing, offset[2]+j*spacing));
         }
     }
 
@@ -601,7 +601,7 @@ std::vector<Vec3r> getBoxSampling(const Vec3r& offset, const Vec3r& scale, HReal
     {
         for(int j = -epsilon; j <= depthSize+epsilon; ++j)
         {
-            result.push_back(Vec3r(offset[0]+scale[0], i*spacing, j*spacing));
+            result.push_back(Vec3r(offset[0]+scale[0], offset[1]+i*spacing, offset[2]+j*spacing));
         }
     }
     return result;

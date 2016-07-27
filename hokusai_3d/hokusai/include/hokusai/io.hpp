@@ -6,6 +6,7 @@
 #include "strutil.hpp"
 #include "common.hpp"
 #include "system.hpp"
+#include "write_bmp.hpp"
 
 namespace hokusai
 {
@@ -69,6 +70,15 @@ class BlenderExporter
         int m_frameCounter;
         int m_particleNumber;
 };
+
+//--------------------------------------------------------------------
+
+//IO functions
+void write(const char * filename, std::vector<Vec3r > data);
+void write(const char * filename, std::vector<HReal> data);
+void write_frame(const System& sph, int step, HReal offset=4.0);
+
+//---------------------------------------------------------------------
 
 } //namespace hokusai
 #endif

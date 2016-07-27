@@ -1,5 +1,5 @@
 #include <hokusai/system.hpp>
-#include <hokusai/utils.hpp>
+#include <hokusai/io.hpp>
 #include <hokusai/particleSource.hpp>
 
 #define timer   timer_class
@@ -77,7 +77,7 @@ int main()
         //Output
         if( std::floor((sph.getTime()-solverParams.timeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
-            write_frame(sph.m_particles, count);
+            write_frame(sph, count);
             sph.exportState("./");
             ++count;
         }

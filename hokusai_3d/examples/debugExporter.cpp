@@ -1,5 +1,4 @@
 #include <hokusai/system.hpp>
-#include <hokusai/utils.hpp>
 #include <hokusai/io.hpp>
 
 #define timer   timer_class
