@@ -673,6 +673,16 @@ void System::addBoundaryDisk(const Vec3r& offset, const HReal& radius)
     }
 }
 
+void System::addBoundaryCylinder(const Vec3r& offset, const HReal& radius, const HReal& height)
+{
+    std::vector<Vec3r> samples = getCylinderSampling(offset, height, radius, m_fluidParams.smoothingRadius(), m_fluidParams.smoothingRadius());
+    for(size_t i=0; i<samples.size(); ++i)
+    {
+        m_boundaries.push_back(Boundary(samples[i],Vec3r(0.0),0.0));
+        m_boundaryNumber++;
+    }
+}
+
 void System::translateBoundaries(const Vec3r& t)
 {
     for(size_t i=0; i<m_boundaries.size(); ++i)

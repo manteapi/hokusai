@@ -157,6 +157,7 @@ public :
     void addBoundarySphere(const Vec3r& offset, const HReal& radius);
     void addBoundaryHemiSphere(const Vec3r& offset, const HReal& radius);
     void addBoundaryDisk(const Vec3r& offset, const HReal& radius);
+    void addBoundaryCylinder(const Vec3r& offset, const HReal& radius, const HReal& height);
 
     void debugFluid();
     void debugIteration(int l);
