@@ -58,21 +58,24 @@ HReal AkinciKernel::adhesionValue( const HReal r)
 
 MonaghanKernel::MonaghanKernel()
 {
-    h = 0;
+    m_h = 0;
+    m_invH = 0;
     m_v = 0;
     m_g = 0;
 }
 
 MonaghanKernel::MonaghanKernel( HReal _h )
 {
-    h = _h;
-    m_v = 1.0/(4.0*M_PI*h*h*h);
-    m_g = 1.0/(4.0*M_PI*h*h*h);
+    m_h = _h;
+    m_invH = 1.0/m_h;
+    m_v = 1.0/(4.0*M_PI*m_h*m_h*m_h);
+    m_g = 1.0/(4.0*M_PI*m_h*m_h*m_h);
 }
 
 MonaghanKernel::MonaghanKernel( const MonaghanKernel& k)
 {
-    h = k.h;
+    m_h = k.m_h;
+    m_invH = k.m_invH;
     m_v = k.m_v;
     m_g = k.m_g;
 }
@@ -82,7 +85,7 @@ MonaghanKernel::~MonaghanKernel(){}
 HReal MonaghanKernel::monaghanValue( const Vec3r & r )
 {
     HReal value = 0.0;
-    HReal q = r.length()/h;
+    HReal q = r.length()*m_invH;
     if( q >= 0 && q < 1 )
     {
         value = m_v*( (2-q)*(2-q)*(2-q) - 4.0f*(1-q)*(1-q)*(1-q));
@@ -101,18 +104,18 @@ HReal MonaghanKernel::monaghanValue( const Vec3r & r )
 void MonaghanKernel::monaghanGradient( const Vec3r& r, Vec3r& gradient )
 {
     HReal dist = r.length();
-    HReal q = dist/h;
+    HReal q = dist*m_invH;
     gradient.fill(0.0);
     if( q >= 0 && q < 1 )
     {
         HReal scalar = -3.0f*(2-q)*(2-q);
         scalar += 12.0f*(1-q)*(1-q);
-        gradient = (m_g*scalar/(dist*h))*r;
+        gradient = (m_g*m_invH*scalar/dist)*r;
     }
     else if ( q >=1 && q < 2 )
     {
         HReal scalar = -3.0f*(2-q)*(2-q);
-        gradient = (m_g*scalar/(dist*h))*r;
+        gradient = (m_g*scalar*m_invH/dist)*r;
     }
 }
 

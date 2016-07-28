@@ -294,15 +294,14 @@ void System::computeBoundaryAdhesionForces(int i, int j)
     pi.f_adv += -(m_boundaryParams.adhesion()*m_fluidParams.mass()*m_boundaries[j].psi*m_fluidParams.akinciKernel().adhesionValue(l)/l)*xij;
 }
 
-Vec3r System::computeDij(int i, int j)
-{
-    Particle& pi=m_particles[i];
-    Particle& pj=m_particles[j];
-    Vec3r gradient(0.0);
-    m_fluidParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient);
-    Vec3r d=-(m_solverParams.timeStep()*m_solverParams.timeStep()*m_fluidParams.mass())/pow(pj.rho,2)*gradient;
-    return d;
-}
+//void System::computeDij(const int &i, const int &j, Vec3r& dij)
+//{
+//    Particle& pi=m_particles[i];
+//    Particle& pj=m_particles[j];
+//    Vec3r gradient(0.0);
+//    m_fluidParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient);
+//    dij=-(m_solverParams.timeStep()*m_solverParams.timeStep()*m_fluidParams.mass())/pow(pj.rho,2)*gradient;
+//}
 
 void System::computePressure(int i)
 {
@@ -315,8 +314,12 @@ void System::computePressure(int i)
         if(i!=j)
         {
             Particle& pj=m_particles[j];
-            Vec3r gradient_ij(0.0), dji=computeDij(j, i);
+            Vec3r gradient_ij(0.0);
+            Vec3r dji(0.0);
             m_fluidParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient_ij);
+            //Compute dji
+            dji=-(m_solverParams.timeStep()*m_solverParams.timeStep()*m_fluidParams.mass())/pow(pi.rho,2)*(-gradient_ij);
+            //Compute fsum
             Vec3r aux = pi.sum_dij - (pj.dii_fluid+pj.dii_boundary)*pj.p_l - (pj.sum_dij - dji*pi.p_l);
             fsum+=m_fluidParams.mass()*Vec3r::dotProduct(aux, gradient_ij);
         }
@@ -459,9 +462,12 @@ void System::computeAii( int i)
         if(i!=j)
         {
             Particle& pj=m_particles[j];
-            Vec3r dji=computeDij(j,i);
+            Vec3r dji(0.0);
             Vec3r gradient_ij(0.0);
             m_fluidParams.monaghanKernel().monaghanGradient(pi.x-pj.x, gradient_ij);
+            //Compute dji
+            dji=-(m_solverParams.timeStep()*m_solverParams.timeStep()*m_fluidParams.mass())/pow(pi.rho,2)*(-gradient_ij);
+            //Compute aii
             pi.aii+=m_fluidParams.mass()*Vec3r::dotProduct((pi.dii_fluid+pi.dii_boundary)-dji,gradient_ij);
         }
     }
@@ -939,7 +945,9 @@ void System::pressureSolve()
 #pragma omp parallel for
 #endif
         for(int i=0; i<m_particleNumber; ++i)
+        {
             computeSumDijPj(i);
+        }
 
 #ifdef HOKUSAI_USING_OPENMP
 #pragma omp parallel for
@@ -981,7 +989,6 @@ void System::integration()
 
 void System::computeSimulationStep()
 {
-
     prepareGrid();
     predictAdvection();
     pressureSolve();

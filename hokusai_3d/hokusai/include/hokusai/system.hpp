@@ -120,7 +120,7 @@ public :
     void computeAii(int i);
     void pressureSolve();
     void computeSumDijPj(int i);    
-    Vec3r computeDij(int i, int j);
+    //void computeDij(const int& i, const int& j, Vec3r& dij);
     void computePressure(int i);
 
     void computeAdvectionForces(int i);

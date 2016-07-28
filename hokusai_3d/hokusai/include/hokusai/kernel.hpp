@@ -30,7 +30,8 @@ public :
 
 public :
 
-    HReal h;
+    HReal m_h;
+    HReal m_invH;
     HReal m_v;
     HReal m_g;
 
