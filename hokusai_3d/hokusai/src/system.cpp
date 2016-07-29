@@ -798,6 +798,9 @@ void System::precomputeKernel()
 {
     //Fluid - fluid monaghan gradient
     m_fluidFluidMonaghanGradient.resize( m_particles.size() );
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
     for(size_t i=0; i<m_particles.size(); ++i)
     {
         const Particle& pi = m_particles[i];
@@ -817,6 +820,9 @@ void System::precomputeKernel()
     }
 
     //Fluid - boundary monaghan gradient
+#ifdef HOKUSAI_USING_OPENMP
+#pragma omp parallel for
+#endif
     m_fluidBoundaryMonaghanGradient.resize( m_particles.size() );
     for(size_t i=0; i<m_particles.size(); ++i)
     {
