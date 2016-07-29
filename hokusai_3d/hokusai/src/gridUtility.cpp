@@ -213,17 +213,30 @@ void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors,const Vec3r& p, c
 
 void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, const int radius) const
 {
-    neighbors.clear();
     if(!isInside(p))
-        return;
-
-    for(int k = std::max(p[2]-radius,0); k<= std::min(p[2]+radius,dimension[2]-1); ++k )
     {
-        for(int j = std::max(p[1]-radius,0); j<= std::min(p[1]+radius,dimension[1]-1); ++j )
+        neighbors.clear();
+        return;
+    }
+
+    int kmin = std::max(p[2]-radius,0);
+    int kmax = std::min(p[2]+radius,dimension[2]-1);
+    int jmin = std::max(p[1]-radius,0);
+    int jmax = std::min(p[1]+radius,dimension[1]-1);
+    int imin = std::max(p[0]-radius,0);
+    int imax = std::min(p[0]+radius,dimension[0]-1);
+    int size = (kmax-kmin+1)*(jmax-jmin+1)*(imax-imin+1);
+    neighbors.resize(size);
+    int counter = 0;
+
+    for(int k = kmin; k<= kmax; ++k )
+    {
+        for(int j = jmin; j<= jmax; ++j )
         {
-            for(int i = std::max(p[0]-radius,0); i<= std::min(p[0]+radius,dimension[0]-1); ++i )
+            for(int i = imin; i<= imax; ++i )
             {
-                neighbors.push_back(Vec3i(i,j,k));
+                neighbors[counter] = Vec3i(i,j,k);
+                counter++;
             }
         }
     }
@@ -231,17 +244,30 @@ void GridUtility::get27Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p, 
 
 void GridUtility::get27Neighbors(std::vector<int>& neighbors, const Vec3i& p, const int radius) const
 {
-    neighbors.clear();
     if(!isInside(p))
-        return;
-
-    for(int k = std::max(p[2]-radius,0); k<= std::min(p[2]+radius,dimension[2]-1); ++k )
     {
-        for(int j = std::max(p[1]-radius,0); j<= std::min(p[1]+radius,dimension[1]-1); ++j )
+        neighbors.clear();
+        return;
+    }
+
+    int kmin = std::max(p[2]-radius,0);
+    int kmax = std::min(p[2]+radius,dimension[2]-1);
+    int jmin = std::max(p[1]-radius,0);
+    int jmax = std::min(p[1]+radius,dimension[1]-1);
+    int imin = std::max(p[0]-radius,0);
+    int imax = std::min(p[0]+radius,dimension[0]-1);
+    int size = (kmax-kmin+1)*(jmax-jmin+1)*(imax-imin+1);
+    neighbors.resize(size);
+    int counter = 0;
+
+    for(int k = kmin; k<= kmax; ++k )
+    {
+        for(int j = jmin; j<= jmax; ++j )
         {
-            for(int i = std::max(p[0]-radius,0); i<= std::min(p[0]+radius,dimension[0]-1); ++i )
+            for(int i = imin; i<= imax; ++i )
             {
-                neighbors.push_back(cellId(i,j,k));
+                neighbors[counter] = cellId(i,j,k);
+                counter++;
             }
         }
     }
@@ -263,6 +289,7 @@ void GridUtility::get7Neighbors(std::vector<Vec3i>& neighbors,const Vec3r& p) co
 void GridUtility::get7Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p) const
 {
     neighbors.clear();
+    neighbors.reserve(7);
     if(!isInside(p))
         return;
 
@@ -300,6 +327,7 @@ void GridUtility::get7Neighbors(std::vector<Vec3i>& neighbors, const Vec3i& p) c
 void GridUtility::get7Neighbors(std::vector<int>& neighbors, const Vec3i& p) const
 {
     neighbors.clear();
+    neighbors.reserve(7);
     if(!isInside(p))
         return;
 

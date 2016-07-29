@@ -77,6 +77,9 @@ public :
     std::vector<Particle> m_particles;
     std::vector<Boundary> m_boundaries;
 
+    std::vector< std::vector<Vec3r> > m_fluidFluidMonaghanGradient;
+    std::vector< std::vector<Vec3r> > m_fluidBoundaryMonaghanGradient;
+
     GridUtility m_gridInfo;
     std::vector< std::vector<int> > m_boundaryGrid;
     std::vector< std::vector<int> > m_fluidGrid;
@@ -101,9 +104,10 @@ public :
     const std::vector<Boundary>& boundaries() const;
 
     void getNearestNeighbor(std::vector< int >& neighbors, const std::vector<std::vector<int> > &grid, const Vec3r& x);
-    void getNearestNeighbor(const int i, const HReal radius);
+    void getNearestNeighbor(const int particleId, const HReal radius);
 
     //Simulation Loop
+    void precomputeKernel();
     void prepareGrid();
     void computeSurfaceParticle();
     void predictAdvection();
@@ -115,8 +119,6 @@ public :
     void computeDensity(int i);
     void predictVelocity(int i);
     void computeDii(int i);
-    void computeDii_Fluid(int i);
-    void computeDii_Boundary(int i);
     void computeAii(int i);
     void pressureSolve();
     void computeSumDijPj(int i);    
@@ -124,13 +126,13 @@ public :
     void computePressure(int i);
 
     void computeAdvectionForces(int i);
-    void computeViscosityForces(int i, int j);
-    void computeBoundaryFrictionForces(int i, int j);
+    void computeViscosityForces(const int& i, const int& j, const Vec3r& gradient_ij);
+    void computeBoundaryFrictionForces(const int &i, const int &j, const Vec3r &gradient_ij);
     void computeSurfaceTensionForces(int i, int j);
     void computeBoundaryAdhesionForces(int i, int j);
     void computePressureForce(int i);
-    void computeFluidPressureForce(int i, int j);
-    void computeBoundaryPressureForce(int i, int j);
+    void computeFluidPressureForce(int i, int j, const Vec3r &gradient_ij);
+    void computeBoundaryPressureForce(int i, int j, const Vec3r &gradient_ij);
 
     void computeError();
     void integration();
