@@ -104,7 +104,7 @@ public :
     const std::vector<Boundary>& boundaries() const;
 
     void getNearestNeighbor(std::vector< int >& neighbors, const std::vector<std::vector<int> > &grid, const Vec3r& x);
-    void getNearestNeighbor(const int particleId, const HReal radius);
+    void getNearestNeighbor(const int& particleId, const HReal& radius);
 
     //Simulation Loop
     void precomputeKernel();
@@ -125,11 +125,11 @@ public :
     //void computeDij(const int& i, const int& j, Vec3r& dij);
     void computePressure(int i);
 
-    void computeAdvectionForces(int i);
-    void computeViscosityForces(const int& i, const int& j, const Vec3r& gradient_ij);
-    void computeBoundaryFrictionForces(const int &i, const int &j, const Vec3r &gradient_ij);
-    void computeSurfaceTensionForces(int i, int j);
-    void computeBoundaryAdhesionForces(int i, int j);
+    void computeViscosityForces(const int& i);
+    void computeBoundaryFrictionForces(const int &i);
+    void computeSurfaceTensionForces(const int& i);
+    void computeBoundaryAdhesionForces(const int& i);
+
     void computePressureForce(int i);
     void computeFluidPressureForce(int i, int j, const Vec3r &gradient_ij);
     void computeBoundaryPressureForce(int i, int j, const Vec3r &gradient_ij);

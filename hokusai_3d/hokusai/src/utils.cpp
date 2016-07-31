@@ -40,8 +40,8 @@ int mortonNumber( std::array<int,3>& index )
 
 void buildRotationMatrix( HReal xrad, HReal yrad, HReal R[3][3] )
 {
-    HReal Rx[3][3] = { {1,0,0},{0,cos(xrad),-sin(xrad)},{0,sin(xrad),cos(xrad)} };
-    HReal Ry[3][3] = { {cos(yrad),0,sin(yrad)}, {0,1,0}, {-sin(yrad),0,cos(yrad)} };
+    HReal Rx[3][3] = { {1,0,0},{0,std::cos(xrad),-std::sin(xrad)},{0,std::sin(xrad),std::cos(xrad)} };
+    HReal Ry[3][3] = { {std::cos(yrad),0,std::sin(yrad)}, {0,1,0}, {-std::sin(yrad),0,std::cos(yrad)} };
     HReal Rtmp[3][3];
     for( int i=0; i<3; i++ ) {
         for( int j=0; j<3; j++ ) {

@@ -36,8 +36,6 @@ int main()
     std::string filename = "./../../mesh/sphere.obj";
     sph.addBoundaryMesh(filename.c_str());
 
-    sph.m_gridInfo.info();
-
     Vec3r offsetSphere(1,1,0);
     double radius = 0.5;
     Vec3r velocity(0,0,0);

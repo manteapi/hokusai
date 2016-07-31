@@ -5,25 +5,25 @@ namespace hokusai
 
 AkinciKernel::AkinciKernel()
 {
-    h = 0;
+    m_h = 0;
     m_v1 = 0;
     m_v2 = 0;
 }
 
 AkinciKernel::AkinciKernel( HReal _h)
 {
-    h = _h;
-    m_v1 = 32.0/(M_PI*pow(h,9.0));
-    m_v2 = pow(h,6.0)/64.0;
-    adhesion = 0.007/pow(h,3.25);
+    m_h = _h;
+    m_v1 = 32.0/(M_PI*pow(m_h,9.0));
+    m_v2 = pow(m_h,6.0)/64.0;
+    m_adhesion = 0.007/pow(m_h,3.25);
 }
 
 AkinciKernel::AkinciKernel( const AkinciKernel& k)
 {
-    h = k.h;
+    m_h = k.m_h;
     m_v1 = k.m_v1;
     m_v2 = k.m_v2;
-    adhesion = k.adhesion;
+    m_adhesion = k.m_adhesion;
 }
 
 AkinciKernel::~AkinciKernel(){}
@@ -31,28 +31,24 @@ AkinciKernel::~AkinciKernel(){}
 HReal AkinciKernel::cohesionValue( const HReal r )
 {
     HReal value=0;
-    if( (2.0*r>h) && (r<=h) )
+    if( (2.0*r>m_h) && (r<=m_h) )
     {
-        //value=m_v1*pow(h-r,3.0)*pow(r,3.0);
-        value=m_v1*(h-r)*(h-r)*(h-r)*r*r*r;
+        value=m_v1*(m_h-r)*(m_h-r)*(m_h-r)*r*r*r;
     }
-    else if( (r>0.0) && (2.0*r<=h) )
+    else if( (r>0.0) && (2.0*r<=m_h) )
     {
-        //value=m_v1*(2.0*pow(h-r,3.0)*pow(r,3.0)-m_v2);
-        value=m_v1*(2.0*(h-r)*(h-r)*(h-r)*r*r*r-m_v2);
+        value=m_v1*(2.0*(m_h-r)*(m_h-r)*(m_h-r)*r*r*r-m_v2);
     }
-    else
-        value=0.0;
     return value;
 }
 
 HReal AkinciKernel::adhesionValue( const HReal r)
 {
     HReal value=0;
-    if( (2.0*r)>h && (r<=h) )
-        value=adhesion*pow(-4.0*r*r/h + 6.0*r -2.0*h,1.0/4.0);
-    else
-        value=0.0;
+    if( (2.0*r)>m_h && (r<=m_h) )
+    {
+        value=m_adhesion*pow(-4.0*r*r*m_invH + 6.0*r -2.0*m_h,1.0/4.0);
+    }
     return value;
 }
 

@@ -15,7 +15,11 @@ public :
     ~AkinciKernel();
     HReal cohesionValue( const HReal r);
     HReal adhesionValue(const HReal r);
-    HReal h,m_v1,m_v2,adhesion;
+    HReal m_h;
+    HReal m_invH;
+    HReal m_v1;
+    HReal m_v2;
+    HReal m_adhesion;
 };
 
 //Monaghan 3D kernel

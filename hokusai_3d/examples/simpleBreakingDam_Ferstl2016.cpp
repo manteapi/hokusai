@@ -35,7 +35,7 @@ int main()
     Vec3r securityOffset(1.05*fluidParams.smoothingRadius());
     Vec3r boundaryOffset(0.0,0.0,0.0);
     Vec3r boundBox(1.0,1.0,1.0);
-    boundBox += 2.0*securityOffset;
+    boundBox += (HReal)(2.0)*securityOffset;
     boundaryOffset -= securityOffset;
     sph.addBoundaryBox(boundaryOffset, boundBox);
 
@@ -73,7 +73,7 @@ int main()
 
     sph.init();
 
-    double time = 10;
+    double time = 5;
     int count=0;
     HReal framerate = 1/25.0;
     int frameNumber = std::floor(time/framerate)-1;
@@ -88,12 +88,14 @@ int main()
         sph.computeSimulationStep();
 
         //Output
+        /*
         if( std::floor((sph.getTime()-solverParams.timeStep())/framerate) != std::floor(sph.getTime()/framerate) )
         {
             blenderExporter.apply(sph);
             write_frame(sph, count, 10.0);
             ++count;
         }
+        */
 
         //Update progress bar
         ++show_progress;

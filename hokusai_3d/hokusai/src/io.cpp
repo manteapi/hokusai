@@ -92,17 +92,17 @@ bool read_obj(FILE *f, vector< Vec3r >& vertices, vector< Vec3r >& normals, vect
         char buf[1024];
         GET_LINE();
         if (LINE_IS("v ") || LINE_IS("v\t")) {
-            HReal x, y, z;
-            if (sscanf(buf+1, "%lf %lf %lf", &x, &y, &z) != 3) {
+            float x, y, z;
+            if (sscanf(buf+1, "%f %f %f", &x, &y, &z) != 3) {
                 return false;
             }
-            vertices.push_back(Vec3r(x,y,z));
+            vertices.push_back(Vec3r( (HReal)x,(HReal)y,(HReal)z));
         } else if (LINE_IS("vn ") || LINE_IS("vn\t")) {
-            HReal x, y, z;
-            if (sscanf(buf+2, "%lf %lf %lf", &x, &y, &z) != 3) {
+            float x, y, z;
+            if (sscanf(buf+2, "%f %f %f", &x, &y, &z) != 3) {
                 return false;
             }
-            normals.push_back(Vec3r(x,y,z));
+            normals.push_back(Vec3r((HReal)x,(HReal)y,(HReal)z));
         } else if (LINE_IS("f ") || LINE_IS("f\t") ||
                    LINE_IS("t ") || LINE_IS("t\t")) {
             thisface.clear();
@@ -466,8 +466,7 @@ void write_frame(const System& sph, int step, HReal offset)
     static HReal R[3][3];
     bool firstTime = true;
     if( firstTime ) {
-        //buildRotationMatrix( -0.2, 0.2, R );
-        buildRotationMatrix( 0, 0, R );
+        buildRotationMatrix( (HReal)(0), (HReal)(0), R );
         firstTime = false;
     }
 

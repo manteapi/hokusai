@@ -13,8 +13,6 @@
 using namespace std;
 using namespace hokusai;
 
-typedef double HReal;
-
 int main()
 {
     int particleNumber = 20000; ///particle number
