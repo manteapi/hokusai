@@ -1,9 +1,7 @@
 import os
 
-DALJABR_INCLUDE_DIRS="-DALJABR_INCLUDE_DIRS=~/Depot/github/aljabr" 
-
-COMPILE_HOKUSAI = "cmake "+DALJABR_INCLUDE_DIRS+" ../"
-COMPILE_EXAMPLE = "cmake "+DALJABR_INCLUDE_DIRS+" ../"
+COMPILE_HOKUSAI = "cmake ../"
+COMPILE_EXAMPLE = "cmake ../"
 
 os.system("cd hokusai/ && rm -r build/")
 os.system("cd hokusai/ && mkdir build && cd build && "+COMPILE_HOKUSAI+" && "+"make")

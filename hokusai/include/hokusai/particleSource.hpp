@@ -1,7 +1,7 @@
 #ifndef HOKUSAI_PARTICLE_SOURCE_HPP
 #define HOKUSAI_PARTICLE_SOURCE_HPP
 
-#include <aljabr/AljabrCore>
+#include "common.hpp"
 #include "particle.hpp"
 
 namespace hokusai

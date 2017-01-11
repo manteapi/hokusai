@@ -27,7 +27,6 @@
 #include <fstream>
 #include <ctime>
 
-#include <aljabr/AljabrCore>
 #include "utils.hpp"
 #include "common.hpp"
 #include "fluidParams.hpp"

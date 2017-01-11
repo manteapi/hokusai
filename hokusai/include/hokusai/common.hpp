@@ -1,7 +1,7 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
-#include <aljabr/AljabrCore>
+#include "aljabr/AljabrCore"
 
 typedef double HReal;
 typedef aljabr::Vec2<int> Vec2i;

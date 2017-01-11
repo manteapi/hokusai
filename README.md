@@ -1,15 +1,16 @@
-README
-======
+HOKUSAI - Liquid simulation using SPH
+=====================================
 
-Author
-------
-*Pierre-Luc Manteaux*
-*pierre-luc.manteaux@inria.fr*
+A C++ implementation of the implicit incompressible sph model (IISPH) proposed by Ihmsen et al. 2014.
 
-Licence
--------
-This project is licensed under the terms of the GNU GPL v3.0 license.
-See Licence file
+The original paper can be found here : http://cg.informatik.uni-freiburg.de/publications/2013_TVCG_IISPH.pdf
+
+How to compile the library
+----------------------------
+    cd hokusai
+    mkdir build
+    cmake ..
+    make
 
 How to compile/run examples
 ------------------------------------
@@ -28,40 +29,9 @@ How to compile/run tests
     cmake ..
     make test
 
-How to compile the library
-----------------------------
-    cd hokusai
-    mkdir build
-    cmake ..
-    make
-
 How to generate the documentation
 -----------------------------------
     cd hokusai
     mkdir build
     cmake ..
     make doc
-
-To do...soon...
----------------
-
-1. Add more easy primitive shape for fluid 
---1.cube
---3.sphere
---3.cylinder
---4.cone
---5.pyramid
---6.capsule
---7.torus
-3. Output vector field image
-4. Parameters preset
-5. Smoke simulation
-6. Add profiling functions to get an idea of the requested computational time.
-7. Add exporting tools to standard format such as Disney Particle Format
-
-Done
-----
-
-1. Basic primitives sampling
-1. Arbitrary boundaries handlling
-
