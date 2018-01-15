@@ -47,7 +47,7 @@ int main()
     sph.init();
 
     double time = 2.0;
-    //int count=0;
+    int count=0;
     boost::timer::auto_cpu_timer t;
     boost::progress_display show_progress( std::floor(time/solverParams.timeStep()) );
     while(sph.getTime()<=time)
@@ -55,15 +55,13 @@ int main()
         //Simulate
         sph.computeSimulationStep();
 
-        //Output
-        /*
+        //Output        
         if( std::floor((sph.getTime()-solverParams.timeStep())/0.016) != std::floor(sph.getTime()/0.016) )
         {
             write_frame(sph, count, 10.0);
             sph.exportState("./");
             ++count;
         }
-        */
 
         //Update progress bar
         ++show_progress;

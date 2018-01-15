@@ -24,6 +24,7 @@
 #define HOKUSAI_GRID_UTILITY_HPP
 
 #include "common.hpp"
+#include <vector>
 
 namespace hokusai
 {

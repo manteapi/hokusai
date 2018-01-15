@@ -3,6 +3,7 @@ project(hokusai_examples)
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-dev")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
@@ -13,6 +14,9 @@ find_package(Boost COMPONENTS timer system REQUIRED)
 include_directories( ${BOOST_INCLUDE_DIRS} )
 
 set(ALJABR_INCLUDE_DIRS "" CACHE PATH "path to alajabr headers")
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/eigen-3.3.4)
+
 include_directories(${ALJABR_INCLUDE_DIRS})
 
 if(HOKUSAI_OPENMP)
@@ -27,6 +31,9 @@ set(
     ${Boost_LIBRARIES}
     HOKUSAI 
     )
+
+add_executable(mesher mesher.cpp rchandra/CIsoSurface.cpp rchandra/CIsoSurface.h rchandra/Vectors.cpp rchandra/Vectors.h)
+target_link_libraries(mesher ${ALL_LIBS})
 
 add_executable(particleSource particleSource.cpp)
 target_link_libraries(particleSource ${ALL_LIBS})
